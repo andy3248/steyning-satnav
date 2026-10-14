@@ -125,6 +125,17 @@ ol{list-style:none;margin:0;padding:0}
 #streets li.cur{background:color-mix(in srgb,var(--accent) 12%,transparent)}
 #streets .st{font-size:15px;font-weight:500}
 #streets .ss{font-size:12.5px;color:var(--muted)}
+#rounds{list-style:none;margin:0;padding:0}
+#rounds li{border-bottom:1px solid var(--line)}
+#rounds a{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px 16px;color:inherit;text-decoration:none}
+#rounds a:hover{background:var(--chip)}
+#rounds li.cur a{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+#rounds .ri{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink)}
+#rounds .ri svg{width:22px;height:22px}
+#rounds .rt{font-size:16px;font-weight:500}
+#rounds .rs{font-size:12.5px;color:var(--muted);margin-top:2px}
+#rounds .rb{font-size:12.5px;font-weight:500;color:var(--accent);white-space:nowrap}
+#rounds .rnote{padding:14px 16px;font-size:12.5px;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){#ping{transition:none}}
 #fixbox{position:absolute;left:12px;right:12px;bottom:28px;margin:0 auto;max-width:520px;background:var(--bg);border-radius:14px;box-shadow:var(--shadow);padding:14px 16px;display:grid;gap:6px;border-top:5px solid #f9ab00;z-index:3}
 #app.nav #fixbox{bottom:auto;top:calc(130px + env(safe-area-inset-top,0px))}
@@ -189,9 +200,11 @@ dialog input{width:100%;box-sizing:border-box;font:16px var(--font);padding:10px
       <button class="tab" role="tab" id="tSteps" aria-selected="true">Directions</button>
       <button class="tab" role="tab" id="tStreets" aria-selected="false">Streets</button>
       <button class="tab" role="tab" id="tHouses" aria-selected="false">All houses</button>
+      <button class="tab" role="tab" id="tRounds" aria-selected="false">Rounds</button>
     </div>
     <ol id="steps"></ol>
     <ol id="streets" hidden></ol>
+    <ol id="rounds" hidden></ol>
     <div id="housesWrap" hidden>
       <div class="search"><input id="q" type="search" placeholder="Find a house or road" aria-label="Find a house or road"></div>
       <ol id="houses"></ol>
@@ -530,9 +543,21 @@ function renderHouses(){const ol=document.getElementById("houses");if(document.g
     li.querySelector(".hl").textContent=lab;li.querySelector(".hs").textContent=(q.x==null?"Spot not mapped · ":"")+(q.pc||seqRoad(q));
     li.querySelector(".go").addEventListener("click",e=>e.stopPropagation());li.onclick=()=>{go(i);if(matchMedia("(max-width:820px)").matches)mapEl.scrollIntoView({behavior:"smooth"});};ol.appendChild(li);});
   const cur=ol.querySelector("li.cur");if(cur&&!f)cur.scrollIntoView({block:"nearest"});}
-function showTab(t){document.getElementById("steps").hidden=t!=="steps";document.getElementById("streets").hidden=t!=="streets";document.getElementById("housesWrap").hidden=t!=="houses";
-  ["Steps","Streets","Houses"].forEach(n=>document.getElementById("t"+n).setAttribute("aria-selected",String(t===n.toLowerCase())));renderHouses();renderStreets();}
-document.getElementById("tSteps").onclick=()=>showTab("steps");document.getElementById("tStreets").onclick=()=>showTab("streets");document.getElementById("tHouses").onclick=()=>showTab("houses");
+function showTab(t){document.getElementById("steps").hidden=t!=="steps";document.getElementById("streets").hidden=t!=="streets";document.getElementById("housesWrap").hidden=t!=="houses";document.getElementById("rounds").hidden=t!=="rounds";
+  ["Steps","Streets","Houses","Rounds"].forEach(n=>document.getElementById("t"+n).setAttribute("aria-selected",String(t===n.toLowerCase())));renderHouses();renderStreets();}
+document.getElementById("tSteps").onclick=()=>showTab("steps");document.getElementById("tStreets").onclick=()=>showTab("streets");document.getElementById("tHouses").onclick=()=>showTab("houses");document.getElementById("tRounds").onclick=()=>{showTab("rounds");renderRounds();};
+// rounds (all pages live on the same site, so progress can be read across)
+const ROUND=typeof ROUND_CFG!=="undefined"?ROUND_CFG:{id:"steyning",kind:"walk",auto:{}};
+const ROUNDS=[{id:"steyning",name:"Steyning South Walk",kind:"walk",url:"/steyning-satnav/",key:'hIdx',houses:"Laines Rd, Bostal Rd, Maudlin, Sopers Ln"},
+  {id:"ashurst",name:"Ashurst Round",kind:"van",url:"/steyning-satnav/ashurst/",key:"ash_hIdx",houses:"216 drops · frame shelves 1–14"}];
+const RICON={walk:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 5.5a2 2 0 100-4 2 2 0 000 4zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3A7.3 7.3 0 0019 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6a2 2 0 00-1.7-1c-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7"/></svg>',
+  van:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 8h-3V4H3a2 2 0 00-2 2v11h2a3 3 0 006 0h6a3 3 0 006 0h2v-5l-3-4zM6 18.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm13.5-9 2 2.5H17V9.5h2.5zM18 18.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/></svg>'};
+function renderRounds(){const ol=document.getElementById("rounds");if(ol.hidden)return;ol.innerHTML="";
+  ROUNDS.forEach(r=>{const li=document.createElement("li");const cur=r.id===ROUND.id;if(cur)li.classList.add("cur");
+    const at=cur?hIdx:+(store.get(r.key)||0);
+    li.innerHTML=`<a href="${r.url}"><span class="ri">${RICON[r.kind]}</span><span><div class="rt">${esc(r.name)}</div><div class="rs">${r.kind==="van"?"Van round":"Walk"} · ${esc(r.houses)}</div></span><span class="rb">${cur?"Open now":at>0?"Carry on from house "+(at+1):"Start"}</span></a>`;
+    if(cur)li.querySelector("a").onclick=e=>{e.preventDefault();showTab("steps");};ol.appendChild(li);});
+  const n=document.createElement("li");n.className="rnote";n.textContent="Each round remembers where you got to and its own fixes. To add another round, send Claude photos of its sorting frame.";ol.appendChild(n);}
 // streets in delivery order
 const STREETS=[];SEQ.forEach((q,i)=>{const l=STREETS[STREETS.length-1];if(!l||l.name!==q.seg)STREETS.push({name:q.seg,first:i,last:i});else l.last=i;});
 const streetOf=i=>STREETS.find(s=>i>=s.first&&i<=s.last);
@@ -556,7 +581,8 @@ new MutationObserver(()=>{readTheme();draw();}).observe(document.documentElement
 new ResizeObserver(()=>resize()).observe(mapEl);
 
 // ================= SAT NAV =================
-const NAV={on:false,mode:null,leg:null,pos:null,dpos:null,head:0,tHead:0,prog:0,spoken:{},arrived:false,unmapped:false,muted:!!store.get("navMute"),speed:1,paused:false,raf:0,watch:null,wake:null,waitUntil:0,offCount:0,free:false,finished:false,lt:0,msgKey:""};
+const AUTO=Object.assign(ROUND.kind==="walk"?{stopSpd:0.45,stopMs:4000,awayM:30,passM:40,awaySpd:0.7,group:20,zone:25,jump:6,moveM:6,drift:8}:{stopSpd:1.2,stopMs:6000,awayM:45,passM:90,awaySpd:2.5,group:35,zone:35,jump:8,moveM:12,drift:20},ROUND.auto||{});
+const NAV={prefix:"",arrSpot:null,stoppedHere:false,stopT:0,stopSpot:null,parked:false,spd:0,rawT:0,on:false,mode:null,leg:null,pos:null,dpos:null,head:0,tHead:0,prog:0,spoken:{},arrived:false,unmapped:false,muted:!!store.get("navMute"),speed:1,paused:false,raf:0,watch:null,wake:null,waitUntil:0,offCount:0,free:false,finished:false,lt:0,msgKey:""};
 const $=id=>document.getElementById(id);
 const dAngR=(a,b)=>{let d=b-a;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;return d;};
 function cumOf(pts){const c=[0];for(let i=1;i<pts.length;i++)c.push(c[i-1]+Math.hypot(pts[i].x-pts[i-1].x,pts[i].y-pts[i-1].y));return c;}
@@ -585,12 +611,12 @@ function ping(kind,title,sub,speech){lastPing={kind,title,sub,speech};const el=$
   el.querySelector(".pi").innerHTML=svgI(kind==="street"?"depart":"arrive");el.querySelector(".pk").textContent=kind==="street"?"Next street":"Next house";
   el.querySelector(".pt").textContent=title;el.querySelector(".ps").textContent=sub;el.classList.remove("hide");
   if(!NAV.muted)chime(kind==="street");try{navigator.vibrate&&navigator.vibrate(kind==="street"?[150,80,150,80,150]:[120,60,120]);}catch(e){}
-  if(speech)say(speech,true);clearTimeout(pingT);pingT=setTimeout(()=>el.classList.add("hide"),kind==="street"?6500:4500);}
+  if(speech){if(NAV.prefix){speech=NAV.prefix+" "+speech;NAV.prefix="";}say(speech,true);}clearTimeout(pingT);pingT=setTimeout(()=>el.classList.add("hide"),kind==="street"?6500:4500);}
 function repeatPing(){const q=SEQ[hIdx];if(!q)return;const side=legSide();const st=streetOf(hIdx);const left=st?st.last-hIdx:0;
   ping("house",seqLabel(q),[side?`On your ${side}`:"",seqRoad(q),left?`${left} more on this street`:"last on this street"].filter(Boolean).join(" · "),`${houseSay(q)}${side?`, on your ${side}`:""}.`);}
 // ---- legs
 function buildLeg(reroute){
-  NAV.arrived=false;NAV.unmapped=false;NAV.prog=0;NAV.spoken={};NAV.offCount=0;
+  NAV.arrived=false;NAV.arrSpot=null;NAV.stoppedHere=false;NAV.unmapped=false;NAV.prog=0;NAV.spoken={};NAV.offCount=0;
   const q=SEQ[hIdx];
   if(q.x==null){NAV.leg=null;NAV.unmapped=true;NAV.waitUntil=performance.now()+700;ping("house",seqLabel(q),"Not on the map · use Google Maps or skip",`Next, ${seqLabel(q)}. This address is not on the map. Use Google Maps, or tap skip.`);updateNavBar();return;}
   let r;
@@ -609,7 +635,7 @@ function buildLeg(reroute){
         `Next, ${houseSay(q)}${side?`, on your ${side}`:""}${distTxt?", "+distTxt:""}.`);}}
   updateNavBar();
 }
-function arrive(){if(NAV.arrived)return;NAV.arrived=true;const q=SEQ[hIdx],side=legSide();
+function arrive(){if(NAV.arrived)return;NAV.arrived=true;NAV.arrSpot=NAV.pos?{...NAV.pos}:null;const q=SEQ[hIdx],side=legSide();
   if(NAV.leg&&NAV.leg.len>=25)say(`You have arrived. ${uc(houseSay(q))}${side?` is on your ${side}`:""}.`);
   NAV.waitUntil=performance.now()+(NAV.mode==="sim"?900:0);updateNavBar();}
 function advance(){if(hIdx>=SEQ.length-1){if(!NAV.finished){NAV.finished=true;say("That was the last house. The round is complete.");updateNavBar();}return;}
@@ -621,18 +647,45 @@ function announce(L){const s=nextStep(L);const dist=s.at-NAV.prog;const k=L.step
   if(dist<=170&&dist>70&&!NAV.spoken["f"+k]){NAV.spoken["f"+k]=1;say(`In ${sayDist(dist)}, ${lc(s.text)}.`);}
   if(dist<=40&&!NAV.spoken["n"+k]){NAV.spoken["n"+k]=1;NAV.spoken["f"+k]=1;say(s.text+".",true);}}
 // ---- GPS
-function onFix(p){if(!NAV.on||NAV.mode!=="gps")return;const x=PX(p.coords.longitude),y=PY(p.coords.latitude);const prev=NAV.raw;NAV.raw={x,y};
+function onFix(p){if(!NAV.on||NAV.mode!=="gps")return;const x=PX(p.coords.longitude),y=PY(p.coords.latitude);const prev=NAV.raw,now=performance.now();NAV.raw={x,y};
   if(prev&&Math.hypot(x-prev.x,y-prev.y)>3)NAV.tHead=Math.atan2(x-prev.x,-(y-prev.y));
   if(p.coords.heading!=null&&!isNaN(p.coords.heading)&&(p.coords.speed||0)>1.5)NAV.tHead=p.coords.heading*Math.PI/180;
+  // speed: from the phone if it gives one, else worked out from the last fix
+  let v=p.coords.speed;if(v==null||isNaN(v)){const dt=(now-(NAV.rawT||now))/1000;v=prev&&dt>0.2?Math.hypot(x-prev.x,y-prev.y)/dt:NAV.spd;}NAV.rawT=now;NAV.spd=NAV.spd*0.4+v*0.6;
   NAV.pos={x,y};if(!NAV.dpos){NAV.dpos={x,y};view.cx=x;view.cy=y;}hideMsg("gps");
   if(NAV.finished)return;
   if(!NAV.leg&&!NAV.unmapped){buildLeg();return;}
+  // stop detection: slow for a few seconds without wandering = parked
+  if(NAV.spd<AUTO.stopSpd){if(!NAV.stopT){NAV.stopT=now;NAV.stopSpot={x,y};}else if(!NAV.parked&&now-NAV.stopT>AUTO.stopMs&&Math.hypot(x-NAV.stopSpot.x,y-NAV.stopSpot.y)<AUTO.drift)onParked();}
+  else if(!NAV.stopSpot||Math.hypot(x-NAV.stopSpot.x,y-NAV.stopSpot.y)>AUTO.drift*0.75){NAV.stopT=0;NAV.parked=false;}
   const q=SEQ[hIdx];
-  if(NAV.arrived){if(q.x!=null&&Math.hypot(x-q.x,y-q.y)>40)advance();return;}
+  if(NAV.arrived){const s=NAV.arrSpot||{x,y};if(Math.hypot(x-s.x,y-s.y)>(NAV.stoppedHere?AUTO.awayM:AUTO.passM)&&NAV.spd>AUTO.awaySpd)autoNext();return;}
   if(NAV.unmapped)return;
   const pr=project(NAV.leg,{x,y},NAV.prog);
   if(pr.off>45){if(++NAV.offCount>=2){say("Re-routing.",true);buildLeg(true);}}else{NAV.offCount=0;NAV.prog=Math.max(NAV.prog,pr.d);}
-  if(q.x!=null&&Math.hypot(x-q.x,y-q.y)<18)arrive();}
+  if(inZone(hIdx,x,y))arrive();}
+function inZone(i,x,y){const q=SEQ[i];if(!q||q.x==null)return false;if(Math.hypot(x-q.x,y-q.y)<AUTO.zone)return true;
+  if(i===hIdx&&NAV.leg&&NAV.leg.pts.length>1){const e=NAV.leg.pts[NAV.leg.pts.length-1];return NAV.leg.len-NAV.prog<25&&Math.hypot(x-e.x,y-e.y)<30;}return false;}
+function houseGap(j,x,y){const q=SEQ[j];if(!q||q.x==null)return Infinity;let d=Math.hypot(x-q.x,y-q.y);const s=snapOf(j);if(s)d=Math.min(d,Math.hypot(x-s.x,y-s.y)+5);return d;}
+function onParked(){NAV.parked=true;const {x,y}=NAV.stopSpot;
+  const moved=!NAV.arrSpot||Math.hypot(x-NAV.arrSpot.x,y-NAV.arrSpot.y)>AUTO.moveM;
+  if(NAV.arrived&&!moved){NAV.stoppedHere=true;updateNavBar();return;}
+  // which house are you parked at? the current one, or one a little further on (closest wins, small nudge towards the current one)
+  let best=-1,bd=Infinity;const from=NAV.arrived?hIdx+1:hIdx;
+  for(let j=hIdx;j<=Math.min(SEQ.length-1,hIdx+AUTO.jump);j++){const g=houseGap(j,x,y)+(j-hIdx)*3;if(g<AUTO.zone+(j-hIdx)*3&&g<bd){bd=g;best=j;}}
+  if(best<0&&!NAV.arrived&&inZone(hIdx,x,y))best=hIdx;
+  if(best<0)return;
+  if(best===hIdx){arrive();NAV.stoppedHere=true;NAV.arrSpot={x,y};updateNavBar();return;}
+  const skipped=best-hIdx-(NAV.arrived?1:0);
+  NAV.prefix=NAV.arrived&&NAV.stoppedHere?(skipped>0?`Done. Skipped ${skipped}.`:"Done."):skipped>0?`Skipped ${skipped} ${skipped>1?"houses":"house"}.`:"";
+  hIdx=best;store.set("hIdx",hIdx);buildLeg();arrive();NAV.stoppedHere=true;NAV.arrSpot={x,y};updateNavBar();}
+function autoNext(){const s=NAV.arrSpot;let n=1;
+  if(NAV.stoppedHere&&s){// houses next to where you parked were done on foot
+    while(hIdx+n<SEQ.length&&n<8&&houseGap(hIdx+n,s.x,s.y)<=AUTO.group)n++;}
+  NAV.prefix=NAV.stoppedHere?(n>1?`Done, ${n} houses.`:"Done."):`Drove past ${houseSay(SEQ[hIdx])}. Tap back if you missed it.`;
+  NAV.parked=false;
+  if(hIdx+n>SEQ.length-1){hIdx=SEQ.length-1;NAV.prefix="";advance();return;}
+  hIdx+=n-1;advance();}
 function gpsFail(err){if(!NAV.on||NAV.mode!=="gps")return;
   const blocked=!err||err.code===1;
   showMsg("gps",blocked?"<b>Live GPS isn't available on this page.</b> This preview isn't allowed to read your phone's location, so the real sat nav needs the page opened from its own web address. You can run a Practice drive here, which drives the whole route with voice directions.":"<b>Can't get a GPS fix yet.</b> Check location is turned on for your browser, or go outside for a clearer signal.",
@@ -655,7 +708,7 @@ function navBanner(){const q=SEQ[hIdx];let html;
   if(NAV.finished)html=`${svgI("arrive","#fff")}<div><div class="bi">Round complete</div><div class="bt">${SEQ.length} stops</div></div>`;
   else if(NAV.unmapped)html=`${svgI("arrive","#fff")}<div><div class="bi">Not on the map</div><div class="bt">${esc(seqLabel(q))} · use Google Maps, or skip</div></div>`;
   else if(!NAV.leg)html=`${svgI("depart","#fff")}<div><div class="bi">${NAV.mode==="gps"&&!NAV.pos?"Finding your location…":"Head to "+esc(seqRoad(q))}</div></div>`;
-  else if(NAV.arrived){const s=legSide();html=`${svgI("arrive","#fff")}<div><div class="bi">${esc(seqLabel(q))}</div><div class="bt">Arrived${s?` · on your ${s}`:""}</div></div>`;}
+  else if(NAV.arrived){const s=legSide();html=`${svgI("arrive","#fff")}<div><div class="bi">${esc(seqLabel(q))}</div><div class="bt">Arrived${s?` · on your ${s}`:""}${NAV.mode==="gps"?" · moves on when you drive off":""}</div></div>`;}
   else{const L=NAV.leg,s=nextStep(L),d=s.at-NAV.prog,i=L.steps.indexOf(s),after=L.steps[i+1];
     const txt=s.type==="arrive"?seqLabel(q)+(s.side?`, on your ${s.side}`:""):s.text;
     html=`${svgI(s.type,"#fff")}<div><div class="bd">${fmtDist(d)}</div><div class="bi">${esc(txt)}</div></div>`+(after?`<div class="then">Then ${svgI(after.type,"#fff")} ${esc(after.type==="arrive"?"arrive at "+seqLabel(q):after.text)}</div>`:"");}
@@ -740,4 +793,5 @@ resize();render_ui();focusLeg(true);
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>draw());
 setTimeout(buildMore,30);
 </script>
+
 </body></html>
