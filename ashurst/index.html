@@ -47,6 +47,19 @@ canvas{display:block;width:100%;height:100%}
 .ctl button svg{width:22px;height:22px}
 .ctl button.on{color:var(--accent)}
 .attr{position:absolute;right:0;bottom:0;font-size:10.5px;color:var(--muted);background:color-mix(in srgb,var(--bg) 75%,transparent);padding:2px 6px}
+#find{position:absolute;left:12px;right:12px;top:12px;z-index:6;max-width:440px;background:var(--bg);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+#find .fr{display:flex;align-items:center;gap:8px;padding:6px 6px 6px 14px;border-bottom:1px solid var(--line)}
+#find .fr svg{width:20px;height:20px;flex:none;color:var(--muted)}
+#find input{flex:1;min-width:0;font:16px var(--font);border:0;outline:0;background:none;color:var(--fg);padding:10px 0}
+#find .fx{border:0;background:none;color:var(--muted);font:500 14px var(--font);padding:10px 12px;cursor:pointer}
+#findRes{list-style:none;margin:0;padding:0;max-height:min(52vh,420px);overflow:auto}
+#findRes li{display:grid;grid-template-columns:40px minmax(0,1fr);gap:10px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);cursor:pointer}
+#findRes li:hover,#findRes li.sel{background:var(--chip)}
+#findRes .n{font-size:12px;font-weight:700;color:var(--accent);text-align:center;font-variant-numeric:tabular-nums}
+#findRes .t{font-size:15px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#findRes .s{font-size:12.5px;color:var(--muted)}
+#findRes .o a{color:var(--accent);font-weight:500;text-decoration:none}
+#findRes li.o{display:block;padding:12px 14px;font-size:13px;color:var(--muted);cursor:default}
 #pop{position:absolute;left:12px;bottom:28px;max-width:min(360px,calc(100% - 80px));background:var(--bg);border-radius:12px;box-shadow:var(--shadow);padding:12px 14px;display:grid;gap:8px}
 #pop .pt{font-size:16px;font-weight:500}
 #pop .ps{font-size:13px;color:var(--muted)}
@@ -168,10 +181,12 @@ dialog input{width:100%;box-sizing:border-box;font:16px var(--font);padding:10px
     <div id="banner" aria-live="polite"></div>
     <div class="ctl">
       <button id="follow" class="on" aria-label="Follow the current house" title="Follow current house"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 8a4 4 0 100 8 4 4 0 000-8zm9 3h-2.06A7 7 0 0013 5.06V3h-2v2.06A7 7 0 005.06 11H3v2h2.06A7 7 0 0011 18.94V21h2v-2.06A7 7 0 0018.94 13H21v-2zm-9 6a5 5 0 110-10 5 5 0 010 10z"/></svg></button>
+      <button id="findBtn" aria-label="Find a house" title="Find a house"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></button>
       <button id="zin" aria-label="Zoom in">+</button>
       <button id="zout" aria-label="Zoom out">−</button>
     </div>
     <div id="pop" hidden></div>
+    <div id="find" hidden role="search"><div class="fr"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><input id="findIn" type="search" placeholder="Find a house: name, number or road" aria-label="Find a house" autocomplete="off" enterkeyhint="search"><button class="fx" id="findX">Close</button></div><ol id="findRes"></ol></div>
     <div id="navmsg" hidden></div>
     <div id="fixbox" hidden>
       <div class="fx-k">Fixing house <span id="fxNum"></span></div>
@@ -467,11 +482,48 @@ document.getElementById("follow").onclick=()=>{if(NAV.on){NAV.free=false;return;
 function setFollow(v){follow=v;document.getElementById("follow").classList.toggle("on",v);}
 const pop=document.getElementById("pop");
 function tap(sx,sy){if(FIX.on){fixTap(sx,sy);return;}if(NAV.on)return;let best=-1,bd=18;SEQ.forEach((q,i)=>{if(q.x==null)return;const [x,y]=toS(q.x,q.y);const d=Math.hypot(x-sx,y-sy);if(d<bd){bd=d;best=i;}});
-  if(best<0){pop.hidden=true;return;}const q=SEQ[best];
-  pop.innerHTML=`<div class="pt"></div><div class="ps"></div><div class="row"><button class="btn primary" id="popGo">Make this the current house</button>${!q.it.known?'<button class="btn" id="popName">Name it</button>':""}<button class="btn" id="popX">Close</button></div>`;
-  pop.querySelector(".pt").textContent=seqLabel(q);pop.querySelector(".ps").textContent=`House ${best+1} of ${SEQ.length} · ${seqRoad(q)}${q.pc?" · "+q.pc:""}`;
-  pop.hidden=false;pop.querySelector("#popGo").onclick=()=>{pop.hidden=true;go(best);};pop.querySelector("#popX").onclick=()=>{pop.hidden=true;};
-  const pn=pop.querySelector("#popName");if(pn)pn.onclick=()=>{pop.hidden=true;nameIt(best);};}
+  if(best<0){pop.hidden=true;FOUND=-1;return;}showPop(best);}
+function showPop(i){const q=SEQ[i];const cur=i===hIdx;
+  pop.innerHTML=`<div class="pt"></div><div class="ps"></div><div class="row">${cur?"":`<button class="btn primary" id="popNav">Take me there</button><button class="btn" id="popGo">${NAV.on?"Go here next":"Make this the current house"}</button>`}${q.it&&!q.it.known?'<button class="btn" id="popName">Name it</button>':""}<button class="btn" id="popX">Close</button></div>`;
+  pop.querySelector(".pt").textContent=seqLabel(q);pop.querySelector(".ps").textContent=`House ${i+1} of ${SEQ.length}${q.shelf?" · Shelf "+q.shelf:""} · ${seqRoad(q)}${cur?" · this is the current house":""}${q.x==null?" · not on the map":""}`;
+  pop.hidden=false;const pg=pop.querySelector("#popGo"),pn2=pop.querySelector("#popNav");
+  const jump=()=>{pop.hidden=true;FOUND=-1;go(i);if(NAV.on){NAV.finished=false;NAV.free=false;try{speechSynthesis.cancel();}catch(e){}buildLeg();}};
+  if(pg)pg.onclick=jump;
+  if(pn2)pn2.onclick=()=>{const was=NAV.on;jump();if(!was)startNav("gps");};
+  pop.querySelector("#popX").onclick=()=>{pop.hidden=true;FOUND=-1;if(NAV.on)NAV.free=false;draw();};
+  const pn=pop.querySelector("#popName");if(pn)pn.onclick=()=>{pop.hidden=true;nameIt(i);};}
+// ---------------- find a house ----------------
+let FOUND=-1;const findEl=document.getElementById("find"),findIn=document.getElementById("findIn"),findRes=document.getElementById("findRes");
+let FIND_IDX=null;
+function findSearch(t){t=String(t).toLowerCase();let shelf=null;t=t.replace(/\bshelf\s*(\d+)\b/,(m,n)=>{shelf=+n;return " ";});
+  const words=t.split(/[\s,]+/).map(nrm).filter(Boolean);if(!words.length&&shelf==null)return [];
+  if(!FIND_IDX)FIND_IDX=SEQ.map((q,i)=>({i,h:nrm([seqLabel(q),seqRoad(q),q.shelf?"shelf"+q.shelf:"",q.pc||""].join(" ")),l:nrm(seqLabel(q)),num:q.it&&q.it.num?nrm(q.it.num):(nrm(seqLabel(q)).match(/^\d+[a-z]?/)||[""])[0]}));
+  const out=[];FIND_IDX.forEach(r=>{let ok=shelf==null||+SEQ[r.i].shelf===shelf,score=0;
+    words.forEach(w=>{if(/^\d+[a-z]?$/.test(w)){if(r.num===w)score+=5;else if(r.num&&r.num.startsWith(w))score+=2;else ok=false;}
+      else if(r.l.startsWith(w))score+=4;else if(r.h.includes(w))score+=2;else ok=false;});
+    if(ok)out.push({i:r.i,score});});
+  return out.sort((a,b)=>b.score-a.score||a.i-b.i).slice(0,shelf!=null&&!words.length?60:30);}
+function openFind(text){findEl.hidden=false;pop.hidden=true;if(text!=null)findIn.value=text;renderFind();setTimeout(()=>{try{findIn.focus();findIn.select();}catch(e){}},30);}
+function closeFind(){findEl.hidden=true;try{findIn.blur();}catch(e){}}
+function renderFind(){const t=findIn.value.trim();findRes.innerHTML="";
+  if(!t){const li=document.createElement("li");li.className="o";li.textContent=`Type a house name, number or road. ${SEQ.length} houses in this round.`;findRes.appendChild(li);return;}
+  const res=findSearch(t);
+  res.forEach((r,k)=>{const q=SEQ[r.i];const li=document.createElement("li");if(!k)li.classList.add("sel");
+    li.innerHTML=`<span class="n">#${r.i+1}</span><span><div class="t"></div><div class="s"></div></span>`;
+    li.querySelector(".t").textContent=seqLabel(q);li.querySelector(".s").textContent=[q.shelf?"Shelf "+q.shelf:"",seqRoad(q),r.i<hIdx?"done":r.i===hIdx?"current house":`${r.i-hIdx} ${r.i-hIdx>1?"stops":"stop"} ahead`].filter(Boolean).join(" · ");
+    li.onclick=()=>pickFound(r.i);findRes.appendChild(li);});
+  const others=ROUNDS.filter(x=>x.id!==ROUND.id);const o=document.createElement("li");o.className="o";
+  o.innerHTML=(res.length?"":"Nothing in this round matches. ")+others.map(x=>`<a href="${x.url}?find=${encodeURIComponent(t)}">Search ${esc(x.name)} instead</a>`).join(" · ");
+  findRes.appendChild(o);}
+function pickFound(i){closeFind();FOUND=i;const q=SEQ[i];
+  if(q.x!=null){if(NAV.on){NAV.free=true;view.rot=0;}else setFollow(false);view.cx=q.x;view.cy=q.y;view.s=Math.max(view.s,4);}
+  showPop(i);draw();}
+findIn.addEventListener("input",renderFind);
+findIn.addEventListener("keydown",e=>{if(e.key==="Enter"){const r=findSearch(findIn.value.trim());if(r.length)pickFound(r[0].i);}else if(e.key==="Escape")closeFind();});
+document.getElementById("findBtn").onclick=()=>findEl.hidden?openFind():closeFind();
+document.getElementById("findX").onclick=closeFind;
+function foundMarker(){if(FOUND<0)return;const q=SEQ[FOUND];if(!q||q.x==null)return;const [x,y]=toS(q.x,q.y);ctx.save();
+  ctx.beginPath();ctx.arc(x,y,22,0,7);ctx.fillStyle="rgba(249,171,0,.18)";ctx.fill();ctx.lineWidth=3;ctx.strokeStyle="#f9ab00";ctx.stroke();ctx.restore();}
 function fitPts(pts,pad){if(!pts.length)return;let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;pts.forEach(p=>{x0=Math.min(x0,p.x);y0=Math.min(y0,p.y);x1=Math.max(x1,p.x);y1=Math.max(y1,p.y);});
   const top=document.getElementById("banner").offsetHeight+24;const w=Math.max(x1-x0,60),h=Math.max(y1-y0,60);
   view.s=Math.max(0.5,Math.min(5,Math.min((W_-2*pad)/w,(H_-top-pad-40)/h)));view.cx=(x0+x1)/2;view.cy=(y0+y1)/2-(top-pad)/2/view.s;draw();}
@@ -709,7 +761,7 @@ function navBanner(){const q=SEQ[hIdx];let html;
   if(html!==lastBan){$("banner").innerHTML=html;lastBan=html;}}
 // ---- car
 function fixMarker(){if(!FIX.on)return;const q=SEQ[FIX.i];if(q.x==null)return;const [x,y]=toS(q.x,q.y);ctx.save();ctx.beginPath();ctx.arc(x,y,16,0,7);ctx.lineWidth=3;ctx.strokeStyle="#f9ab00";ctx.setLineDash([5,4]);ctx.stroke();ctx.restore();}
-function car(){fixMarker();if(!NAV.on||!NAV.dpos)return;const [x,y]=toS(NAV.dpos.x,NAV.dpos.y);ctx.save();ctx.translate(x,y);
+function car(){fixMarker();foundMarker();if(!NAV.on||!NAV.dpos)return;const [x,y]=toS(NAV.dpos.x,NAV.dpos.y);ctx.save();ctx.translate(x,y);
   ctx.beginPath();ctx.arc(0,0,24,0,7);ctx.fillStyle="rgba(26,115,232,.16)";ctx.fill();ctx.rotate(NAV.head-view.rot);
   ctx.beginPath();ctx.moveTo(0,-16);ctx.lineTo(12,13);ctx.lineTo(0,7);ctx.lineTo(-12,13);ctx.closePath();ctx.lineJoin="round";ctx.lineWidth=4;ctx.strokeStyle="#ffffff";ctx.stroke();ctx.fillStyle=C["m-route"];ctx.fill();ctx.restore();}
 // ---- loop
@@ -786,6 +838,7 @@ updFixCount();
 resize();render_ui();focusLeg(true);
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>draw());
 setTimeout(buildMore,30);
+try{const fq=new URLSearchParams(location.search).get("find");if(fq)setTimeout(()=>openFind(fq),60);}catch(e){}
 </script>
 
 <script>if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
