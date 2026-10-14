@@ -332,7 +332,7 @@ const BAKED={names:{},pos:{}};/*BAKED*/
 let labels=Object.assign({},BAKED.names,store.get("ash_walkLabels")||{});
 let POS=Object.assign({},BAKED.pos,store.get("ash_walkPos")||{});
 // ---------------- round + mode ----------------
-const ROUND=typeof ROUND_CFG!=="undefined"?ROUND_CFG:{id:"steyning",name:"Steyning South Walk",kind:"walk",auto:{}};
+const ROUND=typeof ROUND_CFG!=="undefined"?ROUND_CFG:{id:"steyning",name:"Annington Round",kind:"van",auto:{}};
 const MODEK=ROUND.id+"_mode",PARK=ROUND.id+"_parcels";
 const START=(()=>{try{return new URLSearchParams(location.search).get("start");}catch(e){return null;}})();
 if(START==="learn")store.set(MODEK,"learn");
@@ -756,7 +756,7 @@ gid("pkClose").onclick=()=>{gid("picker").hidden=true;if(!MODE)showStart();};
 gid("pkClear").onclick=()=>{PK.clear();renderPicker();};
 gid("pkGo").onclick=()=>{PARSET.clear();PK.forEach(k=>PARSET.add(k));saveParcels();store.set(ROUND.id+'_pIdx',0);setMode("parcels");};
 // rounds (all pages live on the same site, so progress can be read across)
-const ROUNDS=[{id:"steyning",name:"Steyning South Walk",kind:"walk",url:"/steyning-satnav/",key:'hIdx',n:352,houses:"Laines Rd, Bostal Rd, Maudlin, Sopers Ln"},
+const ROUNDS=[{id:"steyning",name:"Annington Round",kind:"van",url:"/steyning-satnav/",key:'hIdx',n:352,houses:"Laines Rd, Bostal Rd, Maudlin, Sopers Ln"},
   {id:"ashurst",name:"Ashurst Round",kind:"van",url:"/steyning-satnav/ashurst/",key:'ashurst_hIdx',n:216,houses:"frame shelves 1–14"}];
 const RICON={walk:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 5.5a2 2 0 100-4 2 2 0 000 4zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3A7.3 7.3 0 0019 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6a2 2 0 00-1.7-1c-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7"/></svg>',
   van:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 8h-3V4H3a2 2 0 00-2 2v11h2a3 3 0 006 0h6a3 3 0 006 0h2v-5l-3-4zM6 18.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm13.5-9 2 2.5H17V9.5h2.5zM18 18.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/></svg>'};
