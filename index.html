@@ -59,7 +59,7 @@ canvas{display:block;width:100%;height:100%}
 .ov-body{flex:1;overflow:auto}
 .ov-foot{border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;align-items:center;background:var(--bg)}
 #start{background:color-mix(in srgb,var(--bg) 92%,var(--accent))}
-#start .wrap{margin:auto;width:100%;max-width:520px;padding:calc(24px + env(safe-area-inset-top,0px)) 18px 28px;display:grid;gap:14px}
+#start .wrap{margin:auto;width:100%;box-sizing:border-box;max-width:520px;padding:calc(24px + env(safe-area-inset-top,0px)) 18px 28px;display:grid;gap:14px}
 #start .hi{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 #start h2{font-size:28px;font-weight:500;margin:0 0 4px;line-height:1.15}
 .choice{display:grid;grid-template-columns:56px minmax(0,1fr);gap:14px;align-items:center;text-align:left;padding:18px;border-radius:18px;border:2px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer;font-family:var(--font);box-shadow:var(--shadow)}
@@ -68,6 +68,13 @@ canvas{display:block;width:100%;height:100%}
 .choice .ci svg{width:30px;height:30px}
 .choice .ct{font-size:19px;font-weight:500}
 .choice .cs{font-size:14px;color:var(--muted);margin-top:3px;line-height:1.35}
+#start .stStep{display:grid;gap:14px;grid-template-columns:minmax(0,1fr)}
+.choice{width:100%;box-sizing:border-box}
+#start .stStep[hidden]{display:none}
+#start .alt.back{justify-self:start;padding:8px 0}
+.stList{display:grid;gap:12px;grid-template-columns:minmax(0,1fr)}
+.choice .cr{font-size:13px;font-weight:500;color:var(--accent);margin-top:6px}
+.choice.here{border-color:var(--accent)}
 #start .alt{border:0;background:none;color:var(--accent);font:500 15px var(--font);padding:10px;cursor:pointer;justify-self:center}
 #pkList .gh{position:sticky;top:0;z-index:1;display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--chip);font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
 #pkList .gh span{flex:1}
@@ -255,7 +262,7 @@ dialog input{width:100%;box-sizing:border-box;font:16px var(--font);padding:10px
   </div>
   <aside>
     <div class="head">
-      <button class="roundBtn title" id="roundBtn" aria-label="Change round">
+      <button class="roundBtn title" id="roundBtn" aria-label="Menu: choose a round and mode">
         <span class="logo"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg></span>
         <span><h1 id="rname"></h1><span class="sub" id="sub"></span></span><span class="chev">▼</span>
       </button>
@@ -285,11 +292,18 @@ dialog input{width:100%;box-sizing:border-box;font:16px var(--font);padding:10px
 </div>
 <div class="overlay" id="start" hidden role="dialog" aria-modal="true" aria-labelledby="stTitle">
   <div class="wrap">
+    <div id="stStep1" class="stStep">
     <div class="hi" id="stRound"></div>
     <h2 id="stTitle">What are you doing today?</h2>
     <button class="choice" id="stLearn"><span class="ci"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/></svg></span><span><div class="ct">Learn the round</div><div class="cs">Every house in frame order, with voice directions. Best for training or covering an unfamiliar round.</div></span></button>
     <button class="choice" id="stPar"><span class="ci"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-3.2l.9-2.6-1.9-.7L14.6 6H9.4L8.2 2.7l-1.9.7.9 2.6H4a2 2 0 00-2 2v11a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2zm0 13H4V8h16v11zM9 10h6v2H9z"/></svg></span><span><div class="ct">Parcels today</div><div class="cs">Tick the houses you've got parcels for. It routes you to just those, in frame order.</div></span></button>
-    <button class="alt" id="stRounds">Different round?</button>
+      <button class="alt" id="stClose" hidden>Back to the map</button>
+    </div>
+    <div id="stStep2" class="stStep" hidden>
+      <button class="alt back" id="stBack">‹ Back</button>
+      <h2 id="st2Title"></h2>
+      <div id="stList" class="stList"></div>
+    </div>
   </div>
 </div>
 <div class="overlay" id="picker" hidden role="dialog" aria-modal="true" aria-labelledby="pkTitle">
@@ -321,6 +335,8 @@ let POS=Object.assign({},BAKED.pos,store.get("walkPos")||{});
 // ---------------- round + mode ----------------
 const ROUND=typeof ROUND_CFG!=="undefined"?ROUND_CFG:{id:"steyning",name:"Steyning South Walk",kind:"walk",auto:{}};
 const MODEK=ROUND.id+"_mode",PARK=ROUND.id+"_parcels";
+const START=(()=>{try{return new URLSearchParams(location.search).get("start");}catch(e){return null;}})();
+if(START==="learn")store.set(MODEK,"learn");
 let MODE=store.get(MODEK);
 const PAR=(()=>{const v=store.get(PARK);return v&&Array.isArray(v.ids)?v:{ids:[],day:""};})();
 const PARSET=new Set(PAR.ids);
@@ -699,11 +715,26 @@ function updMode(){gid("rname").textContent=ROUND.name;gid("mLearn").setAttribut
   gid("parN").textContent=PARSET.size?`(${PARSET.size})`:"";}
 gid("mLearn").onclick=()=>{if(PARCELS)setMode("learn");};
 gid("mPar").onclick=()=>openPicker();
-gid("roundBtn").onclick=()=>{showTab("rounds");renderRounds();document.querySelector(".tabs").scrollIntoView({behavior:"smooth",block:"start"});};
-function showStart(){gid("stRound").textContent=ROUND.name+" · "+ALL.length+" houses";gid("start").hidden=false;setTimeout(()=>gid("stLearn").focus(),50);}
-gid("stLearn").onclick=()=>{store.set(MODEK,"learn");if(PARCELS)location.reload();else{MODE="learn";gid("start").hidden=true;updMode();}};
-gid("stPar").onclick=()=>{gid("start").hidden=true;openPicker();};
-gid("stRounds").onclick=()=>{gid("start").hidden=true;store.set(MODEK,MODE||"learn");showTab("rounds");renderRounds();};
+gid("roundBtn").onclick=()=>showStart();
+function showStart(){gid("stRound").textContent="Delivery sat nav · "+ROUNDS.length+" rounds";gid("stStep1").hidden=false;gid("stStep2").hidden=true;gid("stClose").hidden=!MODE;gid("start").hidden=false;setTimeout(()=>gid("stLearn").focus(),50);}
+// step 2: which round?
+function pickRound(kind){gid("stStep1").hidden=true;gid("stStep2").hidden=false;
+  gid("st2Title").textContent=kind==="learn"?"Which round are you learning?":"Which round are your parcels for?";
+  const box=gid("stList");box.innerHTML="";
+  ROUNDS.forEach(r=>{const here=r.id===ROUND.id;const b=document.createElement("button");b.className="choice"+(here?" here":"");
+    let prog="";
+    if(kind==="learn"){const at=here&&!PARCELS?hIdx:+(store.get(r.key)||0);prog=at>0?`Carry on from house ${at+1}`:"Start from house 1";}
+    else{const pv=store.get(r.id+"_parcels");const n=pv&&pv.ids&&pv.day===today()?pv.ids.length:0;prog=n?`${n} parcel${n>1?"s":""} ticked today`:"Tick your parcels";}
+    b.innerHTML=`<span class="ci">${RICON[r.kind]}</span><span><div class="ct"></div><div class="cs"></div><div class="cr"></div></span>`;
+    b.querySelector(".ct").textContent=r.name;b.querySelector(".cs").textContent=`${r.kind==="van"?"Van round":"Walking round"} · ${here?ALL.length:r.n} houses · ${r.houses}`;b.querySelector(".cr").textContent=prog;
+    b.onclick=()=>{if(here)startChoice(kind);else location.href=r.url+"?start="+kind;};box.appendChild(b);});
+  setTimeout(()=>{const f=box.querySelector(".here")||box.firstChild;f&&f.focus();},50);}
+function startChoice(kind){if(kind==="learn"){store.set(MODEK,"learn");if(PARCELS)location.reload();else{MODE="learn";gid("start").hidden=true;updMode();render_ui();}}
+  else{gid("start").hidden=true;openPicker();}}
+gid("stLearn").onclick=()=>pickRound("learn");
+gid("stPar").onclick=()=>pickRound("parcels");
+gid("stBack").onclick=()=>{gid("stStep1").hidden=false;gid("stStep2").hidden=true;};
+gid("stClose").onclick=()=>{gid("start").hidden=true;};
 // picker: works on a copy until "Plan route"
 let PK=null;
 function openPicker(){PK=new Set(PARSET);gid("pkQ").value="";gid("picker").hidden=false;
@@ -731,8 +762,8 @@ gid("pkClose").onclick=()=>{gid("picker").hidden=true;if(!MODE)showStart();};
 gid("pkClear").onclick=()=>{PK.clear();renderPicker();};
 gid("pkGo").onclick=()=>{PARSET.clear();PK.forEach(k=>PARSET.add(k));saveParcels();store.set(ROUND.id+'_pIdx',0);setMode("parcels");};
 // rounds (all pages live on the same site, so progress can be read across)
-const ROUNDS=[{id:"steyning",name:"Steyning South Walk",kind:"walk",url:"/steyning-satnav/",key:'hIdx',houses:"Laines Rd, Bostal Rd, Maudlin, Sopers Ln"},
-  {id:"ashurst",name:"Ashurst Round",kind:"van",url:"/steyning-satnav/ashurst/",key:'ashurst_hIdx',houses:"216 drops · frame shelves 1–14"}];
+const ROUNDS=[{id:"steyning",name:"Steyning South Walk",kind:"walk",url:"/steyning-satnav/",key:'hIdx',n:352,houses:"Laines Rd, Bostal Rd, Maudlin, Sopers Ln"},
+  {id:"ashurst",name:"Ashurst Round",kind:"van",url:"/steyning-satnav/ashurst/",key:'ashurst_hIdx',n:216,houses:"frame shelves 1–14"}];
 const RICON={walk:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 5.5a2 2 0 100-4 2 2 0 000 4zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3A7.3 7.3 0 0019 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6a2 2 0 00-1.7-1c-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7"/></svg>',
   van:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 8h-3V4H3a2 2 0 00-2 2v11h2a3 3 0 006 0h6a3 3 0 006 0h2v-5l-3-4zM6 18.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm13.5-9 2 2.5H17V9.5h2.5zM18 18.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/></svg>'};
 function renderRounds(){const ol=document.getElementById("rounds");if(ol.hidden)return;ol.innerHTML="";
@@ -977,7 +1008,8 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>draw());
 setTimeout(buildMore,30);
 updMode();
 {let fq=null;try{fq=new URLSearchParams(location.search).get("find");}catch(e){}
- if(fq)setTimeout(()=>openFind(fq),60);else if(!MODE)showStart();else if(MODE==="parcels"&&!PARSET.size)openPicker();}
+ if(START){try{history.replaceState(null,"",location.pathname);}catch(e){}}
+ if(fq)setTimeout(()=>openFind(fq),60);else if(START==="parcels")openPicker();else if(START==="learn"){}else if(!MODE)showStart();else if(MODE==="parcels"&&!PARSET.size)openPicker();}
 </script>
 
 </body></html>
