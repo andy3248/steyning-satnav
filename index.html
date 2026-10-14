@@ -46,6 +46,56 @@ canvas{display:block;width:100%;height:100%}
 .ctl button{width:44px;height:44px;border-radius:50%;border:0;background:var(--bg);color:var(--fg);box-shadow:var(--shadow);cursor:pointer;display:grid;place-items:center;font-size:22px;font-family:var(--font)}
 .ctl button svg{width:22px;height:22px}
 .ctl button.on{color:var(--accent)}
+#app:not(.nav) #banner,#app:not(.nav) #findBtn{display:none}
+.pill{position:absolute;left:12px;right:68px;top:12px;max-width:420px;height:50px;border-radius:25px;border:0;background:var(--bg);color:var(--muted);box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;padding:0 18px;font:16px var(--font);cursor:pointer;text-align:left;z-index:3}
+.pill svg{width:22px;height:22px;flex:none}
+#app.nav .pill{display:none}
+.overlay{position:fixed;inset:0;z-index:30;background:var(--bg);display:flex;flex-direction:column}
+.overlay[hidden]{display:none}
+.ov-head{padding:calc(14px + env(safe-area-inset-top,0px)) 16px 12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:start;border-bottom:1px solid var(--line)}
+.ov-head h2{font-size:22px;font-weight:500;margin:0}
+.ov-head p{grid-column:1/-1;margin:0;color:var(--muted);font-size:14px;line-height:1.4}
+.ov-x{border:0;background:var(--chip);color:var(--fg);border-radius:20px;padding:10px 16px;font:500 15px var(--font);cursor:pointer}
+.ov-body{flex:1;overflow:auto}
+.ov-foot{border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;align-items:center;background:var(--bg)}
+#start{background:color-mix(in srgb,var(--bg) 92%,var(--accent))}
+#start .wrap{margin:auto;width:100%;max-width:520px;padding:calc(24px + env(safe-area-inset-top,0px)) 18px 28px;display:grid;gap:14px}
+#start .hi{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+#start h2{font-size:28px;font-weight:500;margin:0 0 4px;line-height:1.15}
+.choice{display:grid;grid-template-columns:56px minmax(0,1fr);gap:14px;align-items:center;text-align:left;padding:18px;border-radius:18px;border:2px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer;font-family:var(--font);box-shadow:var(--shadow)}
+.choice:hover,.choice:focus-visible{border-color:var(--accent);outline:0}
+.choice .ci{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink)}
+.choice .ci svg{width:30px;height:30px}
+.choice .ct{font-size:19px;font-weight:500}
+.choice .cs{font-size:14px;color:var(--muted);margin-top:3px;line-height:1.35}
+#start .alt{border:0;background:none;color:var(--accent);font:500 15px var(--font);padding:10px;cursor:pointer;justify-self:center}
+#pkList .gh{position:sticky;top:0;z-index:1;display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--chip);font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+#pkList .gh span{flex:1}
+#pkList .gh button{border:0;background:none;color:var(--accent);font:500 13px var(--font);cursor:pointer;padding:6px 8px;text-transform:none;letter-spacing:0}
+#pkList label{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);cursor:pointer;min-height:44px}
+#pkList input{width:24px;height:24px;accent-color:var(--accent);margin:0}
+#pkList .lt{font-size:16px}
+#pkList .ls{font-size:12.5px;color:var(--muted)}
+#pkList .ln{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+#pkList label.on{background:color-mix(in srgb,var(--accent) 10%,transparent)}
+#pkNote{margin:12px 16px;padding:12px 14px;border-radius:12px;background:color-mix(in srgb,#f9ab00 16%,transparent);font-size:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#pkNote[hidden]{display:none}
+#pkCount{flex:1;font-size:15px;font-weight:500}
+.ov-search{padding:10px 16px;border-bottom:1px solid var(--line)}
+.ov-search input{width:100%;box-sizing:border-box;font:16px var(--font);padding:12px 16px;border-radius:24px;border:1px solid var(--line);background:var(--chip);color:var(--fg)}
+.head .roundBtn{display:grid;grid-template-columns:34px minmax(0,1fr) 20px;gap:10px;align-items:center;border:0;background:none;color:var(--fg);padding:0;text-align:left;cursor:pointer;font-family:var(--font)}
+.roundBtn .chev{color:var(--muted);font-size:14px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--chip);border-radius:24px;padding:4px;gap:4px}
+.seg button{border:0;border-radius:20px;background:none;color:var(--muted);font:500 15px var(--font);padding:11px 8px;cursor:pointer;min-height:44px}
+.seg button[aria-pressed="true"]{background:var(--bg);color:var(--accent);box-shadow:0 1px 3px rgba(60,64,67,.3)}
+.card .k b{color:var(--accent);font-weight:700}
+.card .big{min-height:54px;font-size:17px}
+.btn{min-height:44px}
+.tools .chip{padding:10px 14px;font-size:14px;border-radius:20px;min-height:42px;display:inline-flex;align-items:center;flex:none;white-space:nowrap;box-sizing:border-box}
+#navbar .tools{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:0 16px}
+#navbar .tools::-webkit-scrollbar{display:none}
+#navbar .tools span[style]{display:none}
+#nbExit{color:var(--danger)}
 .attr{position:absolute;right:0;bottom:0;font-size:10.5px;color:var(--muted);background:color-mix(in srgb,var(--bg) 75%,transparent);padding:2px 6px}
 #find{position:absolute;left:12px;right:12px;top:12px;z-index:6;max-width:440px;background:var(--bg);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
 #find .fr{display:flex;align-items:center;gap:8px;padding:6px 6px 6px 14px;border-bottom:1px solid var(--line)}
@@ -88,7 +138,7 @@ aside{background:var(--bg);border-right:1px solid var(--line);overflow:auto;min-
 .btn:disabled{opacity:.45;cursor:default}
 .btn:focus-visible,.ctl button:focus-visible,.tab:focus-visible,.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .tabs{display:flex;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:2}
-.tab{flex:1;font:500 14px var(--font);padding:12px;border:0;background:none;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent}
+.tab{flex:1;font:500 14.5px var(--font);padding:14px 4px;min-height:48px;border:0;background:none;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent}
 .tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
 ol{list-style:none;margin:0;padding:0}
 #steps li{display:grid;grid-template-columns:32px minmax(0,1fr);gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
@@ -185,6 +235,7 @@ dialog input{width:100%;box-sizing:border-box;font:16px var(--font);padding:10px
       <button id="zin" aria-label="Zoom in">+</button>
       <button id="zout" aria-label="Zoom out">−</button>
     </div>
+    <button class="pill" id="searchPill" aria-label="Find a house"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><span>Find a house</span></button>
     <div id="pop" hidden></div>
     <div id="find" hidden role="search"><div class="fr"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><input id="findIn" type="search" placeholder="Find a house: name, number or road" aria-label="Find a house" autocomplete="off" enterkeyhint="search"><button class="fx" id="findX">Close</button></div><ol id="findRes"></ol></div>
     <div id="navmsg" hidden></div>
@@ -198,23 +249,24 @@ dialog input{width:100%;box-sizing:border-box;font:16px var(--font);padding:10px
     <div id="navbar" hidden>
       <div><div class="nk" id="nk"></div><div class="nt" id="nt"></div><div class="ns" id="ns"></div><div class="nn" id="nn"></div></div>
       <div class="row"><button class="btn" id="nbBack">Back</button><button class="btn primary grow big" id="nbDone">Delivered · next house</button></div>
-      <div class="tools"><a class="chip" id="nbGm" target="_blank" rel="noopener">Google Maps</a><button class="chip" id="nbPing">Ping next house</button><button class="chip" id="nbFix">Fix house</button><button class="chip" id="nbMute"></button><button class="chip" id="nbSpeed"></button><button class="chip" id="nbPause"></button><span style="flex:1"></span><button class="chip" id="nbExit">End sat nav</button></div>
+      <div class="tools"><a class="chip" id="nbGm" target="_blank" rel="noopener">Google Maps</a><button class="chip" id="nbPing">Repeat</button><button class="chip" id="nbFix">Fix house</button><button class="chip" id="nbMute"></button><button class="chip" id="nbSpeed"></button><button class="chip" id="nbPause"></button><span style="flex:1"></span><button class="chip" id="nbExit">End sat nav</button></div>
     </div>
     <div class="attr">Map data © OpenStreetMap contributors</div>
   </div>
   <aside>
     <div class="head">
-      <div class="title">
+      <button class="roundBtn title" id="roundBtn" aria-label="Change round">
         <span class="logo"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg></span>
-        <div><h1>Steyning South Walk</h1><div class="sub" id="sub"></div></div>
-      </div>
+        <span><h1 id="rname"></h1><span class="sub" id="sub"></span></span><span class="chev">▼</span>
+      </button>
+      <div class="seg" role="group" aria-label="What are you doing today?"><button id="mLearn" aria-pressed="false">Learn the round</button><button id="mPar" aria-pressed="false">Parcels <span id="parN"></span></button></div>
       <div class="prog"><i id="progbar"></i></div>
     </div>
     <div class="card" id="card"></div>
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" id="tSteps" aria-selected="true">Directions</button>
       <button class="tab" role="tab" id="tStreets" aria-selected="false">Streets</button>
-      <button class="tab" role="tab" id="tHouses" aria-selected="false">All houses</button>
+      <button class="tab" role="tab" id="tHouses" aria-selected="false">Houses</button>
       <button class="tab" role="tab" id="tRounds" aria-selected="false">Rounds</button>
     </div>
     <ol id="steps"></ol>
@@ -230,6 +282,22 @@ dialog input{width:100%;box-sizing:border-box;font:16px var(--font);padding:10px
     </div>
     <div class="foot">Map, roads and buildings from OpenStreetMap (© OpenStreetMap contributors, ODbL). Addresses without a mapped position come from the GOV.UK energy certificate register, which only lists homes that have had an EPC. Directions are worked out on the page from the road network. Names you add are saved in this browser only.</div>
   </aside>
+</div>
+<div class="overlay" id="start" hidden role="dialog" aria-modal="true" aria-labelledby="stTitle">
+  <div class="wrap">
+    <div class="hi" id="stRound"></div>
+    <h2 id="stTitle">What are you doing today?</h2>
+    <button class="choice" id="stLearn"><span class="ci"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/></svg></span><span><div class="ct">Learn the round</div><div class="cs">Every house in frame order, with voice directions. Best for training or covering an unfamiliar round.</div></span></button>
+    <button class="choice" id="stPar"><span class="ci"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-3.2l.9-2.6-1.9-.7L14.6 6H9.4L8.2 2.7l-1.9.7.9 2.6H4a2 2 0 00-2 2v11a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2zm0 13H4V8h16v11zM9 10h6v2H9z"/></svg></span><span><div class="ct">Parcels today</div><div class="cs">Tick the houses you've got parcels for. It routes you to just those, in frame order.</div></span></button>
+    <button class="alt" id="stRounds">Different round?</button>
+  </div>
+</div>
+<div class="overlay" id="picker" hidden role="dialog" aria-modal="true" aria-labelledby="pkTitle">
+  <div class="ov-head"><h2 id="pkTitle">Parcels today</h2><button class="ov-x" id="pkClose">Cancel</button><p>Tick every house you've got a parcel for. The route follows the frame order.</p></div>
+  <div class="ov-search"><input id="pkQ" type="search" placeholder="Search a name, number or road" aria-label="Search houses" autocomplete="off"></div>
+  <div id="pkNote" hidden></div>
+  <div class="ov-body"><div id="pkList"></div></div>
+  <div class="ov-foot"><span id="pkCount"></span><button class="btn" id="pkClear">Clear</button><button class="btn primary big" id="pkGo">Plan route</button></div>
 </div>
 <dialog id="dlg">
   <h2>Name this house</h2>
@@ -250,6 +318,16 @@ const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){retu
 const BAKED={names:{},pos:{}};/*BAKED*/
 let labels=Object.assign({},BAKED.names,store.get("walkLabels")||{});
 let POS=Object.assign({},BAKED.pos,store.get("walkPos")||{});
+// ---------------- round + mode ----------------
+const ROUND=typeof ROUND_CFG!=="undefined"?ROUND_CFG:{id:"steyning",name:"Steyning South Walk",kind:"walk",auto:{}};
+const MODEK=ROUND.id+"_mode",PARK=ROUND.id+"_parcels";
+let MODE=store.get(MODEK);
+const PAR=(()=>{const v=store.get(PARK);return v&&Array.isArray(v.ids)?v:{ids:[],day:""};})();
+const PARSET=new Set(PAR.ids);
+const PARCELS=MODE==="parcels"&&PARSET.size>0;
+const UNIT=PARCELS?"Parcel":"House";
+const IDXK=PARCELS?ROUND.id+'_pIdx':(ROUND.id==="steyning"?'hIdx':ROUND.id+'_hIdx');
+const today=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");};
 // ---------------- projection (metres, origin 50.87N 0.35W) ----------------
 const LAT0=50.87,LON0=-0.35,MPD=111320,K=Math.cos(50.88*Math.PI/180);
 const PX=lon=>(lon-LON0)*K*MPD, PY=lat=>-(lat-LAT0)*MPD;
@@ -323,6 +401,7 @@ SEG.forEach(([title,f,start,mode,groad,rroad])=>{
 SEQ.push({seg:"Annington Mere",reg:["Annington Road","Annington Mere Farmhouse & Cottages","BN44 3WA"],text:"Annington Mere Farmhouse, Annington Road, Bramber BN44 3WA",pc:"BN44 3WA"});
 }
 const seqLabel=s=>s.reg?s.reg[1].replace(/\s*\(.*\)$/,""):(label(s.it)||"House with no name in the data");
+const fullLabel=q=>{const l=seqLabel(q);return /^\d+[A-Za-z]?$/.test(l)?l+" "+seqRoad(q):l;};
 const seqRoad=s=>s.reg?(s.reg[0]==="Peppercoombe"?"Pepperscombe Farm":s.reg[0]):s.it.road;
 // ---------------- road graph + routing ----------------
 const NODES=[],NIDX=new Map(),ADJ=[],EDGES=[];
@@ -360,6 +439,9 @@ const regKey=s=>"r:"+s.reg[0]+"|"+s.reg[1];
 function placeReg(s,lat,lon){const road=s.reg[0]==="Peppercoombe"?"Newham Lane":s.reg[0];const it={id:regKey(s),road,num:"",name:s.reg[1].replace(/\s*\(.*\)$/,""),pc:s.reg[2],known:true,lat,lon,x:PX(lon),y:PY(lat),moved:1};
   s.it=it;s.id=it.id;s.x=it.x;s.y=it.y;s.lat=lat;s.lon=lon;delete s.reg;delete s.text;}
 SEQ.forEach(s=>{if(s.reg){const f=POS[regKey(s)];if(f)placeReg(s,f.lat,f.lon);}});
+// the full round, in frame order; in parcel mode SEQ becomes just the ticked houses (same order)
+const ALL=SEQ.slice();ALL.forEach((q,i)=>{q.n=i+1;q.key=q.id||regKey(q);});
+if(PARCELS){const f=ALL.filter(q=>PARSET.has(q.key));SEQ.length=0;f.forEach(q=>SEQ.push(q));}
 // ---------------- directions ----------------
 const brg=(a,b)=>(Math.atan2(b.x-a.x,-(b.y-a.y))*180/Math.PI+360)%360;
 const dAng=(a,b)=>{let d=b-a;while(d>180)d-=360;while(d<=-180)d+=360;return d;};
@@ -401,7 +483,7 @@ function buildMore(){const t0=performance.now();while(builtUpTo<SEQ.length&&perf
 let routePath=null;
 function fullRoutePath(){if(routePath)return routePath;const p=new Path2D();for(let i=0;i<builtUpTo;i++){const L=LEGS.get(i);if(L&&L.pts.length>1)addTo(p,L.pts);}routePath=p;return p;}
 // ---------------- state ----------------
-let hIdx=+(store.get("hIdx")||0);if(!(hIdx>=0&&hIdx<SEQ.length))hIdx=0;
+let hIdx=+(store.get(IDXK)||0);if(!(hIdx>=0&&hIdx<SEQ.length))hIdx=0;
 let follow=true;
 // ---------------- canvas view ----------------
 const cv=document.getElementById("cv"),ctx=cv.getContext("2d"),mapEl=document.getElementById("map");
@@ -488,23 +570,33 @@ document.getElementById("follow").onclick=()=>{if(NAV.on){NAV.free=false;return;
 function setFollow(v){follow=v;document.getElementById("follow").classList.toggle("on",v);}
 const pop=document.getElementById("pop");
 function tap(sx,sy){if(FIX.on){fixTap(sx,sy);return;}if(NAV.on)return;let best=-1,bd=18;SEQ.forEach((q,i)=>{if(q.x==null)return;const [x,y]=toS(q.x,q.y);const d=Math.hypot(x-sx,y-sy);if(d<bd){bd=d;best=i;}});
-  if(best<0){pop.hidden=true;FOUND=-1;return;}showPop(best);}
-function showPop(i){const q=SEQ[i];const cur=i===hIdx;
-  pop.innerHTML=`<div class="pt"></div><div class="ps"></div><div class="row">${cur?"":`<button class="btn primary" id="popNav">Take me there</button><button class="btn" id="popGo">${NAV.on?"Go here next":"Make this the current house"}</button>`}${q.it&&!q.it.known?'<button class="btn" id="popName">Name it</button>':""}<button class="btn" id="popX">Close</button></div>`;
-  pop.querySelector(".pt").textContent=seqLabel(q);pop.querySelector(".ps").textContent=`House ${i+1} of ${SEQ.length}${q.shelf?" · Shelf "+q.shelf:""} · ${seqRoad(q)}${cur?" · this is the current house":""}${q.x==null?" · not on the map":""}`;
-  pop.hidden=false;const pg=pop.querySelector("#popGo"),pn2=pop.querySelector("#popNav");
-  const jump=()=>{pop.hidden=true;FOUND=-1;go(i);if(NAV.on){NAV.finished=false;NAV.free=false;try{speechSynthesis.cancel();}catch(e){}buildLeg();}};
+  if(best<0){pop.hidden=true;FOUND=null;return;}showPop(best);}
+function showPop(i){showPopQ(SEQ[i]);}
+function showPopQ(q){const i=SEQ.indexOf(q);const cur=i===hIdx;const inRoute=i>=0;const isPar=PARSET.has(q.key);
+  let btns="";
+  if(inRoute&&!cur)btns+=`<button class="btn primary" id="popNav">Take me there</button><button class="btn" id="popGo">${NAV.on?"Go here next":"Make this the current "+UNIT.toLowerCase()}</button>`;
+  if(!NAV.on)btns+=`<button class="btn${!inRoute?" primary":""}" id="popPar">${isPar?(PARCELS?"Remove parcel":"Parcel ✓ · remove"):(PARCELS?"Add parcel & re-plan":"Add to parcels")}</button>`;
+  if(q.it&&!q.it.known)btns+='<button class="btn" id="popName">Name it</button>';
+  btns+='<button class="btn" id="popX">Close</button>';
+  pop.innerHTML=`<div class="pt"></div><div class="ps"></div><div class="row">${btns}</div>`;
+  pop.querySelector(".pt").textContent=fullLabel(q);
+  pop.querySelector(".ps").textContent=[inRoute?`${UNIT} ${i+1} of ${SEQ.length}`:"Not in today's parcels",PARCELS||!inRoute?`#${q.n} on the frame`:"",q.shelf?"Shelf "+q.shelf:"",seqRoad(q),cur?"current":"",q.x==null?"not on the map":""].filter(Boolean).join(" · ");
+  pop.hidden=false;
+  const jump=()=>{pop.hidden=true;FOUND=null;go(i);if(NAV.on){NAV.finished=false;NAV.free=false;try{speechSynthesis.cancel();}catch(e){}buildLeg();}};
+  const pg=pop.querySelector("#popGo"),pn2=pop.querySelector("#popNav"),pp=pop.querySelector("#popPar");
   if(pg)pg.onclick=jump;
   if(pn2)pn2.onclick=()=>{const was=NAV.on;jump();if(!was)startNav("gps");};
-  pop.querySelector("#popX").onclick=()=>{pop.hidden=true;FOUND=-1;if(NAV.on)NAV.free=false;draw();};
-  const pn=pop.querySelector("#popName");if(pn)pn.onclick=()=>{pop.hidden=true;nameIt(i);};}
+  if(pp)pp.onclick=()=>{if(isPar)PARSET.delete(q.key);else PARSET.add(q.key);saveParcels();
+    if(PARCELS){location.reload();}else{showPopQ(q);updMode();}};
+  pop.querySelector("#popX").onclick=()=>{pop.hidden=true;FOUND=null;if(NAV.on)NAV.free=false;draw();};
+  const pn=pop.querySelector("#popName");if(pn&&i>=0)pn.onclick=()=>{pop.hidden=true;nameIt(i);};}
 // ---------------- find a house ----------------
-let FOUND=-1;const findEl=document.getElementById("find"),findIn=document.getElementById("findIn"),findRes=document.getElementById("findRes");
+let FOUND=null;const findEl=document.getElementById("find"),findIn=document.getElementById("findIn"),findRes=document.getElementById("findRes");
 let FIND_IDX=null;
 function findSearch(t){t=String(t).toLowerCase();let shelf=null;t=t.replace(/\bshelf\s*(\d+)\b/,(m,n)=>{shelf=+n;return " ";});
   const words=t.split(/[\s,]+/).map(nrm).filter(Boolean);if(!words.length&&shelf==null)return [];
-  if(!FIND_IDX)FIND_IDX=SEQ.map((q,i)=>({i,h:nrm([seqLabel(q),seqRoad(q),q.shelf?"shelf"+q.shelf:"",q.pc||""].join(" ")),l:nrm(seqLabel(q)),num:q.it&&q.it.num?nrm(q.it.num):(nrm(seqLabel(q)).match(/^\d+[a-z]?/)||[""])[0]}));
-  const out=[];FIND_IDX.forEach(r=>{let ok=shelf==null||+SEQ[r.i].shelf===shelf,score=0;
+  if(!FIND_IDX)FIND_IDX=ALL.map((q,i)=>({i,h:nrm([seqLabel(q),seqRoad(q),q.shelf?"shelf"+q.shelf:"",q.pc||""].join(" ")),l:nrm(seqLabel(q)),num:q.it&&q.it.num?nrm(q.it.num):(nrm(seqLabel(q)).match(/^\d+[a-z]?/)||[""])[0]}));
+  const out=[];FIND_IDX.forEach(r=>{let ok=shelf==null||+ALL[r.i].shelf===shelf,score=0;
     words.forEach(w=>{if(/^\d+[a-z]?$/.test(w)){if(r.num===w)score+=5;else if(r.num&&r.num.startsWith(w))score+=2;else ok=false;}
       else if(r.l.startsWith(w))score+=4;else if(r.h.includes(w))score+=2;else ok=false;});
     if(ok)out.push({i:r.i,score});});
@@ -512,23 +604,24 @@ function findSearch(t){t=String(t).toLowerCase();let shelf=null;t=t.replace(/\bs
 function openFind(text){findEl.hidden=false;pop.hidden=true;if(text!=null)findIn.value=text;renderFind();setTimeout(()=>{try{findIn.focus();findIn.select();}catch(e){}},30);}
 function closeFind(){findEl.hidden=true;try{findIn.blur();}catch(e){}}
 function renderFind(){const t=findIn.value.trim();findRes.innerHTML="";
-  if(!t){const li=document.createElement("li");li.className="o";li.textContent=`Type a house name, number or road. ${SEQ.length} houses in this round.`;findRes.appendChild(li);return;}
+  if(!t){const li=document.createElement("li");li.className="o";li.textContent=`Type a house name, number or road. ${ALL.length} houses in this round.`;findRes.appendChild(li);return;}
   const res=findSearch(t);
-  res.forEach((r,k)=>{const q=SEQ[r.i];const li=document.createElement("li");if(!k)li.classList.add("sel");
-    li.innerHTML=`<span class="n">#${r.i+1}</span><span><div class="t"></div><div class="s"></div></span>`;
-    li.querySelector(".t").textContent=seqLabel(q);li.querySelector(".s").textContent=[q.shelf?"Shelf "+q.shelf:"",seqRoad(q),r.i<hIdx?"done":r.i===hIdx?"current house":`${r.i-hIdx} ${r.i-hIdx>1?"stops":"stop"} ahead`].filter(Boolean).join(" · ");
+  res.forEach((r,k)=>{const q=ALL[r.i];const si=SEQ.indexOf(q);const li=document.createElement("li");if(!k)li.classList.add("sel");
+    li.innerHTML=`<span class="n">#${q.n}</span><span><div class="t"></div><div class="s"></div></span>`;
+    li.querySelector(".t").textContent=fullLabel(q);li.querySelector(".s").textContent=[q.shelf?"Shelf "+q.shelf:"",seqRoad(q),si<0?(PARSET.has(q.key)?"parcel":PARCELS?"no parcel today":""):si<hIdx?"done":si===hIdx?"current":`${si-hIdx} ${si-hIdx>1?"stops":"stop"} ahead`,PARSET.has(q.key)&&!PARCELS?"parcel":""].filter(Boolean).join(" · ");
     li.onclick=()=>pickFound(r.i);findRes.appendChild(li);});
   const others=ROUNDS.filter(x=>x.id!==ROUND.id);const o=document.createElement("li");o.className="o";
   o.innerHTML=(res.length?"":"Nothing in this round matches. ")+others.map(x=>`<a href="${x.url}?find=${encodeURIComponent(t)}">Search ${esc(x.name)} instead</a>`).join(" · ");
   findRes.appendChild(o);}
-function pickFound(i){closeFind();FOUND=i;const q=SEQ[i];
+function pickFound(k){closeFind();const q=ALL[k];FOUND=q;
   if(q.x!=null){if(NAV.on){NAV.free=true;view.rot=0;}else setFollow(false);view.cx=q.x;view.cy=q.y;view.s=Math.max(view.s,4);}
-  showPop(i);draw();}
+  showPopQ(q);draw();}
 findIn.addEventListener("input",renderFind);
 findIn.addEventListener("keydown",e=>{if(e.key==="Enter"){const r=findSearch(findIn.value.trim());if(r.length)pickFound(r[0].i);}else if(e.key==="Escape")closeFind();});
 document.getElementById("findBtn").onclick=()=>findEl.hidden?openFind():closeFind();
+document.getElementById("searchPill").onclick=()=>openFind();
 document.getElementById("findX").onclick=closeFind;
-function foundMarker(){if(FOUND<0)return;const q=SEQ[FOUND];if(!q||q.x==null)return;const [x,y]=toS(q.x,q.y);ctx.save();
+function foundMarker(){const q=FOUND;if(!q||q.x==null)return;const [x,y]=toS(q.x,q.y);ctx.save();
   ctx.beginPath();ctx.arc(x,y,22,0,7);ctx.fillStyle="rgba(249,171,0,.18)";ctx.fill();ctx.lineWidth=3;ctx.strokeStyle="#f9ab00";ctx.stroke();ctx.restore();}
 function fitPts(pts,pad){if(!pts.length)return;let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;pts.forEach(p=>{x0=Math.min(x0,p.x);y0=Math.min(y0,p.y);x1=Math.max(x1,p.x);y1=Math.max(y1,p.y);});
   const top=document.getElementById("banner").offsetHeight+24;const w=Math.max(x1-x0,60),h=Math.max(y1-y0,60);
@@ -551,7 +644,7 @@ const GM="https://www.google.com/maps/dir/?api=1&travelmode=driving&dir_action=n
 const navLink=q=>q.x!=null?GM+encodeURIComponent(q.lat+","+q.lon):GM+encodeURIComponent(q.text);
 function render_ui(){
   const q=SEQ[hIdx];const L=legTo(hIdx);
-  document.getElementById("sub").textContent=`House ${hIdx+1} of ${SEQ.length} · ${q.seg}`;
+  document.getElementById("sub").textContent=`${UNIT} ${hIdx+1} of ${SEQ.length}${PARCELS?" parcels":""} · ${q.seg}`;
   document.getElementById("progbar").style.width=(100*hIdx/(SEQ.length-1))+"%";
   // banner
   const ban=document.getElementById("banner");
@@ -564,12 +657,12 @@ function render_ui(){
   // card
   const side=L&&L.steps.length?L.steps[L.steps.length-1].side:null;
   const card=document.getElementById("card");
-  card.innerHTML=`<div class="k">House ${hIdx+1} of ${SEQ.length} · ${esc(q.seg)}${L&&L.len?` · ${fmtDist(L.len)} from the last house`:""}</div>
+  card.innerHTML=`<div class="k"><b>${UNIT} ${hIdx+1} of ${SEQ.length}</b>${PARCELS?` · #${q.n} on the frame`:""}${q.shelf?` · Shelf ${q.shelf}`:""} · ${esc(q.seg)}${L&&L.len?` · ${fmtDist(L.len)} from the last ${PARCELS?"parcel":"house"}`:""}</div>
     <div class="t"></div><div class="s"></div>
     <div class="chips">${side?`<span class="chip side">On your ${side}</span>`:""}${q.x==null?'<span class="chip warn">Spot not mapped</span>':""}${q.it&&!q.it.known&&!labels[q.id]?'<button class="chip warn" id="nameBtn">No name in the data · Name it</button>':""}${q.it&&!q.it.known&&labels[q.id]?'<button class="chip" id="nameBtn">Named by you · Edit</button>':""}<button class="chip" id="fixBtn">${q.x==null?"Place on map":"Fix this house"}</button></div>
-    <div class="row"><button class="btn primary grow big" id="navGo">Start sat nav</button><button class="btn grow" id="navSim">Practice drive</button></div>
-    <div class="row"><a class="btn grow" target="_blank" rel="noopener" href="${navLink(q)}">${svgI("depart","currentColor").replace('<svg','<svg width="18" height="18"')} Navigate in Google Maps</a></div>
-    <div class="row"><button class="btn" id="prev" ${hIdx?"":"disabled"}>Back</button><button class="btn primary grow" id="next">${hIdx<SEQ.length-1?"Delivered · next house":"Finish"}</button></div>`;
+    <button class="btn primary big" id="navGo">${svgI("depart","currentColor").replace('<svg','<svg width="22" height="22"')} Start sat nav</button>
+    <div class="row"><button class="btn grow" id="navSim">Practice drive</button><a class="btn grow" target="_blank" rel="noopener" href="${navLink(q)}">Google Maps</a></div>
+    <div class="row"><button class="btn" id="prev" ${hIdx?"":"disabled"}>‹ Back</button><button class="btn grow" id="next">${hIdx<SEQ.length-1?(PARCELS?"Next parcel ›":"Next house ›"):"Finish"}</button></div>`;
   card.querySelector(".t").textContent=seqLabel(q);card.querySelector(".s").textContent=seqRoad(q)+(q.pc?" · "+q.pc:"");
   card.querySelector("#prev").onclick=()=>go(hIdx-1);
   card.querySelector("#next").onclick=()=>go(Math.min(SEQ.length-1,hIdx+1));
@@ -583,7 +676,7 @@ function render_ui(){
   renderHouses();renderStreets();
   draw();
 }
-function go(i){if(i<0||i>=SEQ.length)return;hIdx=i;store.set("hIdx",hIdx);pop.hidden=true;setFollow(true);render_ui();focusLeg(true);}
+function go(i){if(i<0||i>=SEQ.length)return;hIdx=i;store.set(IDXK,hIdx);pop.hidden=true;setFollow(true);render_ui();focusLeg(true);}
 // houses list
 const qIn=document.getElementById("q");qIn.addEventListener("input",renderHouses);
 function renderHouses(){const ol=document.getElementById("houses");if(document.getElementById("housesWrap").hidden){ol.innerHTML="";return;}
@@ -598,10 +691,48 @@ function renderHouses(){const ol=document.getElementById("houses");if(document.g
 function showTab(t){document.getElementById("steps").hidden=t!=="steps";document.getElementById("streets").hidden=t!=="streets";document.getElementById("housesWrap").hidden=t!=="houses";document.getElementById("rounds").hidden=t!=="rounds";
   ["Steps","Streets","Houses","Rounds"].forEach(n=>document.getElementById("t"+n).setAttribute("aria-selected",String(t===n.toLowerCase())));renderHouses();renderStreets();}
 document.getElementById("tSteps").onclick=()=>showTab("steps");document.getElementById("tStreets").onclick=()=>showTab("streets");document.getElementById("tHouses").onclick=()=>showTab("houses");document.getElementById("tRounds").onclick=()=>{showTab("rounds");renderRounds();};
+// ---------------- start screen + parcels picker ----------------
+const gid=id=>document.getElementById(id);
+function saveParcels(){store.set(PARK,{ids:[...PARSET],day:today()});}
+function setMode(m){store.set(MODEK,m);location.reload();}
+function updMode(){gid("rname").textContent=ROUND.name;gid("mLearn").setAttribute("aria-pressed",String(!PARCELS));gid("mPar").setAttribute("aria-pressed",String(PARCELS));
+  gid("parN").textContent=PARSET.size?`(${PARSET.size})`:"";}
+gid("mLearn").onclick=()=>{if(PARCELS)setMode("learn");};
+gid("mPar").onclick=()=>openPicker();
+gid("roundBtn").onclick=()=>{showTab("rounds");renderRounds();document.querySelector(".tabs").scrollIntoView({behavior:"smooth",block:"start"});};
+function showStart(){gid("stRound").textContent=ROUND.name+" · "+ALL.length+" houses";gid("start").hidden=false;setTimeout(()=>gid("stLearn").focus(),50);}
+gid("stLearn").onclick=()=>{store.set(MODEK,"learn");if(PARCELS)location.reload();else{MODE="learn";gid("start").hidden=true;updMode();}};
+gid("stPar").onclick=()=>{gid("start").hidden=true;openPicker();};
+gid("stRounds").onclick=()=>{gid("start").hidden=true;store.set(MODEK,MODE||"learn");showTab("rounds");renderRounds();};
+// picker: works on a copy until "Plan route"
+let PK=null;
+function openPicker(){PK=new Set(PARSET);gid("pkQ").value="";gid("picker").hidden=false;
+  const stale=PAR.day&&PAR.day!==today()&&PARSET.size;const note=gid("pkNote");note.hidden=!stale;
+  if(stale){note.innerHTML=`<span style="flex:1">These ${PARSET.size} parcels were ticked on ${esc(new Date(PAR.day+"T12:00").toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"short"}))}.</span><button class="btn" id="pkFresh">Start fresh</button>`;
+    gid("pkFresh").onclick=()=>{PK.clear();note.hidden=true;renderPicker();};}
+  renderPicker();}
+function renderPicker(){const box=gid("pkList");box.innerHTML="";const f=nrm(gid("pkQ").value);let grp=null,gl=null;
+  ALL.forEach(q=>{const lab=seqLabel(q);if(f&&!nrm(lab+" "+seqRoad(q)+" "+(q.shelf?"shelf"+q.shelf:"")).includes(f))return;
+    const g=q.shelf?"Shelf "+q.shelf:q.seg;
+    if(g!==grp){grp=g;const gh=document.createElement("div");gh.className="gh";const members=ALL.filter(x=>(x.shelf?"Shelf "+x.shelf:x.seg)===g);
+      gh.innerHTML=`<span></span><button>Tick all</button>`;gh.querySelector("span").textContent=g;
+      gh.querySelector("button").onclick=()=>{const all=members.every(x=>PK.has(x.key));members.forEach(x=>all?PK.delete(x.key):PK.add(x.key));renderPicker();};
+      gl=gh;box.appendChild(gh);}
+    const l=document.createElement("label");const on=PK.has(q.key);if(on)l.classList.add("on");
+    l.innerHTML=`<input type="checkbox" ${on?"checked":""}><span><div class="lt"></div><div class="ls"></div></span><span class="ln">#${q.n}</span>`;
+    l.querySelector(".lt").textContent=fullLabel(q);l.querySelector(".ls").textContent=seqRoad(q)+(q.x==null?" · not on the map":"");
+    l.querySelector("input").onchange=e=>{e.target.checked?PK.add(q.key):PK.delete(q.key);l.classList.toggle("on",e.target.checked);updPk();};
+    box.appendChild(l);});
+  box.querySelectorAll(".gh").forEach(gh=>{});updPk();}
+function updPk(){const n=PK.size;gid("pkCount").textContent=n?`${n} parcel${n>1?"s":""} ticked`:"Nothing ticked yet";gid("pkGo").disabled=!n;gid("pkGo").textContent=n?`Plan route · ${n}`:"Plan route";
+  document.querySelectorAll("#pkList .gh").forEach(gh=>{});}
+gid("pkQ").addEventListener("input",renderPicker);
+gid("pkClose").onclick=()=>{gid("picker").hidden=true;if(!MODE)showStart();};
+gid("pkClear").onclick=()=>{PK.clear();renderPicker();};
+gid("pkGo").onclick=()=>{PARSET.clear();PK.forEach(k=>PARSET.add(k));saveParcels();store.set(ROUND.id+'_pIdx',0);setMode("parcels");};
 // rounds (all pages live on the same site, so progress can be read across)
-const ROUND=typeof ROUND_CFG!=="undefined"?ROUND_CFG:{id:"steyning",kind:"walk",auto:{}};
 const ROUNDS=[{id:"steyning",name:"Steyning South Walk",kind:"walk",url:"/steyning-satnav/",key:'hIdx',houses:"Laines Rd, Bostal Rd, Maudlin, Sopers Ln"},
-  {id:"ashurst",name:"Ashurst Round",kind:"van",url:"/steyning-satnav/ashurst/",key:"ash_hIdx",houses:"216 drops · frame shelves 1–14"}];
+  {id:"ashurst",name:"Ashurst Round",kind:"van",url:"/steyning-satnav/ashurst/",key:'ashurst_hIdx',houses:"216 drops · frame shelves 1–14"}];
 const RICON={walk:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 5.5a2 2 0 100-4 2 2 0 000 4zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3A7.3 7.3 0 0019 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6a2 2 0 00-1.7-1c-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7"/></svg>',
   van:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 8h-3V4H3a2 2 0 00-2 2v11h2a3 3 0 006 0h6a3 3 0 006 0h2v-5l-3-4zM6 18.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm13.5-9 2 2.5H17V9.5h2.5zM18 18.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/></svg>'};
 function renderRounds(){const ol=document.getElementById("rounds");if(ol.hidden)return;ol.innerHTML="";
@@ -690,9 +821,9 @@ function buildLeg(reroute){
 function arrive(){if(NAV.arrived)return;NAV.arrived=true;NAV.arrSpot=NAV.pos?{...NAV.pos}:null;const q=SEQ[hIdx],side=legSide();
   if(NAV.leg&&NAV.leg.len>=25)say(`You have arrived. ${uc(houseSay(q))}${side?` is on your ${side}`:""}.`);
   NAV.waitUntil=performance.now()+(NAV.mode==="sim"?900:0);updateNavBar();}
-function advance(){if(hIdx>=SEQ.length-1){if(!NAV.finished){NAV.finished=true;say("That was the last house. The round is complete.");updateNavBar();}return;}
-  hIdx++;store.set("hIdx",hIdx);buildLeg();}
-function back(){if(hIdx<=0)return;hIdx--;store.set("hIdx",hIdx);NAV.finished=false;try{speechSynthesis.cancel();}catch(e){}buildLeg();}
+function advance(){if(hIdx>=SEQ.length-1){if(!NAV.finished){NAV.finished=true;say(PARCELS?"That was the last parcel. All done.":"That was the last house. The round is complete.");updateNavBar();}return;}
+  hIdx++;store.set(IDXK,hIdx);buildLeg();}
+function back(){if(hIdx<=0)return;hIdx--;store.set(IDXK,hIdx);NAV.finished=false;try{speechSynthesis.cancel();}catch(e){}buildLeg();}
 function announce(L){const s=nextStep(L);const dist=s.at-NAV.prog;const k=L.steps.indexOf(s);
   if(s.type==="arrive"){if(dist<=(NAV.mode==="gps"?15:0.5)){arrive();return;}
     if(L.len>120&&dist<=90&&!NAV.spoken["a"+k]){NAV.spoken["a"+k]=1;say(`In ${sayDist(dist)}, ${houseSay(SEQ[hIdx])}${s.side?`, on your ${s.side}`:""}.`);}return;}
@@ -730,7 +861,7 @@ function onParked(){NAV.parked=true;const {x,y}=NAV.stopSpot;
   if(best===hIdx){arrive();NAV.stoppedHere=true;NAV.arrSpot={x,y};updateNavBar();return;}
   const skipped=best-hIdx-(NAV.arrived?1:0);
   NAV.prefix=NAV.arrived&&NAV.stoppedHere?(skipped>0?`Done. Skipped ${skipped}.`:"Done."):skipped>0?`Skipped ${skipped} ${skipped>1?"houses":"house"}.`:"";
-  hIdx=best;store.set("hIdx",hIdx);buildLeg();arrive();NAV.stoppedHere=true;NAV.arrSpot={x,y};updateNavBar();}
+  hIdx=best;store.set(IDXK,hIdx);buildLeg();arrive();NAV.stoppedHere=true;NAV.arrSpot={x,y};updateNavBar();}
 function autoNext(){const s=NAV.arrSpot;let n=1;
   if(NAV.stoppedHere&&s){// houses next to where you parked were done on foot
     while(hIdx+n<SEQ.length&&n<8&&houseGap(hIdx+n,s.x,s.y)<=AUTO.group)n++;}
@@ -747,17 +878,17 @@ function showMsg(key,html,btns){NAV.msgKey=key;const m=$("navmsg");m.innerHTML=`
 function hideMsg(key){if(!key||NAV.msgKey===key){$("navmsg").hidden=true;NAV.msgKey="";}}
 // ---- bars
 function updateNavBar(){const q=SEQ[hIdx];if(!q)return;const side=legSide();
-  $("nk").textContent=`House ${hIdx+1} of ${SEQ.length} · ${q.seg}`;$("nt").textContent=seqLabel(q);
+  $("nk").textContent=`${UNIT} ${hIdx+1} of ${SEQ.length}${q.shelf?" · Shelf "+q.shelf:""} · ${q.seg}`;$("nt").textContent=seqLabel(q);
   $("ns").textContent=[side?`On your ${side}`:(q.x==null?"Not on the map":""),seqRoad(q),q.pc].filter(Boolean).join(" · ");
   const n=SEQ[hIdx+1];const st=streetOf(hIdx);const ns=STREETS[STREETS.indexOf(st)+1];const left=st?st.last-hIdx:0;
-  $("nn").textContent=NAV.finished?"Round complete":!n?"Last house of the round":left?`Then: ${seqLabel(n)} · ${left} more on ${st.name}${ns?`, then ${ns.name}`:""}`:`Last on ${st.name} · next street: ${ns?ns.name:"none"}`;
+  $("nn").textContent=NAV.finished?(PARCELS?"All parcels delivered":"Round complete"):!n?(PARCELS?"Last parcel":"Last house of the round"):left?`Then: ${seqLabel(n)} · ${left} more on ${st.name}${ns?`, then ${ns.name}`:""}`:`Last on ${st.name} · next street: ${ns?ns.name:"none"}`;
   $("nbGm").href=navLink(q);$("nbSpeed").hidden=$("nbPause").hidden=NAV.mode!=="sim";$("nbSpeed").textContent=`Speed ${NAV.speed}×`;
   $("nbPause").textContent=NAV.paused?"Resume":"Pause";$("nbMute").textContent=NAV.muted?"Voice off":"Voice on";
-  $("nbDone").textContent=NAV.finished?"Round complete":q.x==null?"Skip · next house":"Delivered · next house";$("nbDone").disabled=NAV.finished;$("nbBack").disabled=hIdx===0;
+  $("nbDone").textContent=NAV.finished?"All done":q.x==null?"Skip · next":(PARCELS?"Delivered · next parcel":"Delivered · next house");$("nbDone").disabled=NAV.finished;$("nbBack").disabled=hIdx===0;
   $("progbar").style.width=(100*hIdx/(SEQ.length-1))+"%";}
 let lastBan="";
 function navBanner(){const q=SEQ[hIdx];let html;
-  if(NAV.finished)html=`${svgI("arrive","#fff")}<div><div class="bi">Round complete</div><div class="bt">${SEQ.length} stops</div></div>`;
+  if(NAV.finished)html=`${svgI("arrive","#fff")}<div><div class="bi">${PARCELS?"All parcels delivered":"Round complete"}</div><div class="bt">${SEQ.length} stops</div></div>`;
   else if(NAV.unmapped)html=`${svgI("arrive","#fff")}<div><div class="bi">Not on the map</div><div class="bt">${esc(seqLabel(q))} · use Google Maps, or skip</div></div>`;
   else if(!NAV.leg)html=`${svgI("depart","#fff")}<div><div class="bi">${NAV.mode==="gps"&&!NAV.pos?"Finding your location…":"Head to "+esc(seqRoad(q))}</div></div>`;
   else if(NAV.arrived){const s=legSide();html=`${svgI("arrive","#fff")}<div><div class="bi">${esc(seqLabel(q))}</div><div class="bt">Arrived${s?` · on your ${s}`:""}${NAV.mode==="gps"?" · moves on when you drive off":""}</div></div>`;}
@@ -844,7 +975,9 @@ updFixCount();
 resize();render_ui();focusLeg(true);
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>draw());
 setTimeout(buildMore,30);
-try{const fq=new URLSearchParams(location.search).get("find");if(fq)setTimeout(()=>openFind(fq),60);}catch(e){}
+updMode();
+{let fq=null;try{fq=new URLSearchParams(location.search).get("find");}catch(e){}
+ if(fq)setTimeout(()=>openFind(fq),60);else if(!MODE)showStart();else if(MODE==="parcels"&&!PARSET.size)openPicker();}
 </script>
 
 </body></html>
