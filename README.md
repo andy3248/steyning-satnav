@@ -14,3 +14,5 @@ Map data © OpenStreetMap contributors (ODbL).
 - **Find a house:** search bar on the map. Name, number, road or "shelf 9".
 - **Rounds:** tap the round name to switch rounds.
 - **Sat nav:** moves on by itself when you stop at a house and drive or walk off.
+
+Address points: contains OS data © Crown copyright and database right 2026 (OS Open UPRN, Open Government Licence). Ashurst best-guess pins are snapped to the nearest OS Open UPRN address point.
