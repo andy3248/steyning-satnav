@@ -1,0 +1,217 @@
+# shelf|road|delivery point   (read left to right, shelves 1-14 = walk order)
+1|Kings Barn Lane|Foxhall Farm
+1|Kings Barn Lane|Greenfields Farm
+1|Kings Barn Lane|1 Greenfield Farm Cottages
+1|Kings Barn Lane|2 Greenfield Farm Cottages
+1|Wyckham Lane|1 Wyckham Dale Cottages
+1|Wyckham Lane|2 Wyckham Dale Cottages
+1|Wyckham Lane|Botany Cottage
+1|Wyckham Lane|Wyckham Dale Farm
+1|Wyckham Lane|Granary Barn
+1|Wyckham Lane|Slate Barn
+1|Wyckham Lane|Farm Cottage, Wyckham
+1|Wyckham Lane|Farmhouse, Wyckham
+1|Wyckham Lane|Upper Wyckham Farm
+1|Wyckham Lane|The Shelleys
+1|Horsham Road|Milindy
+2|Horsham Road|Huddlestone Farmers Ltd
+2|Horsham Road|Harlands House
+2|Horsham Road|1 Huddlestone Farm Cottages
+2|Horsham Road|2 Huddlestone Farm Cottages
+2|Horsham Road|3 Huddlestone Farm Cottages
+2|Horsham Road|Romanville
+2|Horsham Road|Sunning Dale
+2|Horsham Road|Grange Farm
+2|Horsham Road|Nash Farm
+2|Horsham Road|The Lodge, Nash Manor
+2|Horsham Road|Coach House, Nash Manor
+2|Horsham Road|Old Barn, Nash Manor
+2|Horsham Road|Nash Manor
+2|Horsham Road|Vineyard, Nash Manor
+2|Horsham Road|Field House
+2|Horsham Road|Little Nash
+2|Horsham Road|West House
+2|Horsham Road|Nash House
+3|Horsham Road|Quarry House
+3|Horsham Road|Robins Wood
+3|Horsham Road|Chancton Down
+3|Horsham Road|1-2 Elan Nursery
+3|Horsham Road|2A Batbox, Chanctonfold
+3|Horsham Road|O. Hart, Chanctonfold
+3|Horsham Road|3 Digital Oyster, Chanctonfold
+3|Horsham Road|Its Cycling Ltd, Unit 4-5 Chanctonfold
+3|Horsham Road|6 Brooks Sports, Chanctonfold
+3|Horsham Road|Staplefield Cottage
+3|Horsham Road|Ty Barn, Staplefields Farm
+3|Horsham Road|Hayes & Co, Staplefields Farm
+4|Horsham Road|Old Farm Cottage
+4|Horsham Road|The Buttery
+4|Horsham Road|Pin Farthings
+4|Horsham Road|The Granary, Staplefields Farm
+4|Steyning Road|Footings, Gatewick Farm
+4|Horsham Road|Steyning Sports Centre
+4|Horsham Road|Cuthman Centre
+4|Coxham Lane|1
+4|Coxham Lane|3
+4|Coxham Lane|5
+4|Coxham Lane|7
+4|Coxham Lane|9
+4|Coxham Lane|9A
+4|Coxham Lane|11
+4|Coxham Lane|13
+4|Coxham Lane|15
+5|Coxham Lane|22
+5|Coxham Lane|20
+5|Coxham Lane|18
+5|Coxham Lane|16
+5|Coxham Lane|14
+5|Coxham Lane|12
+6|Coxham Lane|10
+6|Coxham Lane|8
+6|Coxham Lane|6
+6|Coxham Lane|4
+6|Coxham Lane|2
+6|Coxham Lane|The Palm House
+6|Coxham Lane|Lavender Corner
+6|Horsham Road|Bayards Cottage
+6|Horsham Road|Old Field
+6|Horsham Road|Highview
+6|Horsham Road|Coach House, Bayards
+6|Horsham Road|Squirrels, Bayards
+6|Horsham Road|Little Bayards
+6|Horsham Road|The Spinney
+6|Horsham Road|Roofs, Broadbo
+6|Steyning Road|The Falconers
+6|Steyning Road|The Round House
+6|Steyning Road|Stable Cottage
+6|Steyning Road|Lower Barn
+7|Steyning Road|Horsebrook Cottage
+7|Washington Road|Hammes Farm
+7|Washington Road|Bullpen Cottage
+7|Washington Road|Hammes Barn
+7|Horsham Road|Alders
+7|Horsham Road|Lodge, Wappingthorn
+7|Horsham Road|Manor, Wappingthorn
+7|Horsham Road|Court, Wappingthorn
+7|Horsham Road|Meadow Cottage
+7|Horsham Road|Primrose Cottage
+7|Horsham Road|2 Limeshaw Cottages
+7|Horsham Road|Red House
+7|Horsham Road|Wappingthorn Farmhouse
+7|Horsham Road|1 Station Cottages, Wappingthorn Farm
+8|Horsham Road|2 Station Cottages, Wappingthorn Farm
+8|Horsham Road|East Cottage, Wappingthorn Farm
+8|Horsham Road|South Cottage, Wappingthorn Farm
+8|Horsham Road|North Cottage, Wappingthorn Farm
+8|Horsham Road|Studio, Wappingthorn Farm
+8|Horsham Road|2 New Cottages
+8|Horsham Road|1 New Cottages
+8|Wappingthorn Farm Lane|Greenhouse
+8|Wappingthorn Farm Lane|Downsview Cottage
+8|Wappingthorn Farm Lane|Garden Cottage
+8|Horsham Road|Water Tower Cottage, Wappingthorn Farm
+8|Horsham Road|Loves Cottage
+8|Horsham Road|Foxes
+8|Horsham Road|Nutwood House
+8|Horsham Road|House, Calcot Farm
+8|Horsham Road|Bungalow, Calcot Farm
+8|Horsham Road|Calcot Farm
+8|Horsham Road|The Chalet, Calcot Farm
+9|Horsebridge Common|Sussex Place
+9|Horsham Road|Manor Northover
+9|Horsham Road|Northover
+9|Horsebridge Common|1 Horsebridge Cottage
+9|Horsebridge Common|2-3 Horsebridge Cottage
+9|Horsebridge Common|Horsebridge House
+9|Horsham Road|The Nook
+9|Horsham Road|Driftway
+9|Horsham Road|Ashurst Place Farm
+9|Horsham Road|Malthouse
+9|Horsham Road|Baybridge House
+9|Horsham Road|Heron Farm
+9|Horsebridge Common|Wharf Farm Partners
+9|Horsebridge Common|New Wharf Farm
+9|Horsebridge Common|Bergen Opzoom
+9|Steyning Road|Blakes Farm
+10|Steyning Road|Smallwood House
+10|Steyning Road|1 Wellens
+10|Steyning Road|2 Wellens
+10|Steyning Road|Wellens Farm
+10|Steyning Road|Southview, Wellens Farm
+10|The Village|The Old Mill
+10|The Village|Granary Cottage
+10|The Village|Towne House
+10|The Village|Mill View
+10|School Lane|Rose Cottage
+10|School Lane|Forge Cottage
+10|School Lane|Ivy Cottage
+10|School Lane|Barn Cottage
+10|School Lane|Molecombe
+10|School Lane|Batts
+10|School Lane|Batts Cottage
+10|School Lane|4
+10|School Lane|3
+10|School Lane|2
+11|School Lane|1
+11|School Lane|Tipnoak Lodge
+11|School Lane|2 Downs View
+11|School Lane|1 Downs View
+11|School Lane|Little Gratwicks
+11|School Lane|Ashurst Primary School
+11|School Lane|Burnetts Cottage
+11|School Lane|Sweet Hill
+11|The Village|The Fountain
+11|The Village|Blocques
+11|The Village|Sweetmans
+11|The Village|Ashurst Village Hall
+11|The Village|Hollytrees
+11|The Village|Sinclair House, Eatons Farm
+11|The Village|Robinsgarth
+11|The Village|Upper Eatons
+11|The Village|Lower Eatons
+11|The Village|Fons, Eatons Farm
+12|The Village|Eatons Farm
+12|The Village|Hills Farm
+12|Golden Lane|Brookfield Farm
+12|Golden Lane|Sobberies
+12|Golden Lane|Benfield Place
+12|Ford Lane|Holly Lodge
+12|Ford Lane|1 New Cottages, Ford Lane
+12|Ford Lane|2 New Cottages, Ford Lane
+12|Ford Lane|Timbers
+12|Ford Lane|Claylands Farmhouse
+12|Ford Lane|Old Dairy, Ford Farm
+12|Ford Lane|Claylands Cottage
+12|Ford Lane|Ford House
+12|Ford Lane|Hemmicks
+12|Ford Lane|Holly Cottage
+13|Church Lane|The Old House
+13|Church Lane|Annexe, Old House
+13|Church Lane|Otters
+13|Church Lane|Oakford
+13|Church Lane|Blackthorn Barn
+13|Church Lane|Gratwicks House
+13|Peppers Lane|Peppers House
+13|Peppers Lane|Farm House, Peppers
+13|Peppers Lane|Peppers Farm
+13|Peppers Lane|Foxglove Cottage
+13|Peppers Lane|Kings Barn Farm
+13|Peppers Lane|Bluebell Cottage
+13|Peppers Lane|The Granary, Kings Barn Farm
+13|Peppers Lane|1 Kings Barn Farm Cottages
+13|Peppers Lane|2 Kings Barn Farm Cottages
+13|Honeybridge Lane|Furzefield
+13|Honeybridge Lane|Jessops Farm
+14|Honeybridge Lane|Jessops
+14|Honeybridge Lane|Moors Mead
+14|Peppers Lane|Sopers Farm
+14|Honeybridge Lane|Clock House
+14|Honeybridge Lane|Honeybridge House
+14|Honeybridge Lane|The Lodge, Honeybridge House
+14|Honeybridge Lane|Honeybridge Farm
+14|Honeybridge Lane|Brookwood Farm
+14|Honeybridge Lane|The Capite
+14|Honeybridge Lane|The Barn Cottage, The Capite
+14|Honeybridge Lane|Jays Farm
+14|Honeybridge Lane|Daylands Farm
+14|The Village|Serene
