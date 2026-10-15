@@ -222,7 +222,7 @@ dialog h2{font-size:18px;font-weight:500;margin:0 0 4px}
 dialog p{color:var(--muted);margin:0 0 12px;font-size:13.5px}
 dialog input{width:100%;box-sizing:border-box;font:16px var(--font);padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--chip);color:var(--fg);margin-bottom:14px}
 @media (max-width:820px){
-  #app{grid-template-columns:1fr;grid-template-rows:clamp(240px,32vh,320px) auto;grid-template-rows:clamp(240px,32svh,320px) auto;height:auto}
+  #app{grid-template-columns:1fr;grid-template-rows:clamp(280px,45vh,440px) auto;grid-template-rows:clamp(280px,45svh,440px) auto;height:auto}
   #map{order:1}
   aside{order:2;border-right:0;border-top:1px solid var(--line);overflow:visible}
   html,body{height:auto}
@@ -260,6 +260,18 @@ button.chip{padding:10px 14px;font-size:14px}
 #navbar{box-sizing:border-box;max-height:calc(100% - 120px);overflow-y:auto;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
 #nbMode{font-size:14px;font-weight:600;color:var(--accent)}
 .title .logo{background:var(--accent)}
+/* "Coming up" card for named houses: big, high-contrast, readable at a glance */
+#approach{position:absolute;left:12px;right:12px;top:calc(12px + env(safe-area-inset-top,0px));margin:0 auto;max-width:520px;z-index:7;background:#f9ab00;color:#1f1300;border-radius:16px;box-shadow:var(--shadow);padding:14px 16px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center}
+#approach[hidden]{display:none}
+#approach .ak{grid-column:1/-1;font-size:15px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+#approach .ak b{font-size:22px;letter-spacing:.04em}
+#approach .at{font-size:28px;font-weight:700;line-height:1.1;overflow-wrap:anywhere}
+#approach .ad{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+#approach .an{grid-column:1/-1;font-size:17px;line-height:1.35;background:#fff3cf;border-radius:10px;padding:8px 10px;margin-top:6px}
+#approach .an[hidden]{display:none}
+.note{font-size:15px;line-height:1.4;background:color-mix(in srgb,#f9ab00 18%,transparent);border-radius:10px;padding:8px 10px}
+.note b{font-weight:700}
+#ndlg textarea{width:100%;box-sizing:border-box;font:16px var(--font);padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--chip);color:var(--fg);margin-bottom:14px;resize:vertical}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style>
 
@@ -281,8 +293,9 @@ button.chip{padding:10px 14px;font-size:14px}
       <div class="fx-k">Fixing house <span id="fxNum"></span></div>
       <div class="fx-t" id="fxName"></div>
       <div class="fx-s" id="fxHint">Tap the map where this house's front door is. Drag the map to move around.</div>
-      <div class="row"><button class="btn" id="fxRename">Rename</button><button class="btn" id="fxReset">Undo my fix</button><span style="flex:1"></span><button class="btn primary" id="fxDone">Done</button></div>
+      <div class="row"><button class="btn" id="fxRename">Rename</button><button class="btn" id="fxNote">Add note</button><button class="btn" id="fxReset">Undo my fix</button><span style="flex:1"></span><button class="btn primary" id="fxDone">Done</button></div>
     </div>
+    <div id="approach" hidden role="alert"><div class="ak">Coming up on your <b id="apSide"></b></div><div class="at" id="apName"></div><div class="ad" id="apDist"></div><div class="an" id="apNote" hidden></div></div>
     <div id="ping" class="hide" role="status" aria-live="assertive"><span class="pi"></span><div><div class="pk"></div><div class="pt"></div><div class="ps"></div></div></div>
     <div id="navbar" hidden>
       <div><div id="nbMode" hidden>Practice drive</div><div class="nk" id="nk"></div><div class="nt" id="nt"></div><div class="ns" id="ns"></div><div class="nn" id="nn"></div></div>
@@ -345,6 +358,12 @@ button.chip{padding:10px 14px;font-size:14px}
   <div class="ov-body"><div id="pkList"></div></div>
   <div class="ov-foot"><span id="pkCount"></span><button class="btn" id="pkClear">Clear</button><button class="btn primary big" id="pkGo">Plan route</button></div>
 </div>
+<dialog id="ndlg">
+  <h2>Note for this house</h2>
+  <p id="ndlgSub">Something to help find it next time, for example "white gate after the bend" or "drive is past the postbox". It's read out when you're coming up to the house.</p>
+  <textarea id="ndlgIn" rows="3" maxlength="160" placeholder="White gate after the bend"></textarea>
+  <div class="row"><button class="btn" id="ndlgClear">Delete note</button><span style="flex:1"></span><button class="btn" id="ndlgCancel">Cancel</button><button class="btn primary" id="ndlgSave">Save</button></div>
+</dialog>
 <dialog id="dlg">
   <h2>Name this house</h2>
   <p id="dlgSub"></p>
@@ -357,9 +376,12 @@ button.chip{padding:10px 14px;font-size:14px}
 /*DATA*/
 // ---------------- storage ----------------
 const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-const BAKED={names:{},pos:{}};/*BAKED*/
+const BAKED={names:{},pos:{},notes:{}};/*BAKED*/
 let labels=Object.assign({},BAKED.names,store.get("walkLabels")||{});
 let POS=Object.assign({},BAKED.pos,store.get("walkPos")||{});
+// driver notes ("white gate after the bend"), per round
+const NOTEK=(typeof ROUND_CFG!=="undefined"?ROUND_CFG.id:"steyning")+"_notes";
+let NOTES=Object.assign({},BAKED.notes||{},store.get(NOTEK)||{});
 // ---------------- round + mode ----------------
 const ROUND=typeof ROUND_CFG!=="undefined"?ROUND_CFG:{id:"steyning",name:"Annington Round",kind:"van",auto:{}};
 const MODEK=ROUND.id+"_mode",PARK=ROUND.id+"_parcels";
@@ -709,6 +731,10 @@ function render_ui(){
     <div class="row"><button class="btn grow" id="navSim">Practice drive</button><a class="btn grow" target="_blank" rel="noopener" href="${navLink(q)}">Google Maps</a></div>
     <div class="row"><button class="btn" id="prev" ${hIdx?"":"disabled"}>‹ Back</button><button class="btn grow" id="next">${hIdx<SEQ.length-1?(PARCELS?"Next parcel ›":"Next house ›"):"Finish"}</button></div>`;
   card.querySelector(".t").textContent=seqLabel(q);card.querySelector(".s").textContent=seqRoad(q)+(q.pc?" · "+q.pc:"");
+  {const n=noteOf(q);const t=card.querySelector(".s");const box=document.createElement("div");box.className="note";
+   if(n){box.innerHTML="<b>Note:</b> ";box.append(n);const e=document.createElement("button");e.className="chip";e.style.marginLeft="6px";e.textContent="Edit";e.onclick=()=>noteIt(q);box.append(e);}
+   else{const b=document.createElement("button");b.className="chip";b.textContent="Add a note to help find it";b.onclick=()=>noteIt(q);box.className="";box.append(b);}
+   t.after(box);}
   card.querySelector("#prev").onclick=()=>go(hIdx-1);
   card.querySelector("#next").onclick=()=>go(Math.min(SEQ.length-1,hIdx+1));
   card.querySelector("#navGo").onclick=()=>startNav("gps");card.querySelector("#navSim").onclick=()=>startNav("sim");
@@ -863,6 +889,7 @@ function repeatPing(){const q=SEQ[hIdx];if(!q)return;const side=legSide();const 
   ping("house",seqLabel(q),[side?`On your ${side}`:"",seqRoad(q),left?`${left} more on this street`:"last on this street"].filter(Boolean).join(" · "),`${houseSay(q)}${side?`, on your ${side}`:""}.`);}
 // ---- legs
 function buildLeg(reroute){
+  if(!reroute)hideApproach();
   NAV.arrived=false;NAV.arrSpot=null;NAV.stoppedHere=false;NAV.unmapped=false;NAV.prog=0;NAV.spoken={};NAV.offCount=0;
   const q=SEQ[hIdx];
   if(q.x==null){NAV.leg=null;NAV.unmapped=true;NAV.waitUntil=performance.now()+700;ping("house",seqLabel(q),"Not on the map · use Google Maps or skip",`Next, ${seqLabel(q)}. This address is not on the map. Use Google Maps, or tap skip.`);updateNavBar();return;}
@@ -882,7 +909,15 @@ function buildLeg(reroute){
         `Next, ${houseSay(q)}${side?`, on your ${side}`:""}${distTxt?", "+distTxt:""}.`);}}
   updateNavBar();
 }
-function arrive(){if(NAV.arrived)return;NAV.arrived=true;NAV.arrSpot=NAV.pos?{...NAV.pos}:null;const q=SEQ[hIdx],side=legSide();
+// named houses only: the ones without a house number to look for
+function isNamed(q){if(!q||!q.it)return !!(q&&q.reg);const it=q.it;if(labels[q.id])return !/^\d+[a-z]?$/i.test(labels[q.id].trim());return !!it.name&&!/^house with no name/i.test(it.name);}
+const noteKey=q=>q.it?q.it.id:regKey(q);
+const noteOf=q=>q?(NOTES[noteKey(q)]||""):"";
+function showApproach(q,side,dist){const ak=document.querySelector("#approach .ak");ak.innerHTML=side?'Coming up on your <b id="apSide"></b>':'Coming up';if(side)$("apSide").textContent=side.toUpperCase();$("apName").textContent=seqLabel(q);$("apDist").textContent=fmtDist(dist);
+  const n=noteOf(q);$("apNote").hidden=!n;$("apNote").textContent=n?"📝 "+n:"";$("approach").hidden=false;$("ping").classList.add("hide");}
+function hideApproach(){$("approach").hidden=true;}
+function approachChime(){if(NAV.muted)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const t=AC.currentTime;[784,988,1175,1568].forEach((f,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.type="triangle";o.frequency.value=f;g.gain.setValueAtTime(0,t+i*0.11);g.gain.linearRampToValueAtTime(0.22,t+i*0.11+0.02);g.gain.exponentialRampToValueAtTime(0.001,t+i*0.11+0.4);o.connect(g).connect(AC.destination);o.start(t+i*0.11);o.stop(t+i*0.11+0.45);});}catch(e){}}
+function arrive(){hideApproach();if(NAV.arrived)return;NAV.arrived=true;NAV.arrSpot=NAV.pos?{...NAV.pos}:null;const q=SEQ[hIdx],side=legSide();
   if(NAV.leg&&NAV.leg.len>=25)say(`You have arrived. ${uc(houseSay(q))}${side?` is on your ${side}`:""}.`);
   NAV.waitUntil=performance.now()+(NAV.mode==="sim"?900:0);updateNavBar();}
 function advance(){if(hIdx>=SEQ.length-1){if(!NAV.finished){NAV.finished=true;say(PARCELS?"That was the last parcel. All done.":"That was the last house. The round is complete.");updateNavBar();}return;}
@@ -890,6 +925,12 @@ function advance(){if(hIdx>=SEQ.length-1){if(!NAV.finished){NAV.finished=true;sa
 function back(){if(hIdx<=0)return;hIdx--;store.set(IDXK,hIdx);NAV.finished=false;try{speechSynthesis.cancel();}catch(e){}buildLeg();}
 function announce(L){const s=nextStep(L);const dist=s.at-NAV.prog;const k=L.steps.indexOf(s);
   if(s.type==="arrive"){if(dist<=(NAV.mode==="gps"?15:0.5)){arrive();return;}
+    const q=SEQ[hIdx];
+    if(isNamed(q)){const v=NAV.mode==="sim"?7.5:Math.max(NAV.spd||0,0);const lead=Math.max(70,Math.min(350,v*12));
+      if(!NAV.spoken.ap&&L.len>100&&dist<=lead){NAV.spoken.ap=1;NAV.spoken["a"+k]=1;showApproach(q,s.side,dist);approachChime();try{navigator.vibrate&&navigator.vibrate([300,120,300])}catch(e){}
+        const n=noteOf(q);say(`Coming up${s.side?` on your ${s.side}`:""}, ${houseSay(q)}.${n?" "+n.replace(/[.!?]*$/,"."):""}`,true);}
+      if(NAV.spoken.ap)$("apDist").textContent=fmtDist(Math.max(0,dist));
+      return;}
     if(L.len>120&&dist<=90&&!NAV.spoken["a"+k]){NAV.spoken["a"+k]=1;say(`In ${sayDist(dist)}, ${houseSay(SEQ[hIdx])}${s.side?`, on your ${s.side}`:""}.`);}return;}
   if(dist<=170&&dist>70&&!NAV.spoken["f"+k]){NAV.spoken["f"+k]=1;say(`In ${sayDist(dist)}, ${lc(s.text)}.`);}
   if(dist<=40&&!NAV.spoken["n"+k]){NAV.spoken["n"+k]=1;NAV.spoken["f"+k]=1;say(s.text+".",true);}}
@@ -943,7 +984,7 @@ function hideMsg(key){if(!key||NAV.msgKey===key){$("navmsg").hidden=true;NAV.msg
 // ---- bars
 function updateNavBar(){const q=SEQ[hIdx];if(!q)return;const side=legSide();
   $("nk").textContent=`${UNIT} ${hIdx+1} of ${SEQ.length}${q.shelf?" · Shelf "+q.shelf:""} · ${q.seg}`;$("nt").textContent=seqLabel(q);
-  $("ns").textContent=[side?`On your ${side}`:(q.x==null?"Not on the map":""),seqRoad(q),q.pc].filter(Boolean).join(" · ");
+  $("ns").textContent=[side?`On your ${side}`:(q.x==null?"Not on the map":""),seqRoad(q),q.pc].filter(Boolean).join(" · ")+(noteOf(q)?"  ·  📝 "+noteOf(q):"");
   const n=SEQ[hIdx+1];const st=streetOf(hIdx);const ns=STREETS[STREETS.indexOf(st)+1];const left=st?st.last-hIdx:0;
   $("nn").textContent=NAV.finished?(PARCELS?"All parcels delivered":"Round complete"):!n?(PARCELS?"Last parcel":"Last house of the round"):left?`Then: ${seqLabel(n)} · ${left} more on ${st.name}${ns?`, then ${ns.name}`:""}`:`Last on ${st.name} · next street: ${ns?ns.name:"none"}`;
   $("nbGm").href=navLink(q);$("nbSpeed").hidden=$("nbPause").hidden=NAV.mode!=="sim";$("nbSpeed").textContent=`Speed ${NAV.speed}×`;
@@ -988,7 +1029,7 @@ function startNav(mode){NAV.on=true;NAV.mode=mode;NAV.pos=NAV.dpos=NAV.raw=null;
   if(mode==="gps"){showMsg("gps","Finding your location…",[]);if(!navigator.geolocation)gpsFail();else{try{NAV.watch=navigator.geolocation.watchPosition(onFix,gpsFail,{enableHighAccuracy:true,maximumAge:1000,timeout:20000});}catch(e){gpsFail();}}updateNavBar();}
   else{buildLeg();if(NAV.pos){view.cx=NAV.pos.x;view.cy=NAV.pos.y;}NAV.head=view.rot=NAV.tHead;}
   cancelAnimationFrame(NAV.raf);NAV.raf=requestAnimationFrame(navTick);}
-function exitNav(quiet){NAV.on=false;$("ping").classList.add("hide");cancelAnimationFrame(NAV.raf);if(NAV.watch!=null){try{navigator.geolocation.clearWatch(NAV.watch);}catch(e){}NAV.watch=null;}
+function exitNav(quiet){NAV.on=false;hideApproach();$("ping").classList.add("hide");cancelAnimationFrame(NAV.raf);if(NAV.watch!=null){try{navigator.geolocation.clearWatch(NAV.watch);}catch(e){}NAV.watch=null;}
   try{speechSynthesis.cancel();}catch(e){}try{NAV.wake&&NAV.wake.release();}catch(e){}NAV.wake=null;
   $("app").classList.remove("nav");$("navbar").hidden=true;hideMsg();view.rot=0;if(quiet)return;resize();render_ui();focusLeg(true);}
 $("nbDone").onclick=()=>{try{speechSynthesis.cancel();}catch(e){}advance();};
@@ -1013,7 +1054,7 @@ function startFix(i){if(i==null||!SEQ[i])return;FIX.on=true;FIX.i=i;pop.hidden=t
   updFix();draw();}
 function nearestPlaced(i){for(let d=1;d<SEQ.length;d++){for(const j of [i-d,i+d]){if(SEQ[j]&&SEQ[j].x!=null)return SEQ[j];}}return null;}
 function updFix(){const q=SEQ[FIX.i];$("fxNum").textContent=`${FIX.i+1} of ${SEQ.length}`;$("fxName").textContent=seqLabel(q)+" · "+seqRoad(q);
-  const key=q.it?q.it.id:regKey(q);$("fxReset").hidden=!(store.get("walkPos")||{})[key];$("fxRename").hidden=!q.it;
+  const key=q.it?q.it.id:regKey(q);$("fxReset").hidden=!(store.get("walkPos")||{})[key];$("fxRename").hidden=!q.it;$("fxNote").textContent=noteOf(q)?"Edit note":"Add note";
   $("fxHint").textContent=q.x==null?"This address isn't on the map yet. Tap the map where its front door is.":"Tap the map where this house's front door is. Drag the map to move around.";}
 function fixTap(sx,sy){const [x,y]=toW(sx,sy);setPos(FIX.i,x,y);}
 function setPos(i,x,y){const q=SEQ[i];const lat=LAT0-y/MPD,lon=LON0+x/(K*MPD);const key=q.it?q.it.id:regKey(q);
@@ -1024,13 +1065,22 @@ function invalidateRoutes(i){LEGS.clear();SNAPS.clear();routePath=null;builtUpTo
 function endFix(){FIX.on=false;$("fixbox").hidden=true;mapEl.classList.remove("fixing");if(NAV.on){NAV.paused=FIX.wasPaused;NAV.free=false;updateNavBar();}else{render_ui();}draw();}
 $("fxDone").onclick=endFix;
 $("fxRename").onclick=()=>nameIt(FIX.i);
+$("fxNote").onclick=()=>noteIt(SEQ[FIX.i]);
+let noteFor=null;
+function noteIt(q){if(!q)return;noteFor=q;const d=$("ndlg");$("ndlgIn").value=noteOf(q);d.querySelector("h2").textContent="Note for "+seqLabel(q);
+  $("ndlgClear").hidden=!noteOf(q);try{d.showModal();}catch(e){d.setAttribute("open","");}setTimeout(()=>$("ndlgIn").focus(),50);}
+function saveNote(v){const k=noteKey(noteFor);const mine=store.get(NOTEK)||{};if(v){mine[k]=v;NOTES[k]=v;}else{delete mine[k];delete NOTES[k];}store.set(NOTEK,mine);
+  try{$("ndlg").close();}catch(e){$("ndlg").removeAttribute("open");}updFixCount();if(NAV.on)updateNavBar();else render_ui();if(FIX.on)updFix();showToast(v?"Note saved":"Note deleted");}
+$("ndlgSave").onclick=()=>saveNote($("ndlgIn").value.trim().slice(0,160));
+$("ndlgClear").onclick=()=>saveNote("");
+$("ndlgCancel").onclick=()=>{try{$("ndlg").close();}catch(e){$("ndlg").removeAttribute("open");}};
 $("fxReset").onclick=()=>{const q=SEQ[FIX.i];const key=q.it?q.it.id:regKey(q);const mine=store.get("walkPos")||{};delete mine[key];store.set("walkPos",mine);
   showToast("Undone. Reloading the map…");setTimeout(()=>location.reload(),600);};
 $("nbFix").onclick=()=>startFix(hIdx);
 function showToast(t){const el=$("ping");el.classList.remove("street");el.querySelector(".pi").innerHTML=svgI("arrive");el.querySelector(".pk").textContent="Saved";el.querySelector(".pt").textContent=t;el.querySelector(".ps").textContent="";el.classList.remove("hide");clearTimeout(pingT);pingT=setTimeout(()=>el.classList.add("hide"),2500);}
 // share / load
-function myFixes(){return {v:1,names:store.get("walkLabels")||{},pos:store.get("walkPos")||{}};}
-function updFixCount(){const f=myFixes();const n=Object.keys(f.names).length,m=Object.keys(f.pos).length;$("fixCount").textContent=n+m?`${m} position${m===1?"":"s"} moved and ${n} name${n===1?"":"s"} added on this phone. Send them to Claude to build them into the map for everyone.`:"Nothing fixed on this phone yet. Use “Fix this house” when a pin is in the wrong place or a house has no name.";$("shareFix").disabled=!(n+m);}
+function myFixes(){return {v:2,names:store.get("walkLabels")||{},pos:store.get("walkPos")||{},notes:store.get(NOTEK)||{}};}
+function updFixCount(){const f=myFixes();const n=Object.keys(f.names).length,m=Object.keys(f.pos).length,o=Object.keys(f.notes).length;$("fixCount").textContent=n+m+o?`${m} position${m===1?"":"s"} moved, ${n} name${n===1?"":"s"} and ${o} note${o===1?"":"s"} added on this phone. Send them to Claude to build them into the map for everyone.`:"Nothing fixed on this phone yet. Use “Fix this house” when a pin is in the wrong place or a house has no name.";$("shareFix").disabled=!(n+m+o);}
 $("shareFix").onclick=async()=>{const txt="STEYNING-FIXES "+JSON.stringify(myFixes());
   try{if(navigator.share){await navigator.share({title:"Steyning sat nav fixes",text:txt});return;}}catch(e){if(e&&e.name==="AbortError")return;}
   $("fixIO").hidden=false;$("fixText").value=txt;$("fixIOgo").hidden=true;$("fixText").select();
@@ -1038,7 +1088,7 @@ $("shareFix").onclick=async()=>{const txt="STEYNING-FIXES "+JSON.stringify(myFix
 $("loadFix").onclick=()=>{$("fixIO").hidden=false;$("fixText").value="";$("fixIOgo").hidden=false;$("fixIOhint").textContent="Paste a fixes code from another phone.";$("fixText").focus();};
 $("fixIOclose").onclick=()=>{$("fixIO").hidden=true;};
 $("fixIOgo").onclick=()=>{try{const raw=$("fixText").value.trim().replace(/^STEYNING-FIXES\s*/,"");const f=JSON.parse(raw);
-    store.set("walkLabels",Object.assign(store.get("walkLabels")||{},f.names||{}));store.set("walkPos",Object.assign(store.get("walkPos")||{},f.pos||{}));
+    store.set("walkLabels",Object.assign(store.get("walkLabels")||{},f.names||{}));store.set("walkPos",Object.assign(store.get("walkPos")||{},f.pos||{}));store.set(NOTEK,Object.assign(store.get(NOTEK)||{},f.notes||{}));
     $("fixIOhint").textContent="Loaded. Reloading…";setTimeout(()=>location.reload(),500);}catch(e){$("fixIOhint").textContent="That code isn't complete. Copy the whole thing, starting with STEYNING-FIXES.";}};
 updFixCount();
 // boot
