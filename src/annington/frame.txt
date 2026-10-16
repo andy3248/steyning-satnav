@@ -48,12 +48,6 @@
 3|Laines Road|26
 3|Laines Road|28
 3|Laines Road|30
-0|Newham Lane|Newham Lane Farm
-0|Newham Lane|Great Gables
-0|Newham Lane|Beechhanger
-0|Newham Lane|Pepperscombe Farm
-0|Newham Lane|Sweet Lands
-0|Newham Lane|The White House
 3|Bostal Road|Great Drove Farm
 3|Bostal Road|Highfield, Maudlyn Hill Farm
 3|Bostal Road|Seven Pines

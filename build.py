@@ -3,7 +3,7 @@
 
   python3 build.py
 
-Writes index.html (Annington round) and ashurst/index.html (Ashurst round).
+Writes index.html (Annington round), ashurst/index.html (Ashurst) and wiston/index.html (Wiston).
 Edit the app in src/template.html; round data lives in src/annington and src/ashurst.
 """
 import json,re,os
@@ -63,10 +63,14 @@ def build_frame(cfg):
 # Annington keeps the original page's id and storage keys, so the round, mode and parcels settings carry over.
 # Item ids are "f0".. (not "a0"..) so fixes saved against the old house list don't land on the wrong houses.
 ANN=dict(dir='annington',id='steyning',name='Annington Round',keyprefix='',idp='f',fixtag='STEYNING',os=False,
-         shelves='shelves 1 to 20 plus the Newham Lane shelf, in the order you walk the frame')
+         shelves='shelves 1 to 20, in the order you walk the frame')
 ASH=dict(dir='ashurst',id='ashurst',name='Ashurst Round',keyprefix='ash_',idp='a',fixtag='ASHURST',os=True,
          shelves='shelves 1 to 14, left to right')
+WIS=dict(dir='wiston',id='wiston',name='Wiston Round',keyprefix='wis_',idp='w',fixtag='WISTON',os=False,
+         shelves='column by column, top shelf to bottom, left to right (shelves 1 to 24)')
 open(os.path.join(ROOT,'index.html'),'w').write(HEAD+build_frame(ANN)+'\n</body></html>')
 os.makedirs(os.path.join(ROOT,'ashurst'),exist_ok=True)
 open(os.path.join(ROOT,'ashurst','index.html'),'w').write(HEAD+build_frame(ASH)+'\n'+SW+'\n</body></html>')
-print('built index.html and ashurst/index.html')
+os.makedirs(os.path.join(ROOT,'wiston'),exist_ok=True)
+open(os.path.join(ROOT,'wiston','index.html'),'w').write(HEAD+build_frame(WIS)+'\n'+SW+'\n</body></html>')
+print('built index.html, ashurst/index.html and wiston/index.html')

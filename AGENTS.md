@@ -1,13 +1,13 @@
 # Delivery round sat nav: notes for coding agents
 
 A phone-first training sat nav for postal delivery rounds, hosted on GitHub Pages.
-Live pages: `/steyning-satnav/` (Annington Round) and `/steyning-satnav/ashurst/` (Ashurst Round).
+Live pages: `/steyning-satnav/` (Annington Round), `/steyning-satnav/ashurst/` (Ashurst Round) and `/steyning-satnav/wiston/` (Wiston Round).
 
 ## How it is built
 - **Edit `src/template.html`.** It is the whole app: HTML, CSS and JS in one file.
-- **Run `python3 build.py`** to regenerate `index.html` and `ashurst/index.html`. Never hand-edit those two files; they are build output with the round data baked in.
-- `src/annington/` and `src/ashurst/` hold each round's data (house positions, frame order, basemap). Leave them alone unless asked; they took a lot of work to assemble.
-- `src/head.html` is the page wrapper (meta viewport, `[hidden]` rule). `ashurst/sw.js` is the offline service worker; bump its `CACHE` name whenever `ashurst/index.html` changes.
+- **Run `python3 build.py`** to regenerate `index.html`, `ashurst/index.html` and `wiston/index.html`. Never hand-edit those two files; they are build output with the round data baked in.
+- `src/annington/`, `src/ashurst/` and `src/wiston/` hold each round's data (house positions, frame order, basemap). Leave them alone unless asked; they took a lot of work to assemble.
+- `src/head.html` is the page wrapper (meta viewport, `[hidden]` rule). `ashurst/sw.js` and `wiston/sw.js` are the offline service workers; bump their `CACHE` name whenever that page changes.
 
 ## Things that must keep working
 - **Offline:** everything is in the page. No new runtime network requests, CDNs or map tiles.

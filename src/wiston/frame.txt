@@ -1,0 +1,437 @@
+1|Spithandle Lane|Artemis Aerospace Ltd
+1|Spithandle Lane|Doves Farm
+1|Spithandle Lane|Beggars Bush
+1|Spithandle Lane|Furze Field
+1|Spithandle Lane|Spithandle Nurseries
+1|Spithandle Lane|Granary Barn
+1|Spithandle Lane|Spithandle
+1|Spithandle Lane|College Wood
+1|Spithandle Lane|Guess Gate
+2|Spithandle Lane|Hawking Sopers
+2|Spithandle Lane|Guesses Farm
+2|Spithandle Lane|2 Wheelers Common Cottage
+2|Spithandle Lane|1 Wheelers Common Cottage
+2|Spithandle Lane|Upper Buncton House
+2|Spithandle Lane|Fair Oak Farm
+2|Spithandle Lane|2 Middle Barn Cottages
+2|Spithandle Lane|1 Middle Barn Cottages
+2|Stocks Hill|1 Stocksfield
+2|Stocks Hill|2 Stocksfield
+2|Stocks Hill|3 Stocksfield
+2|Stocks Hill|4 Stocksfield
+2|Stocks Hill|5 Stocksfield
+2|Stocks Hill|6 Stocksfield
+2|Stocks Hill|3
+2|Stocks Hill|6
+2|Stocks Hill|5
+2|Stocks Hill|4
+3|Stocks Hill|2
+3|Stocks Hill|1
+3|Hole Street|1 Crackers Cottages
+3|Hole Street|2 Crackers Cottages
+3|Hole Street|1 Lidbetters Cottages
+3|Hole Street|2 Lidbetters Cottages
+3|Hole Street|Abbotts Farm
+3|Hole Street|1 Abbotts Cottages
+3|Hole Street|2 Abbotts Cottages
+3|Hole Street|6
+3|Hole Street|6a
+3|Hole Street|5
+3|Hole Street|Hole Street Farmhouse
+3|Hole Street|Hole Street Farm
+3|Hole Street|West, Trickles Cottage
+3|Hole Street|East, Trickles Cottage
+3|Hole Street|Sideways
+3|Hole Street|Bennetts
+3|Hole Street|Hole Street Barn
+3|Hole Street|Barn Cottage
+4|Hole Street|Stable Cottage
+4|North Lane|New Barn
+4|North Lane|2
+4|North Lane|1
+4|Water Lane|Water Lane Cottage
+4|Water Lane|The Old Post Office
+4|Water Lane|4 Longback Cottages
+4|Water Lane|3 Longback Cottages
+4|Water Lane|2 Longback Cottages
+4|Water Lane|1 Longback Cottages
+4|Water Lane|Butchers Farm
+4|Water Lane|Yew Tree Cottage
+4|Chanctonbury Ring Road|Weppons Farm
+4|Chanctonbury Ring Road|Weppons Cottage
+4|Chanctonbury Ring Road|Estate Office House
+4|Chanctonbury Ring Road|Fastings
+4|Chanctonbury Ring Road|Starvells
+4|Chanctonbury Ring Road|1 Holloway Cottages
+4|Chanctonbury Ring Road|2 Holloway Cottages
+5|Chanctonbury Ring Road|1 Malthouse Cottages
+5|Chanctonbury Ring Road|2 Malthouse Cottages
+5|Steyning Road|Pump House
+5|Steyning Road|Shirley House
+5|Steyning Road|Lower Chancton Farm
+5|Steyning Road|Sussex Timber Co
+5|Steyning Road|1 Polecat Cottages
+5|Steyning Road|2 Polecat Cottages
+5|Steyning Road|Buncton Manor Farm
+5|Steyning Road|1 Model Cottages
+5|Steyning Road|2 Model Cottages
+5|Steyning Road|Bushovel Farm
+5|Steyning Road|School House
+5|Steyning Road|Old School House
+5|Steyning Road|The Forstal
+5|Steyning Road|Paygate Lodge
+5|Steyning Road|Wilton Park
+5|Steyning Road|1 Garden Cottage
+5|Steyning Road|2 Garden Cottage
+6|Steyning Road|The Bothy
+6|Steyning Road|The Beeches
+6|Steyning Road|Wiston Estate Office
+6|Mouse Lane|2 Round Robin
+6|Mouse Lane|1 Round Robin
+6|Mouse Lane|Adur Brewery
+6|Mouse Lane|2 Charlton Court Cottages
+6|Mouse Lane|1 Charlton Court Cottages
+6|Mouse Lane|3 Charlton Court Cottages
+6|Mouse Lane|Charlton Court Farm
+6|Mouse Lane|Standings
+6|Mouse Lane|Mouse Cottage
+6|Mouse Lane|Ivy Cottage
+6|Mouse Lane|Whispers
+6|Mouse Lane|5 Pompeys Terrace
+6|Mouse Lane|4 Pompeys Terrace
+6|Mouse Lane|3 Pompeys Terrace
+6|Mouse Lane|2 Pompeys Terrace
+6|Mouse Lane|1 Pompeys Terrace
+7|Mouse Lane|Little Mews
+7|Mouse Lane|Tribschen
+7|Mouse Lane|Forge House
+7|Mouse Lane|Windsor Cottage
+7|Mouse Lane|Wash House Cottage
+7|Mouse Lane|Apple Cottage
+7|Mouse Lane|3 Workhouse Cottages
+7|Mouse Lane|2 Workhouse Cottages
+7|Mouse Lane|1 Workhouse Cottages
+7|Mouse Lane|Fringe Cottage
+7|Mouse Lane|Mousetows
+7|Mouse Lane|4 Charlton Place Cottages
+7|Mouse Lane|The Pod
+7|Mouse Lane|Pear Tree Cottage
+7|Mouse Lane|Rose Cottage
+7|Mill Road|1
+7|Mill Road|2
+7|Mill Road|3
+8|Mill Road|4
+8|Mill Road|5
+8|Mill Road|6
+8|Mill Road|7
+8|Mill Road|8
+8|Mill Road|9
+8|Mill Road|10
+8|Mill Road|11
+8|Mill Road|12
+8|Mill Road|13
+8|Mill Road|14
+8|Mill Road|15
+8|Mill Road|16
+8|Mill Road|17
+8|Mill Road|19
+8|Mill Road|20
+8|Mill Road|21
+8|Mill Road|22
+8|Mill Road|23
+8|Mill Road|24
+9|Mill Road|25
+9|Mill Road|26
+9|Mill Road|27
+9|Sir Georges Place|Mill End
+9|Mill Road|Court Mill
+9|Mill Road|Pilgrims Cottage
+9|Mill Road|Millside
+9|Mill Road|Meadowside
+9|Mill Road|April Cottage
+9|Mill Road|Spring Hill
+9|Mill Road|February Cottage
+9|Mill Road|Cornrigs
+9|Mill Road|Downs View
+9|Mill Road|Chanctonbury
+9|Mill Road|Hollinwood
+9|Mill Road|Greenleas
+9|Mill Road|Tynings
+9|Mill Road|The Willows
+9|Mill Road|Burchetts
+9|Mill Road|Byways
+10|Mill Road|Downlands
+10|Mill Road|Spring Meadows Farm
+10|Fairs Field|2
+10|Fairs Field|4
+10|Fairs Field|1
+10|Fairs Field|3
+10|Fairs Field|5
+10|Fairs Field|6
+10|Fairs Field|7
+10|Fairs Field|8
+10|Fairs Field|9
+10|Fairs Field|10
+10|Fairs Field|11
+10|Fairs Field|12
+10|Fairs Field|13
+10|Fairs Field|14
+10|Fairs Field|15
+10|Fairs Field|16
+10|Fairs Field|17
+10|Fairs Field|19
+11|Fairs Field|20
+11|Fairs Field|18
+11|Charlton Street|40
+11|Charlton Street|Forty One
+11|Charlton Street|1 Iris Cottages
+11|Charlton Street|2 Iris Cottages
+11|Charlton Street|1 Museum Cottages
+11|Charlton Street|2 Museum Cottages
+11|Charlton Street|The Studio
+11|Charlton Street|Steyning Athletic Club
+11|Charlton Street|Charlton Cottage
+11|Charlton Street|Eversfield
+11|Charlton Street|Cynara
+11|Charlton Street|Foxlea Cottage
+11|Charlton Street|Wallside Cottage
+11|Charlton Street|1 Charlton Mews
+11|Charlton Street|2 Charlton Mews
+11|Charlton Street|3 Charlton Mews
+11|Charlton Street|4 Charlton Mews
+11|Charlton Street|5 Charlton Mews
+12|Charlton Street|The Stables
+12|Charlton Street|Carters Barn
+12|Charlton Street|Old Bank Barn
+12|Charlton Street|1 Bank Apartments
+12|Charlton Street|2 Bank Apartments
+12|White Horse Square|Myatts
+12|White Horse Square|Pilgrim Cottage
+12|White Horse Square|Testers
+12|White Horse Square|10
+12|White Horse Square|11
+12|Dukes Lane|1
+12|Dukes Lane|2
+12|White Horse Square|3
+12|White Horse Square|2
+12|White Horse Square|1
+12|White Horse Square|The Shambles
+12|White Horse Square|The Retreat
+12|White Horse Square|Chequers Orchard
+12|Charlton Street|Ironworks Cottage
+12|Charlton Street|Cricket Club
+13|Charlton Street|Sussex Police
+13|Charlton Street|1 The Gardens
+13|Charlton Street|2 The Gardens
+13|Charlton Street|3 The Gardens
+13|Charlton Street|1 The Plough
+13|Charlton Street|2 The Plough
+13|Charlton Street|1
+13|Charlton Street|2
+13|Charlton Street|3
+13|Charlton Street|4
+13|Charlton Street|5
+13|Charlton Street|6
+13|Charlton Street|7
+13|Charlton Street|8
+13|Charlton Street|9
+13|Charlton Street|10
+13|Charlton Street|11
+13|Charlton Street|12
+13|Charlton Street|13
+13|Charlton Street|14
+14|Charlton Street|15
+14|Charlton Street|16
+14|Charlton Street|17
+14|Charlton Street|18
+14|Charlton Street|19
+14|Charlton Street|20
+14|Charlton Street|21
+14|Charlton Street|22
+14|Charlton Street|23
+14|Charlton Street|24
+14|Charlton Street|25
+14|Charlton Street|26
+14|Charlton Street|27
+14|Charlton Street|28
+14|Charlton Street|29
+14|Charlton Street|30
+14|Charlton Street|31
+14|Charlton Street|32
+14|Charlton Street|33
+14|Charlton Street|34
+15|Charlton Street|36
+15|Charlton Street|37
+15|Charlton Street|38
+15|Charlton Street|39
+15|Dukes Yard|1
+15|Dukes Yard|2
+15|Dukes Yard|3
+15|Dukes Yard|4
+15|Dukes Yard|5
+15|Dukes Yard|6
+15|Dukes Yard|7
+15|Dukes Yard|8
+15|Newham Lane|1
+15|Newham Lane|2
+15|Newham Lane|3
+15|Newham Lane|4
+15|Newham Lane|5
+15|Newham Lane|6
+15|Newham Lane|7
+15|Newham Lane|8
+16|Newham Lane|9
+16|Newham Lane|10
+16|Newham Lane|11
+16|Newham Lane|12
+16|Newham Lane|13
+16|Newham Close|1
+16|Newham Close|2
+16|Newham Close|3
+16|Newham Close|4
+16|Newham Close|5
+16|Newham Close|6
+16|Newham Close|7
+16|Newham Close|8
+16|Newham Close|14
+16|Newham Close|15
+16|Newham Close|16
+16|Newham Close|17
+16|Newham Close|18
+16|Newham Close|19
+16|Newham Close|20
+17|Newham Close|21
+17|Newham Close|22
+17|Newham Close|23
+17|Newham Close|24
+17|Newham Close|25
+17|Newham Close|26
+17|Newham Close|27
+17|Newham Close|28
+17|Newham Close|29
+17|Newham Close|30
+17|Newham Close|31
+17|Newham Close|32
+17|Newham Close|33
+17|Newham Close|34
+17|Newham Close|35
+17|Godstalls Lane|1
+17|Godstalls Lane|2
+17|Godstalls Lane|3
+17|Godstalls Lane|4
+17|Godstalls Lane|5
+18|Godstalls Lane|6
+18|Godstalls Lane|7
+18|Godstalls Lane|8
+18|Godstalls Lane|9
+18|Godstalls Lane|10
+18|Godstalls Lane|11
+18|Godstalls Lane|12
+18|Perrots Lane|1
+18|Perrots Lane|2
+18|Perrots Lane|4
+18|Perrots Lane|3
+18|Perrots Lane|5
+18|Perrots Lane|7
+18|Perrots Lane|9
+18|Perrots Lane|11
+18|Perrots Lane|13
+18|Newham Lane|Rivendell
+18|Newham Lane|Hadleigh
+18|Newham Lane|Kingswood
+18|Newham Lane|Sheppens
+19|Newham Lane|Surrenden
+19|Newham Lane|Flanders
+19|Newham Lane|Crispins
+19|Newham Lane|Redlands
+19|Newham Lane|20a
+19|Newham Lane|20
+19|Newham Lane|19
+19|Newham Lane|19a
+19|Newham Lane|18a
+19|Newham Lane|18
+19|Newham Lane|17
+19|Newham Lane|16
+19|Newham Lane|15
+19|Newham Lane|14
+19|Chandlers Way|1
+19|Chandlers Way|2
+19|Chandlers Way|3
+19|Chandlers Way|4
+19|Chandlers Way|5
+19|Chandlers Way|6
+20|Chandlers Way|7
+20|Chandlers Way|8
+20|Chandlers Way|9
+20|Chandlers Way|10
+20|Chandlers Way|11
+20|Chandlers Way|12
+20|Chandlers Way|13
+20|Chandlers Way|14
+20|Chandlers Way|15
+20|Chandlers Way|16
+20|Chandlers Way|17
+20|Chandlers Way|18
+20|Chandlers Way|19
+20|Chandlers Way|20
+20|Chandlers Way|21
+20|Chandlers Way|22
+20|Chandlers Way|23
+20|Chandlers Way|24
+20|Chandlers Way|25
+20|Chandlers Way|26
+20|Chandlers Way|27
+21|Chandlers Way|28
+21|Chandlers Way|29
+21|Newham Lane|Newlands
+21|Newham Lane|Sardana
+21|Newham Lane|Sunnycoast House
+21|Newham Lane|Portway
+21|Newham Lane|22
+21|Newham Lane|21a
+21|Newham Lane|21
+21|Newham Lane|Moonrakers
+21|Newham Lane|The Lighthouse
+21|Newham Lane|Hillston
+21|Newham Lane|23
+21|Newham Lane|24
+21|Newham Lane|25
+21|Newham Lane|26
+21|Newham Lane|27
+21|Newham Lane|28
+21|Newham Lane|29
+21|Newham Lane|30
+22|Sir Georges Place|1
+22|Sir Georges Place|2
+22|Sir Georges Place|3
+22|Sir Georges Place|4
+22|Sir Georges Place|5
+22|Sir Georges Place|6
+22|Sir Georges Place|7
+22|Sir Georges Place|8
+22|Sir Georges Place|15
+22|Sir Georges Place|16
+22|Sir Georges Place|17
+22|Sir Georges Place|9
+22|Sir Georges Place|10
+22|Sir Georges Place|11
+22|Sir Georges Place|12
+22|Sir Georges Place|13
+22|Sir Georges Place|14
+22|Sir Georges Place|18
+22|Sir Georges Place|19
+22|Sir Georges Place|20
+23|Sir Georges Place|21
+23|Sir Georges Place|22
+23|Sir Georges Place|23
+23|Sir Georges Place|24
+23|Sir Georges Place|25
+23|Sir Georges Place|26
+23|Sir Georges Place|27
+23|Sir Georges Place|28
+24|Newham Lane|Newham Lane Farm
+24|Newham Lane|Great Gables
+24|Newham Lane|Beechhanger
+24|Newham Lane|Pepperscombe Farm
+24|Newham Lane|Sweet Lands
+24|Newham Lane|The White House
