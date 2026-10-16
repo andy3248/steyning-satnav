@@ -1,0 +1,304 @@
+# shelf|road|delivery point  (Annington frame, delivery order)
+1|Laines Road|65
+1|Laines Road|63
+1|Laines Road|61
+1|Laines Road|59
+1|Laines Road|57
+1|Laines Road|55
+1|Laines Road|53
+1|Laines Road|51
+1|Laines Road|49
+1|Laines Road|47
+1|Laines Road|45
+1|Laines Road|43
+1|Laines Road|41
+1|Laines Road|39
+1|Laines Road|37
+1|Laines Road|35
+1|Laines Road|33
+1|Laines Road|31
+1|Laines Road|29
+1|Laines Road|27
+2|Laines Road|25
+2|Laines Road|23
+2|Laines Road|21
+2|Laines Road|19
+2|Laines Road|17
+2|Laines Road|15
+2|Laines Road|13
+2|Laines Road|11
+2|Laines Road|9
+2|Laines Road|7
+2|Laines Road|5
+2|Laines Road|3
+2|Laines Road|1
+2|Laines Road|Horseshoes
+2|Laines Road|2
+2|Laines Road|4
+2|Laines Road|6
+2|Laines Road|8
+2|Laines Road|10
+2|Laines Road|12
+3|Laines Road|14
+3|Laines Road|16
+3|Laines Road|18
+3|Laines Road|20
+3|Laines Road|22
+3|Laines Road|24
+3|Laines Road|26
+3|Laines Road|28
+3|Laines Road|30
+0|Newham Lane|Newham Lane Farm
+0|Newham Lane|Great Gables
+0|Newham Lane|Beechhanger
+0|Newham Lane|Pepperscombe Farm
+0|Newham Lane|Sweet Lands
+0|Newham Lane|The White House
+3|Bostal Road|Great Drove Farm
+3|Bostal Road|Highfield, Maudlyn Hill Farm
+3|Bostal Road|Seven Pines
+3|Bostal Road|Highfields Cottage
+3|Bostal Road|Downsway
+3|Bostal Road|Ashenhurst House
+4|Mount Park|8
+4|Mount Park|2
+4|Mount Park|3
+4|Mount Park|3A
+4|Mount Park|4
+4|Mount Park|4A
+4|Mount Park|5
+4|Mount Park|23
+4|Mount Park|22
+4|Mount Park|24
+4|Mount Park|25
+4|Mount Park|26
+4|Mount Park|27
+4|Mount Park|28
+4|Mount Park|29
+4|Mount Park|30
+4|Mount Park|21
+4|Mount Park|20
+4|Mount Park|19
+5|Mount Park|18
+5|Mount Park|17
+5|Mount Park|16
+5|Mount Park|15
+5|Mount Park|14
+5|Mount Park|7
+5|Mount Park|12
+5|Mount Park|11
+5|Mount Park|10
+5|Mount Park|9
+5|Mount Park|1
+5|Mount Park|Ireden
+5|Mount Park|6
+5|Bostal Road|Mount House
+5|Bostal Road|High Tor
+5|Bostal Road|The Mount
+5|Bostal Road|The Barn
+5|Bostal Road|Claytiles
+5|Bostal Road|Keepers House
+6|Bostal Road|The Cokers
+6|Bostal Road|Four Winds
+6|Bostal Road|Droveside Cottage
+6|Bostal Road|Little Drove Lodge
+6|Little Drove|Guildwood
+6|Little Drove|Haven St. Mary
+6|Little Drove|The Old Stable
+6|Little Drove|Middle House
+6|Little Drove|Stortford
+6|Little Drove|High Beech
+7|Little Drove|Oakleigh House
+7|Bostal Road|Bartons
+7|Bostal Road|Hillside House
+7|Bostal Road|North View
+7|Bostal Road|The Beechings
+7|Penlands Close|Witherjay
+7|Penlands Close|Mayero
+7|Penlands Close|Meadowsweet
+7|Penlands Close|Greenacres
+7|Maudlin Lane|Delamere
+7|Maudlin Lane|Whindene
+19|Coombe Drove|1
+19|Coombe Drove|3
+19|Coombe Drove|5
+19|Coombe Drove|7
+19|Coombe Drove|9
+19|Coombe Drove|11
+19|Coombe Drove|13
+19|Coombe Drove|15
+19|Coombe Drove|17
+19|Coombe Drove|19
+19|Coombe Drove|21
+19|Coombe Drove|23
+19|Coombe Drove|25
+19|Coombe Drove|27
+19|Coombe Drove|29
+19|Coombe Drove|31
+19|Coombe Drove|33
+19|Coombe Drove|35
+19|Coombe Drove|37
+19|Coombe Drove|39
+20|Coombe Drove|41
+20|Coombe Drove|43
+20|Coombe Drove|36
+20|Coombe Drove|34
+20|Coombe Drove|32
+20|Coombe Drove|30
+20|Coombe Drove|28
+20|Coombe Drove|26
+20|Coombe Drove|24
+20|Coombe Drove|22
+20|Coombe Drove|20
+20|Coombe Drove|18
+20|Coombe Drove|16
+20|Coombe Drove|14
+20|Coombe Drove|12
+20|Coombe Drove|10
+20|Coombe Drove|8
+20|Coombe Drove|6
+20|Coombe Drove|4
+20|Coombe Drove|2
+8|Maudlin Lane|Crimond
+8|Maudlin Lane|Essenden
+8|Maudlin Lane|Lealholm
+8|Maudlin Lane|Lexden
+8|Maudlin Lane|Croft House
+8|Maudlin Lane|Hillingdon
+8|Maudlin Lane|Aldryngton
+8|Maudlin Lane|Wayside
+8|Maudlin Lane|Apple Trees
+8|Maudlyn Close|Fluelen
+9|Maudlyn Close|Maples
+9|Maudlyn Close|Bonigen
+9|Maudlyn Close|Mountain Ash
+9|Maudlyn Close|Downside
+9|Maudlyn Close|Beech House
+9|Maudlyn Close|Martlets
+9|Maudlyn Close|Greenbanks
+9|Maudlyn Close|Derrynane
+9|Maudlyn Close|Pippins
+9|Maudlyn Close|Freshfields
+9|Maudlyn Close|Green Wood
+9|Maudlyn Close|Edge Hill
+9|Maudlyn Close|Windy Ridge
+9|Maudlyn Close|High Trees
+9|Maudlyn Park|Spinney Croft
+10|Maudlyn Park|Three Elms
+10|Maudlyn Park|Long Mead
+10|Maudlyn Park|Tall Pines
+10|Maudlyn Park|South Corner
+10|Maudlyn Park|Tanners
+10|Maudlyn Park|Greylands
+10|Maudlyn Park|High Beech
+10|Maudlyn Park|Linden
+10|Maudlyn Park|Downslea
+10|Maudlyn Park|White Horses
+11|Maudlyn Park|Ridge Green
+11|Maudlyn Park|Serahn
+11|Maudlyn Park|Serendipity
+11|Maudlin Lane|Loxwood
+11|Maudlin Lane|Fir Trees
+11|Maudlin Lane|Featherstone
+11|Maudlin Lane|Woodpeckers
+11|Maudlin Lane|Nether Maudlin
+11|Maudlin Lane|The Barton
+11|Maudlin Lane|1 Maudlin Farm Cottages
+11|Maudlin Lane|2 Maudlin Farm Cottages
+17|Maudlyn Park Way|Maudlyn House
+17|The Ridings|1
+17|The Ridings|2
+17|The Ridings|3
+17|The Ridings|4
+17|The Ridings|5
+17|The Ridings|6
+17|The Ridings|7
+17|The Ridings|8
+17|The Ridings|9
+17|The Ridings|10
+17|The Ridings|11
+17|The Ridings|12
+17|The Ridings|13
+17|The Ridings|14
+17|The Ridings|15
+17|The Ridings|16
+18|The Ridings|17
+18|The Ridings|18
+18|The Ridings|19
+18|Maudlyn Park Way|25
+18|Maudlyn Park Way|24
+18|Maudlyn Park Way|23
+18|Maudlyn Park Way|22
+18|Maudlyn Park Way|21
+18|Maudlyn Park Way|20
+18|Maudlyn Park Way|19
+18|Maudlyn Park Way|26
+18|Maudlyn Park Way|27
+18|Maudlyn Park Way|Holly House
+18|Maudlyn Park Way|Myton
+18|Maudlyn Park Way|Acacia
+18|Maudlyn Park Way|7
+18|Maudlyn Park Way|Ashcroft
+16|Maudlyn Park Way|2
+16|Maudlyn Park Way|Woodleigh
+16|Maudlyn Park Way|Pantiles
+16|Maudlyn Park Way|Furzedown
+16|Maudlyn Park Way|Copthorne
+16|Maudlyn Park Way|Snaefell
+16|Maudlyn Park Way|Bark… (label cut off)
+15|Kingsmead Close|1
+15|Kingsmead Close|3
+15|Kingsmead Close|5
+15|Kingsmead Close|8
+15|Kingsmead Close|6
+15|Kingsmead Close|4
+15|Kingsmead Close|2
+15|Sopers Lane|Edward House
+15|Sopers Lane|Maudlyn Hill House
+15|Sopers Lane|Sopers
+15|Sopers Lane|Valley View
+16|Sopers Lane|Crows Nest
+16|Sopers Lane|Chalk Hills
+16|Sopers Lane|Hadleigh
+16|Sopers Lane|Chantry
+16|Sopers Lane|Bridleway
+16|Sopers Lane|Seasons
+16|Sopers Lane|Hillyfields
+16|Sopers Lane|Springfield
+16|Sopers Lane|Upper Maudlyn Farm
+16|Sopers Lane|1 Steyning Bowl Cottages
+16|Sopers Lane|2 Steyning Bowl Cottages
+13|Annington Road|Unit 4, S J L Framing
+13|Annington Road|Unit 3 (label faded)
+13|Annington Road|Unit 2, Naomi Elliott
+13|Annington Road|Unit 1A (label faded)
+13|Annington Road|Unit 1B, Ellipsus
+13|Annington Road|Unit 6 (label faded)
+13|Annington Road|Unit 7, Adur Furniture
+13|Annington Road|Unit 5
+13|Annington Road|Unit 11, Steyn Double Glazing
+13|Annington Road|Annington Mere Farmhouse
+14|Annington Road|Annington House
+14|Annington Road|Bank Cottages
+14|Botolphs Road|High Hobby
+14|Botolphs Road|Annington Old Farmhouse
+14|Botolphs Road|Annington Cottage
+14|Botolphs Road|1 Annington Barn
+14|Botolphs Road|2 Annington Barn
+14|Botolphs Road|The Granary
+14|Annington Road|Annington Farm
+14|Botolphs Road|Pear Tree Cottage
+14|Botolphs Road|Annexe, Pear Tree Cottage
+14|Botolphs Road|Chatfields
+15|Botolphs Road|The Vicarage
+15|Botolphs Road|Old Barn Cottage
+15|Botolphs Road|Botolphs Cottage
+15|Botolphs Road|Tin Pots
+12|Maudlin Lane|Maudlin Farmhouse
+12|Maudlin Lane|Little Maudlin
+12|Maudlin Lane|Maudlin Barn
+12|Maudlin Lane|Kingsmead Lodge
+12|Annington Road|Lower Maudlin
+12|Annington Road|Maudlin Paddock
+12|Annington Road|Lime Trees
+12|Annington Road|Annington Nurseries
