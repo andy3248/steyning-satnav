@@ -87,6 +87,22 @@ canvas{display:block;width:100%;height:100%}
 #pkNote[hidden]{display:none}
 #pkCount{flex:1;font-size:15px;font-weight:500}
 .ov-search{padding:10px 16px;border-bottom:1px solid var(--line)}
+.ov-search{display:flex;gap:8px;align-items:center}
+.ov-search .scanbtn{flex:none;display:flex;align-items:center;gap:6px;border:0;border-radius:24px;padding:0 16px;min-height:46px;background:var(--accent);color:#fff;font:600 15px var(--font);cursor:pointer}
+.ov-search .scanbtn svg{width:20px;height:20px}
+#scan{background:#000;color:#fff}
+#scan .ov-head{border-color:#333}#scan .ov-head p{color:#bbb}#scan .ov-x{background:#333;color:#fff}
+#scanView{position:relative;flex:1;min-height:0;overflow:hidden;background:#111}
+#scanView video{width:100%;height:100%;object-fit:cover;display:block}
+#scanView .guide{position:absolute;left:6%;right:6%;top:18%;bottom:18%;border:3px solid rgba(255,255,255,.85);border-radius:14px;box-shadow:0 0 0 999px rgba(0,0,0,.35);pointer-events:none}
+#scanView .guide span{position:absolute;left:0;right:0;top:-34px;text-align:center;font-size:14px;color:#fff}
+#scanMsg{padding:10px 16px;font-size:15px;line-height:1.4;min-height:22px;background:#111}
+#scanRes{background:var(--bg);color:var(--fg)}
+#scanRes .sr{display:flex;gap:10px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--line)}
+#scanRes .sr div{flex:1;min-width:0}#scanRes .sr b{display:block;font-size:17px;font-weight:600}#scanRes .sr small{color:var(--muted);font-size:13px}
+#scanRes .sr.ok{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+#scan .ov-foot{background:#000;border-color:#333}
+#scanShot{flex:1}
 .ov-search input{width:100%;box-sizing:border-box;font:16px var(--font);padding:12px 16px;border-radius:24px;border:1px solid var(--line);background:var(--chip);color:var(--fg)}
 .head .roundBtn{display:grid;grid-template-columns:34px minmax(0,1fr) 20px;gap:10px;align-items:center;border:0;background:none;color:var(--fg);padding:0;min-height:44px;text-align:left;cursor:pointer;font-family:var(--font)}
 .roundBtn .chev{color:var(--muted);font-size:14px}
@@ -353,10 +369,17 @@ button.chip{padding:10px 14px;font-size:14px}
 </div>
 <div class="overlay" id="picker" hidden role="dialog" aria-modal="true" aria-labelledby="pkTitle">
   <div class="ov-head"><h2 id="pkTitle">Parcels today</h2><button class="ov-x" id="pkClose">Cancel</button><p id="pkRound"></p><p>Tick houses with parcels. Your route keeps the frame order.</p></div>
-  <div class="ov-search"><input id="pkQ" type="search" placeholder="Search a name, number or road" aria-label="Search houses" autocomplete="off"></div>
+  <div class="ov-search"><input id="pkQ" type="search" placeholder="Search a name, number or road" aria-label="Search houses" autocomplete="off"><button class="scanbtn" id="pkScan" aria-label="Scan parcel labels with the camera"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 3 7.2 5H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.2L15 3H9zm3 15a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>Scan</button></div>
   <div id="pkNote" hidden></div>
   <div class="ov-body"><div id="pkList"></div></div>
   <div class="ov-foot"><span id="pkCount"></span><button class="btn" id="pkClear">Clear</button><button class="btn primary big" id="pkGo">Plan route</button></div>
+</div>
+<div class="overlay" id="scan" hidden role="dialog" aria-modal="true" aria-labelledby="scTitle">
+  <div class="ov-head"><h2 id="scTitle">Scan parcel labels</h2><button class="ov-x" id="scClose">Done</button><p>Fill the box with the address on the label, hold still and tap Read label. Labels are read on this phone and nothing is saved except the house it matches.</p></div>
+  <div id="scanView"><video id="scVid" playsinline muted autoplay></video><div class="guide"><span>Address label here</span></div></div>
+  <div id="scanMsg" aria-live="polite"></div>
+  <div id="scanRes"></div>
+  <div class="ov-foot"><span id="scCount" style="color:#bbb;font-size:14px"></span><button class="btn primary big" id="scanShot">Read label</button></div>
 </div>
 <dialog id="ndlg">
   <h2>Note for this house</h2>
@@ -547,7 +570,20 @@ function buildMore(){const t0=performance.now();while(builtUpTo<SEQ.length&&perf
 let routePath=null;
 function fullRoutePath(){if(routePath)return routePath;const p=new Path2D();for(let i=0;i<builtUpTo;i++){const L=LEGS.get(i);if(L&&L.pts.length>1)addTo(p,L.pts);}routePath=p;return p;}
 // ---------------- state ----------------
-let hIdx=+(store.get(IDXK)||0);if(!(hIdx>=0&&hIdx<SEQ.length))hIdx=0;
+// numbered roads: a run of numbered houses on one road is one stop (drive to the road, deliver on foot, tap Finished road)
+const isNumQ=q=>!!(q&&q.it&&(labels[q.id]?/^\d+[a-z]?$/i.test(labels[q.id].trim()):(q.it.num&&!q.it.name)));
+const RUNS=[];SEQ.forEach((q,i)=>{if(!isNumQ(q)||q.x==null)return;const l=RUNS[RUNS.length-1];if(l&&l.last===i-1&&l.road===seqRoad(q))l.last=i;else RUNS.push({road:seqRoad(q),first:i,last:i});});
+for(let k=RUNS.length-1;k>=0;k--)if(RUNS[k].last===RUNS[k].first)RUNS.splice(k,1);
+const runAt=i=>RUNS.find(r=>i>=r.first&&i<=r.last)||null;
+const numOf=q=>(labels[q.id]||q.it.num||"").trim();
+const runNums=r=>[numOf(SEQ[r.first]),numOf(SEQ[r.last])];
+const runSub=r=>{const [a,b]=runNums(r);return `Start at No. ${a} · finish at No. ${b} · ${r.last-r.first+1} ${PARCELS?"parcels":"houses"}`;};
+const runSay=r=>{const [a,b]=runNums(r);return `${spk(r.road)}. Start at number ${a}, finish at number ${b}`;};
+const stopLabel=i=>{const r=runAt(i);return r?r.road:seqLabel(SEQ[i]);};
+const stopSay=i=>{const r=runAt(i);return r?runSay(r):houseSay(SEQ[i]);};
+const nextStop=i=>{const r=runAt(i);return r?r.last+1:i+1;};
+const prevStop=i=>{const r=runAt(i-1);return r?r.first:i-1;};
+let hIdx=+(store.get(IDXK)||0);if(!(hIdx>=0&&hIdx<SEQ.length))hIdx=0;{const r=runAt(hIdx);if(r)hIdx=r.first;}
 let follow=true;
 // ---------------- canvas view ----------------
 const cv=document.getElementById("cv"),ctx=cv.getContext("2d"),mapEl=document.getElementById("map");
@@ -729,15 +765,19 @@ function render_ui(){
     <div class="row"><button class="btn grow" id="navSim">Practice drive</button><a class="btn grow" target="_blank" rel="noopener" href="${navLink(q)}">Google Maps</a></div>
     <div class="row"><button class="btn" id="prev" ${hIdx?"":"disabled"}>‹ Back</button><button class="btn grow" id="next">${hIdx<SEQ.length-1?(PARCELS?"Next parcel ›":"Next house ›"):"Finish"}</button></div>`;
   card.querySelector(".t").textContent=seqLabel(q);card.querySelector(".s").textContent=seqRoad(q)+(q.pc?" · "+q.pc:"");
+  const RUN=runAt(hIdx);
+  if(RUN){card.querySelector(".k b").textContent=`${PARCELS?"Parcels":"Houses"} ${RUN.first+1}–${RUN.last+1} of ${SEQ.length}`;card.querySelector(".t").textContent=RUN.road;card.querySelector(".s").textContent=runSub(RUN);
+    const chips=card.querySelector(".chips");chips.innerHTML='<span class="chip side">Numbered road · deliver on foot</span>';
+    const nx=card.querySelector("#next");nx.textContent=RUN.last<SEQ.length-1?"Finished road ›":"Finished road · end";nx.classList.add("primary");}
   {const n=noteOf(q);const t=card.querySelector(".s");const box=document.createElement("div");box.className="note";
    if(n){box.innerHTML="<b>Note:</b> ";box.append(n);const e=document.createElement("button");e.className="chip";e.style.marginLeft="6px";e.textContent="Edit";e.onclick=()=>noteIt(q);box.append(e);}
    else{const b=document.createElement("button");b.className="chip";b.textContent="Add a note to help find it";b.onclick=()=>noteIt(q);box.className="";box.append(b);}
    t.after(box);}
-  card.querySelector("#prev").onclick=()=>go(hIdx-1);
-  card.querySelector("#next").onclick=()=>go(Math.min(SEQ.length-1,hIdx+1));
+  card.querySelector("#prev").onclick=()=>go(prevStop(hIdx));
+  card.querySelector("#next").onclick=()=>go(Math.min(SEQ.length-1,nextStop(hIdx)));
   card.querySelector("#navGo").onclick=()=>startNav("gps");card.querySelector("#navSim").onclick=()=>startNav("sim");
   const nb=card.querySelector("#nameBtn");if(nb)nb.onclick=()=>nameIt(hIdx);
-  card.querySelector("#fixBtn").onclick=()=>startFix(hIdx);
+  const fb=card.querySelector("#fixBtn");if(fb)fb.onclick=()=>startFix(hIdx);
   // steps
   const ol=document.getElementById("steps");ol.innerHTML="";
   if(L&&L.steps)L.steps.forEach((st,k)=>{const li=document.createElement("li");li.innerHTML=`${svgI(st.type)}<div><div class="si"></div>${st.after&&k<L.steps.length-1?`<div class="sd">${fmtDist(st.after)}</div>`:""}</div>`;li.querySelector(".si").textContent=st.text;ol.appendChild(li);});
@@ -745,7 +785,7 @@ function render_ui(){
   renderHouses();renderStreets();
   draw();
 }
-function go(i){if(i<0||i>=SEQ.length)return;hIdx=i;store.set(IDXK,hIdx);pop.hidden=true;setFollow(true);render_ui();focusLeg(true);}
+function go(i){if(i<0||i>=SEQ.length)return;{const r=runAt(i);if(r)i=r.first;}hIdx=i;store.set(IDXK,hIdx);pop.hidden=true;setFollow(true);render_ui();focusLeg(true);}
 // houses list
 const qIn=document.getElementById("q");qIn.addEventListener("input",renderHouses);
 function renderHouses(){const ol=document.getElementById("houses");if(document.getElementById("housesWrap").hidden){ol.innerHTML="";return;}
@@ -817,6 +857,61 @@ function updPk(){const n=PK.size;gid("pkCount").textContent=n?`${n} ${n===1?"hou
 gid("pkQ").addEventListener("input",renderPicker);
 gid("pkClose").onclick=()=>{gid("picker").hidden=true;if(!MODE)showStart();};
 gid("pkClear").onclick=()=>{PK.clear();renderPicker();};
+// ---------------- scan parcel labels (camera + on-phone text reading) ----------------
+const SC={stream:null,worker:null,loading:null,added:[],busy:false};
+const scNorm=t=>" "+String(t||"").toLowerCase().replace(/['’`]/g,"").replace(/[^a-z0-9]+/g," ").trim()+" ";
+const ROADV=r=>{const n=scNorm(r).trim();const v=[n];const ab={street:"st",road:"rd",lane:"ln",close:"cl",place:"pl",square:"sq"};const w=n.split(" ");const l=w[w.length-1];if(ab[l])v.push(w.slice(0,-1).concat(ab[l]).join(" "));return v;};
+const GENERIC=new Set(["cottage","cottages","house","farm","farmhouse","the","barn","lodge","road","lane","street","close","place","west","east","north","south","house"]);
+const SC_ROADS=[...new Set(ALL.map(q=>seqRoad(q)))].flatMap(ROADV).sort((a,b)=>b.length-a.length);
+function scMatch(text){const T=scNorm(text);let T2=T;SC_ROADS.forEach(v=>{T2=T2.split(" "+v+" ").join("  ");});const out=[];
+  ALL.forEach(q=>{let sc=0;const road=seqRoad(q);const roadHit=ROADV(road).some(v=>T.includes(" "+v+" "));
+    const lab=labels[q.id]||(q.it?(q.it.num&&!q.it.name?q.it.num:q.it.name):seqLabel(q))||"";
+    if(/^\d+[a-z]?$/i.test(lab.trim())){if(roadHit&&new RegExp(" "+lab.trim().toLowerCase()+" ").test(T))sc=60;}
+    else{const L=scNorm(lab).trim();const lead=(L.match(/^(\d+[a-z]?) /)||[])[1];
+      if(L.length>=4&&T2.includes(" "+L+" "))sc=45+Math.min(15,L.length/2);
+      else if(!lead||T2.includes(" "+lead+" ")){const toks=L.split(" ").filter(w=>w.length>=4&&!GENERIC.has(w));if(toks.length&&toks.every(w=>T2.includes(" "+w+" ")))sc=30+toks.length*4;}
+      if(sc&&roadHit)sc+=10;}
+    if(sc)out.push({q,sc});});
+  out.sort((a,b)=>b.sc-a.sc);return out;}
+function loadReader(){if(SC.loading)return SC.loading;
+  SC.loading=new Promise((ok,bad)=>{if(window.Tesseract)return ok();const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";sc.onload=ok;sc.onerror=()=>bad(new Error("load"));document.head.appendChild(sc);})
+   .then(()=>Tesseract.createWorker("eng")).then(w=>{SC.worker=w;return w;}).catch(e=>{SC.loading=null;throw e;});
+  return SC.loading;}
+function scMsg(t){gid("scanMsg").textContent=t;}
+function scCount(){const n=SC.added.length;gid("scCount").textContent=n?`${n} added this scan`:"";gid("scClose").textContent=n?`Done (${n})`:"Done";}
+async function openScan(){gid("scan").hidden=false;SC.added=[];scCount();gid("scanRes").innerHTML="";gid("scanShot").disabled=true;
+  scMsg("Starting the camera…");
+  try{SC.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1920},height:{ideal:1080}},audio:false});const v=gid("scVid");v.srcObject=SC.stream;await v.play().catch(()=>{});}
+  catch(e){scMsg("Can't open the camera. Allow camera access for this page in your browser settings, then try again.");return;}
+  if(!SC.worker){scMsg("Getting the label reader ready. The first time needs signal and takes a moment (about 10 MB).");
+    try{await loadReader();}catch(e){scMsg("Couldn't load the label reader. It needs signal the first time; after that it works offline.");return;}}
+  scMsg("Point at the address and tap Read label.");gid("scanShot").disabled=false;}
+function closeScan(){gid("scan").hidden=true;if(SC.stream){SC.stream.getTracks().forEach(t=>t.stop());SC.stream=null;}renderPicker();}
+function scGrab(){const v=gid("scVid");const vw=v.videoWidth,vh=v.videoHeight;if(!vw)return null;
+  // crop to the guide box (it covers the middle of the view; the video fills the box with object-fit:cover)
+  const box=gid("scanView").getBoundingClientRect();const sc=Math.max(box.width/vw,box.height/vh);const ox=(vw*sc-box.width)/2,oy=(vh*sc-box.height)/2;
+  const gx=(box.width*0.06+ox)/sc,gy=(box.height*0.18+oy)/sc,gw=box.width*0.88/sc,gh=box.height*0.64/sc;
+  const k=Math.min(1,1600/gw);const c=document.createElement("canvas");c.width=Math.round(gw*k);c.height=Math.round(gh*k);const x=c.getContext("2d");
+  x.filter="grayscale(1) contrast(1.4)";x.drawImage(v,gx,gy,gw,gh,0,0,c.width,c.height);return c;}
+function scAdd(q,auto){if(!PK.has(q.key)){PK.add(q.key);SC.added.push(q.key);}scCount();try{navigator.vibrate&&navigator.vibrate(auto?[80]:[40]);}catch(e){}if(!NAV.muted)chime(false);}
+function scUndo(q){PK.delete(q.key);SC.added=SC.added.filter(k=>k!==q.key);scCount();}
+function scShow(res,autoQ){const box=gid("scanRes");box.innerHTML="";
+  res.slice(0,3).forEach((r,i)=>{const q=r.q;const d=document.createElement("div");d.className="sr"+(PK.has(q.key)?" ok":"");
+    d.innerHTML=`<div><b></b><small></small></div><button class="btn"></button>`;d.querySelector("b").textContent=fullLabel(q);
+    d.querySelector("small").textContent=`${seqRoad(q)} · stop #${q.n}${q===autoQ?" · added":""}`;
+    const b=d.querySelector("button");const sync=()=>{const on=PK.has(q.key);b.textContent=on?"Undo":"Add";b.classList.toggle("primary",!on);d.classList.toggle("ok",on);};
+    b.onclick=()=>{PK.has(q.key)?scUndo(q):scAdd(q);sync();};sync();box.appendChild(d);});}
+async function scRead(){if(SC.busy||!SC.worker)return;const c=scGrab();if(!c){scMsg("The camera isn't ready yet.");return;}
+  SC.busy=true;gid("scanShot").disabled=true;scMsg("Reading the label…");
+  try{const {data}=await SC.worker.recognize(c);const res=scMatch(data.text||"");
+    if(!res.length){scMsg("Couldn't match that to a house on this round. Hold the label flatter and closer, or search by hand.");gid("scanRes").innerHTML="";}
+    else{const top=res[0],second=res[1];const sure=top.sc>=45&&(!second||top.sc-second.sc>=8);
+      if(sure){scAdd(top.q,true);scMsg(`✓ ${fullLabel(top.q)} · stop #${top.q.n}`);say(fullLabel(top.q),true);}
+      else scMsg("Which house is it? Tap Add on the right one.");
+      scShow(res,sure?top.q:null);}}
+  catch(e){scMsg("Something went wrong reading that label. Try again.");}
+  SC.busy=false;gid("scanShot").disabled=false;}
+gid("pkScan").onclick=openScan;gid("scClose").onclick=closeScan;gid("scanShot").onclick=scRead;
 gid("pkGo").onclick=()=>{PARSET.clear();PK.forEach(k=>PARSET.add(k));saveParcels();store.set(ROUND.id+'_pIdx',0);setMode("parcels");};
 // rounds (all pages live on the same site, so progress can be read across)
 const ROUNDS=[{id:"steyning",name:"Annington Round",kind:"van",url:"/steyning-satnav/",key:'hIdx',n:297,houses:"Laines Rd, Bostal Rd, Maudlin, Annington Rd"},
@@ -884,7 +979,7 @@ function ping(kind,title,sub,speech){lastPing={kind,title,sub,speech};const el=$
   el.querySelector(".pt").textContent=title;el.querySelector(".ps").textContent=sub;el.classList.remove("hide");
   if(!NAV.muted)chime(kind==="street");try{navigator.vibrate&&navigator.vibrate(kind==="street"?[150,80,150,80,150]:[120,60,120]);}catch(e){}
   if(speech){if(NAV.prefix){speech=NAV.prefix+" "+speech;NAV.prefix="";}say(speech,true);}clearTimeout(pingT);pingT=setTimeout(()=>el.classList.add("hide"),kind==="street"?6500:4500);}
-function repeatPing(){const q=SEQ[hIdx];if(!q)return;const side=legSide();const st=streetOf(hIdx);const left=st?st.last-hIdx:0;
+function repeatPing(){const q=SEQ[hIdx];if(!q)return;{const r=runAt(hIdx);if(r){ping("street",r.road,runSub(r),runSay(r)+".");return;}}const side=legSide();const st=streetOf(hIdx);const left=st?st.last-hIdx:0;
   ping("house",seqLabel(q),[side?`On your ${side}`:"",seqRoad(q),left?`${left} more on this street`:"last on this street"].filter(Boolean).join(" · "),`${houseSay(q)}${side?`, on your ${side}`:""}.`);}
 // ---- legs
 function buildLeg(reroute){
@@ -901,9 +996,12 @@ function buildLeg(reroute){
   if(NAV.mode==="sim"){const p=pointAt(NAV.leg,0);NAV.tHead=p.h;}
   if(!reroute){const side=legSide(),L=NAV.leg.len;const st=streetOf(hIdx);const isNewStreet=st&&st.first===hIdx;
     const distTxt=L<25?(L>0?"next door":""):`in ${sayDist(L)}`;
-    if(isNewStreet){const prev=hIdx>0?streetOf(hIdx-1):null;const n=st.last-st.first+1;const s0=NAV.leg.steps.find(s=>s.type!=="depart"&&s.type!=="arrive");
+    if(isNewStreet&&runAt(hIdx)){const prev=hIdx>0?streetOf(hIdx-1):null;const r=runAt(hIdx);
+      ping("street",r.road,`${runSub(r)}${L>=25?" · "+fmtDist(L):""}`,`${prev&&prev.name!==r.road?`That's ${spk(prev.name)} finished. `:""}Next, ${runSay(r)}${distTxt?", "+distTxt:""}.`);}
+    else if(isNewStreet){const prev=hIdx>0?streetOf(hIdx-1):null;const n=st.last-st.first+1;const s0=NAV.leg.steps.find(s=>s.type!=="depart"&&s.type!=="arrive");
       ping("street",st.name,`${n} ${n>1?"stops":"stop"}${s0?" · "+s0.text:""}${L>=25?" · "+fmtDist(L):""}`,
         `${prev?`That's ${spk(prev.name)} finished. `:""}Next street, ${spk(st.name)}. ${n} ${n>1?"stops":"stop"}. First, ${houseSay(q)}${side?`, on your ${side}`:""}${distTxt?", "+distTxt:""}.`);}
+    else if(runAt(hIdx)){const r=runAt(hIdx);ping("street",r.road,`${runSub(r)}${L>=25?" · "+fmtDist(L):""}`,`Next, ${runSay(r)}${distTxt?", "+distTxt:""}.`);}
     else{const left=st?st.last-hIdx:0;ping("house",seqLabel(q),[side?`On your ${side}`:"",distTxt?distTxt.replace(/yards/,"yd"):"",left?`${left} more on ${st.name}`:`last on ${st?st.name:"this street"}`].filter(Boolean).join(" · "),
         `Next, ${houseSay(q)}${side?`, on your ${side}`:""}${distTxt?", "+distTxt:""}.`);}}
   updateNavBar();
@@ -917,11 +1015,14 @@ function showApproach(q,side,dist){const ak=document.querySelector("#approach .a
 function hideApproach(){$("approach").hidden=true;}
 function approachChime(){if(NAV.muted)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const t=AC.currentTime;[784,988,1175,1568].forEach((f,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.type="triangle";o.frequency.value=f;g.gain.setValueAtTime(0,t+i*0.11);g.gain.linearRampToValueAtTime(0.22,t+i*0.11+0.02);g.gain.exponentialRampToValueAtTime(0.001,t+i*0.11+0.4);o.connect(g).connect(AC.destination);o.start(t+i*0.11);o.stop(t+i*0.11+0.45);});}catch(e){}}
 function arrive(){hideApproach();if(NAV.arrived)return;NAV.arrived=true;NAV.arrSpot=NAV.pos?{...NAV.pos}:null;const q=SEQ[hIdx],side=legSide();
+  const RUN=runAt(hIdx);
+  if(RUN){const [a,b]=runNums(RUN);say(`You've arrived at ${spk(RUN.road)}. Start at number ${a}, finish at number ${b}. Tap finished road when you're done.`);
+    NAV.waitUntil=performance.now()+(NAV.mode==="sim"?1500:0);updateNavBar();return;}
   if(NAV.leg&&NAV.leg.len>=25)say(`You have arrived. ${uc(houseSay(q))}${side?` is on your ${side}`:""}.`);
   NAV.waitUntil=performance.now()+(NAV.mode==="sim"?900:0);updateNavBar();}
-function advance(){if(hIdx>=SEQ.length-1){if(!NAV.finished){NAV.finished=true;say(PARCELS?"That was the last parcel. All done.":"That was the last house. The round is complete.");updateNavBar();}return;}
+function advance(){{const r=runAt(hIdx);if(r)hIdx=r.last;}if(hIdx>=SEQ.length-1){if(!NAV.finished){NAV.finished=true;say(PARCELS?"That was the last parcel. All done.":"That was the last house. The round is complete.");updateNavBar();}return;}
   hIdx++;store.set(IDXK,hIdx);buildLeg();}
-function back(){if(hIdx<=0)return;hIdx--;store.set(IDXK,hIdx);NAV.finished=false;try{speechSynthesis.cancel();}catch(e){}buildLeg();}
+function back(){if(hIdx<=0)return;hIdx=prevStop(hIdx);store.set(IDXK,hIdx);NAV.finished=false;try{speechSynthesis.cancel();}catch(e){}buildLeg();}
 function announce(L){const s=nextStep(L);const dist=s.at-NAV.prog;const k=L.steps.indexOf(s);
   if(s.type==="arrive"){if(dist<=(NAV.mode==="gps"?15:0.5)){arrive();return;}
     const q=SEQ[hIdx];
@@ -930,7 +1031,7 @@ function announce(L){const s=nextStep(L);const dist=s.at-NAV.prog;const k=L.step
         const n=noteOf(q);say(`Coming up${s.side?` on your ${s.side}`:""}, ${houseSay(q)}.${n?" "+n.replace(/[.!?]*$/,"."):""}`,true);}
       if(NAV.spoken.ap)$("apDist").textContent=fmtDist(Math.max(0,dist));
       return;}
-    if(L.len>120&&dist<=90&&!NAV.spoken["a"+k]){NAV.spoken["a"+k]=1;say(`In ${sayDist(dist)}, ${houseSay(SEQ[hIdx])}${s.side?`, on your ${s.side}`:""}.`);}return;}
+    if(L.len>120&&dist<=90&&!NAV.spoken["a"+k]){NAV.spoken["a"+k]=1;say(runAt(hIdx)?`In ${sayDist(dist)}, ${spk(runAt(hIdx).road)}.`:`In ${sayDist(dist)}, ${houseSay(SEQ[hIdx])}${s.side?`, on your ${s.side}`:""}.`);}return;}
   if(dist<=170&&dist>70&&!NAV.spoken["f"+k]){NAV.spoken["f"+k]=1;say(`In ${sayDist(dist)}, ${lc(s.text)}.`);}
   if(dist<=40&&!NAV.spoken["n"+k]){NAV.spoken["n"+k]=1;NAV.spoken["f"+k]=1;say(s.text+".",true);}}
 // ---- GPS
@@ -946,6 +1047,7 @@ function onFix(p){if(!NAV.on||NAV.mode!=="gps")return;const x=PX(p.coords.longit
   if(NAV.spd<AUTO.stopSpd){if(!NAV.stopT){NAV.stopT=now;NAV.stopSpot={x,y};}else if(!NAV.parked&&now-NAV.stopT>AUTO.stopMs&&Math.hypot(x-NAV.stopSpot.x,y-NAV.stopSpot.y)<AUTO.drift)onParked();}
   else if(!NAV.stopSpot||Math.hypot(x-NAV.stopSpot.x,y-NAV.stopSpot.y)>AUTO.drift*0.75){NAV.stopT=0;NAV.parked=false;}
   const q=SEQ[hIdx];
+  if(NAV.arrived&&runAt(hIdx))return;
   if(NAV.arrived){const s=NAV.arrSpot||{x,y};if(Math.hypot(x-s.x,y-s.y)>(NAV.stoppedHere?AUTO.awayM:AUTO.passM)&&NAV.spd>AUTO.awaySpd)autoNext();return;}
   if(NAV.unmapped)return;
   const pr=project(NAV.leg,{x,y},NAV.prog);
@@ -962,13 +1064,14 @@ function onParked(){NAV.parked=true;const {x,y}=NAV.stopSpot;
   for(let j=hIdx;j<=Math.min(SEQ.length-1,hIdx+AUTO.jump);j++){const g=houseGap(j,x,y)+(j-hIdx)*3;if(g<AUTO.zone+(j-hIdx)*3&&g<bd){bd=g;best=j;}}
   if(best<0&&!NAV.arrived&&inZone(hIdx,x,y))best=hIdx;
   if(best<0)return;
+  {const r=runAt(best);if(r&&best!==hIdx)best=r.first;if(r&&NAV.arrived&&runAt(hIdx)===r)return;}
   if(best===hIdx){arrive();NAV.stoppedHere=true;NAV.arrSpot={x,y};updateNavBar();return;}
   const skipped=best-hIdx-(NAV.arrived?1:0);
   NAV.prefix=NAV.arrived&&NAV.stoppedHere?(skipped>0?`Done. Skipped ${skipped}.`:"Done."):skipped>0?`Skipped ${skipped} ${skipped>1?"houses":"house"}.`:"";
   hIdx=best;store.set(IDXK,hIdx);buildLeg();arrive();NAV.stoppedHere=true;NAV.arrSpot={x,y};updateNavBar();}
 function autoNext(){const s=NAV.arrSpot;let n=1;
   if(NAV.stoppedHere&&s){// houses next to where you parked were done on foot
-    while(hIdx+n<SEQ.length&&n<8&&houseGap(hIdx+n,s.x,s.y)<=AUTO.group)n++;}
+    while(hIdx+n<SEQ.length&&n<8&&!runAt(hIdx+n)&&houseGap(hIdx+n,s.x,s.y)<=AUTO.group)n++;}
   NAV.prefix=NAV.stoppedHere?(n>1?`Done, ${n} houses.`:"Done."):`Drove past ${houseSay(SEQ[hIdx])}. Tap back if you missed it.`;
   NAV.parked=false;
   if(hIdx+n>SEQ.length-1){hIdx=SEQ.length-1;NAV.prefix="";advance();return;}
@@ -982,23 +1085,26 @@ function showMsg(key,html,btns){NAV.msgKey=key;const m=$("navmsg");m.innerHTML=`
 function hideMsg(key){if(!key||NAV.msgKey===key){$("navmsg").hidden=true;NAV.msgKey="";}}
 // ---- bars
 function updateNavBar(){const q=SEQ[hIdx];if(!q)return;const side=legSide();
-  $("nk").textContent=`${UNIT} ${hIdx+1} of ${SEQ.length}${q.shelf?" · Shelf "+q.shelf:""} · ${q.seg}`;$("nt").textContent=seqLabel(q);
+  const RUN=runAt(hIdx);
+  $("nk").textContent=`${RUN?`${UNIT}s ${RUN.first+1}–${RUN.last+1}`:UNIT+" "+(hIdx+1)} of ${SEQ.length}${q.shelf?" · Shelf "+q.shelf:""} · ${q.seg}`;$("nt").textContent=stopLabel(hIdx);
   $("ns").textContent=[side?`On your ${side}`:(q.x==null?"Not on the map":""),seqRoad(q),q.pc].filter(Boolean).join(" · ")+(noteOf(q)?"  ·  📝 "+noteOf(q):"");
-  const n=SEQ[hIdx+1];const st=streetOf(hIdx);const ns=STREETS[STREETS.indexOf(st)+1];const left=st?st.last-hIdx:0;
-  $("nn").textContent=NAV.finished?(PARCELS?"All parcels delivered":"Round complete"):!n?(PARCELS?"Last parcel":"Last house of the round"):left?`Then: ${seqLabel(n)} · ${left} more on ${st.name}${ns?`, then ${ns.name}`:""}`:`Last on ${st.name} · next street: ${ns?ns.name:"none"}`;
+  if(RUN)$("ns").textContent=runSub(RUN)+(NAV.arrived?" · tap Finished road when done":"");
+  const ni=nextStop(hIdx);const n=SEQ[ni];const st=streetOf(hIdx);const ns=STREETS[STREETS.indexOf(st)+1];const left=st?Math.max(0,st.last-ni+1):0;
+  $("nn").textContent=NAV.finished?(PARCELS?"All parcels delivered":"Round complete"):!n?(PARCELS?"Last parcel":"Last house of the round"):left?`Then: ${stopLabel(ni)} · ${left} more on ${st.name}${ns?`, then ${ns.name}`:""}`:`Then: ${stopLabel(ni)}${ns?" · "+ns.name:""}`;
   $("nbGm").href=navLink(q);$("nbSpeed").hidden=$("nbPause").hidden=NAV.mode!=="sim";$("nbSpeed").textContent=`Speed ${NAV.speed}×`;
   $("nbMode").hidden=NAV.mode!=="sim";$("nbMode").textContent=NAV.paused?"Practice drive · paused":"Practice drive";
   $("nbPause").textContent=NAV.paused?"Resume":"Pause";$("nbMute").textContent=NAV.muted?"Voice off":"Voice on";$("nbMute").setAttribute("aria-pressed",String(!NAV.muted));
-  $("nbDone").textContent=NAV.finished?"All done":q.x==null?"Skip · next":(PARCELS?"Delivered · next parcel":"Delivered · next house");$("nbDone").disabled=NAV.finished;$("nbBack").disabled=hIdx===0;
+  $("nbDone").textContent=NAV.finished?"All done":RUN?"Finished road":q.x==null?"Skip · next":(PARCELS?"Delivered · next parcel":"Delivered · next house");$("nbDone").disabled=NAV.finished;$("nbBack").disabled=hIdx===0;
   $("progbar").style.width=(100*hIdx/(SEQ.length-1))+"%";}
 let lastBan="";
 function navBanner(){const q=SEQ[hIdx];let html;
   if(NAV.finished)html=`${svgI("arrive","#fff")}<div><div class="bi">${PARCELS?"All parcels delivered":"Round complete"}</div><div class="bt">${SEQ.length} stops</div></div>`;
   else if(NAV.unmapped)html=`${svgI("arrive","#fff")}<div><div class="bi">Not on the map</div><div class="bt">${esc(seqLabel(q))} · use Google Maps, or skip</div></div>`;
   else if(!NAV.leg)html=`${svgI("depart","#fff")}<div><div class="bi">${NAV.mode==="gps"&&!NAV.pos?"Finding your location…":"Head to "+esc(seqRoad(q))}</div></div>`;
+  else if(NAV.arrived&&runAt(hIdx)){const r=runAt(hIdx);html=`${svgI("arrive","#fff")}<div><div class="bi">${esc(r.road)}</div><div class="bt">${esc(runSub(r))} · tap Finished road when done</div></div>`;}
   else if(NAV.arrived){const s=legSide();html=`${svgI("arrive","#fff")}<div><div class="bi">${esc(seqLabel(q))}</div><div class="bt">Arrived${s?` · on your ${s}`:""}${NAV.mode==="gps"?" · moves on when you drive off":""}</div></div>`;}
   else{const L=NAV.leg,s=nextStep(L),d=s.at-NAV.prog,i=L.steps.indexOf(s),after=L.steps[i+1];
-    const txt=s.type==="arrive"?seqLabel(q)+(s.side?`, on your ${s.side}`:""):s.text;
+    const txt=s.type==="arrive"?(runAt(hIdx)?runAt(hIdx).road+" · "+runSub(runAt(hIdx)):seqLabel(q)+(s.side?`, on your ${s.side}`:"")):s.text;
     html=`${svgI(s.type,"#fff")}<div><div class="bd">${fmtDist(d)}</div><div class="bi">${esc(txt)}</div></div>`+(after?`<div class="then">Then ${svgI(after.type,"#fff")} ${esc(after.type==="arrive"?"arrive at "+seqLabel(q):after.text)}</div>`:"");}
   if(html!==lastBan){$("banner").innerHTML=html;lastBan=html;}}
 // ---- car

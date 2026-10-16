@@ -20,7 +20,7 @@ def build_frame(cfg):
     P=json.load(open(S+cfg['dir']+'/placed.json'))
     A=[]
     for sh,road,lab,lat,lon,q in P:
-        num,name=(lab,"") if re.fullmatch(r'\d+[A-Z]?',lab) else ("",lab)
+        num,name=(lab,"") if re.fullmatch(r'\d+[A-Za-z]?',lab) else ("",lab)
         A.append([lat,lon,num,name,road,"",sh,q])
     data='const ROUND_CFG='+json.dumps({'id':cfg['id'],'name':cfg['name'],'kind':'van'})+';\nconst A='+json.dumps(A,separators=(',',':'))+';\nconst B=[],R=[],W=[];\nconst BASEMAP='+json.dumps(open(S+cfg['dir']+'/basemap.txt').read())+';'
     def rep(old,new,count=1):
