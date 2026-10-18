@@ -1,0 +1,19 @@
+{
+  "endpoint": "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+  "bbox": [
+    50.86,
+    -0.4,
+    50.955,
+    -0.29
+  ],
+  "elements": 5521,
+  "osm_base": {
+    "timestamp_osm_base": "2026-10-18T09:44:21Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "query_file": "addresses.overpassql",
+  "licence": "Open Database Licence 1.0",
+  "attribution": "\u00a9 OpenStreetMap contributors",
+  "sha256": "2c5359ae588760bd61e26db601802858cbb79f1947be843d51e520ed5be3752b",
+  "retrieved_utc": "2026-10-18T09:47:27.987580+00:00"
+}

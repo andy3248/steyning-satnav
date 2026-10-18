@@ -1,0 +1,41 @@
+{
+  "date": "2026-10-18",
+  "browser": "Chrome",
+  "viewport": {
+    "width": 375,
+    "height": 812
+  },
+  "rounds": {
+    "annington": {
+      "built_sha256": "7f54d5b36566a6910cd741a5a57da42f4d57841e57a47640ad917a47e653a620",
+      "opened": true,
+      "practice_started_paused_voice_on": true,
+      "console_errors": []
+    },
+    "ashurst": {
+      "built_sha256": "2b5c93568c5af755cc09fe6b760afe712ad837a5c9b604734e519fa762a7b9a3",
+      "opened": true,
+      "practice_started_paused_voice_on": true,
+      "console_errors": []
+    },
+    "wiston": {
+      "built_sha256": "f17efa49e83573030f3ad055ed61d5263415279a3901af7c604c008fd94778b3",
+      "opened": true,
+      "practice_started_paused_voice_on": true,
+      "console_errors": []
+    }
+  },
+  "review_page": {
+    "path": "docs/pin-review.html",
+    "phone_controls_checked": [
+      "round",
+      "road",
+      "next/previous",
+      "zoom",
+      "pan",
+      "View map"
+    ],
+    "console_errors": []
+  },
+  "limitations": "Browser smoke tests; full simulation/speech API checks use virtual clock/device stubs. Audible playback on a physical phone was not tested."
+}
