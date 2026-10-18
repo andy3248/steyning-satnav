@@ -1,6 +1,6 @@
 // Keeps a copy of the Annington sat nav on the phone so it opens with no signal.
 // Online: fetch fresh and update the copy. Offline: use the saved copy.
-const CACHE = "annington-v2";
+const CACHE = "annington-v3";
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(["./", "./index.html"])).then(() => self.skipWaiting()));
 });

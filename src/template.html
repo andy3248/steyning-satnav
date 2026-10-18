@@ -1022,7 +1022,7 @@ let VOICE=null;
 function voiceScore(v){const n=v.name;let s=0;if(/en[-_]GB/i.test(v.lang))s+=100;else if(/^en[-_](IE|AU|NZ)/i.test(v.lang))s+=40;else if(/^en/i.test(v.lang))s+=20;else return -1;
   if(/premium/i.test(n))s+=60;if(/enhanced|natural|neural|wavenet|online/i.test(n))s+=45;if(/google/i.test(n))s+=30;if(/siri/i.test(n))s+=35;
   if(/serena|sonia|libby|kate|stephanie|martha|daniel|arthur|oliver|ryan|thomas|female|male/i.test(n))s+=10;
-  if(/compact|espeak|robot|novelty|bad news|bells|bubbles|cellos|wobble|whisper|zarvox|trinoids|jester|organ|superstar|albert|fred|junior|ralph/i.test(n))s-=200;return s;}
+  if(/compact|espeak|robot|novelty|bad news|bells|bubbles|cellos|wobble|whisper|zarvox|trinoids|jester|organ|superstar|albert|fred|junior|ralph|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley/i.test(n))s-=200;return s;}
 function goodVoices(){try{return speechSynthesis.getVoices().filter(v=>voiceScore(v)>0).sort((a,b)=>voiceScore(b)-voiceScore(a));}catch(e){return [];}}
 const VSET=Object.assign({name:"",rate:0.98},store.get("voiceSet")||{});
 function pickVoice(){const vs=goodVoices();VOICE=(VSET.name&&vs.find(v=>v.name===VSET.name))||vs[0]||null;try{renderVoices();}catch(e){}}
