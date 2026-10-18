@@ -366,6 +366,11 @@ button.chip{padding:10px 14px;font-size:14px}
       <div class="search"><input id="q" type="search" placeholder="Find a house or road" aria-label="Find a house or road"></div>
       <ol id="houses"></ol>
     </div>
+    <div class="fixes"><div class="fx-k">Voice</div><div class="fx-s">Pick the voice that sounds best on this phone, then tap Try it.</div>
+      <div class="row"><select id="vcSel" aria-label="Voice" style="flex:1;min-width:0;font:16px var(--font);padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--chip);color:var(--fg)"></select><button class="btn" id="vcTry">Try it</button></div>
+      <div class="row" style="align-items:center"><span class="fx-s">Slower</span><input id="vcRate" type="range" min="0.8" max="1.2" step="0.05" style="flex:1" aria-label="Speaking speed"><span class="fx-s">Faster</span></div>
+      <details class="fx-s"><summary>Want a more natural voice?</summary><p><b>iPhone:</b> Settings → Accessibility → Spoken Content → Voices → English → pick a UK voice marked Enhanced or Premium (for example Serena or Daniel) and download it. Then come back here and choose it.</p><p><b>Android:</b> Settings → search “Text-to-speech” → Preferred engine: Speech Services by Google → Language: English (United Kingdom) → install the voice data, and pick a voice you like. Then choose it here.</p></details>
+    </div>
     <div class="fixes"><div class="fx-k">Your fixes</div><div class="fx-s" id="fixCount"></div>
       <div class="row"><button class="btn" id="shareFix">Send my fixes</button><button class="btn" id="loadFix">Load fixes</button></div>
       <div id="fixIO" hidden><textarea id="fixText" rows="5" aria-label="Fixes code"></textarea><div class="row"><span class="fx-s" id="fixIOhint" style="flex:1"></span><button class="btn" id="fixIOclose">Close</button><button class="btn primary" id="fixIOgo" hidden>Load</button></div></div>
@@ -1011,9 +1016,22 @@ function nextStep(L){for(const s of L.steps){if(s.type==="depart")continue;if(s.
 const legSide=()=>NAV.leg&&NAV.leg.steps.length?NAV.leg.steps[NAV.leg.steps.length-1].side:null;
 // ---- voice
 let VOICE=null;
-function pickVoice(){try{const vs=speechSynthesis.getVoices();VOICE=vs.find(v=>/en[-_]GB/i.test(v.lang)&&/female|serena|kate|libby|sonia|martha|stephanie/i.test(v.name))||vs.find(v=>/en[-_]GB/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||null;}catch(e){}}
+// best-sounding British voice first: the phone's enhanced / premium / neural voices beat the basic ones
+function voiceScore(v){const n=v.name;let s=0;if(/en[-_]GB/i.test(v.lang))s+=100;else if(/^en[-_](IE|AU|NZ)/i.test(v.lang))s+=40;else if(/^en/i.test(v.lang))s+=20;else return -1;
+  if(/premium/i.test(n))s+=60;if(/enhanced|natural|neural|wavenet|online/i.test(n))s+=45;if(/google/i.test(n))s+=30;if(/siri/i.test(n))s+=35;
+  if(/serena|sonia|libby|kate|stephanie|martha|daniel|arthur|oliver|ryan|thomas|female|male/i.test(n))s+=10;
+  if(/compact|espeak|robot|novelty|bad news|bells|bubbles|cellos|wobble|whisper|zarvox|trinoids|jester|organ|superstar|albert|fred|junior|ralph/i.test(n))s-=200;return s;}
+function goodVoices(){try{return speechSynthesis.getVoices().filter(v=>voiceScore(v)>0).sort((a,b)=>voiceScore(b)-voiceScore(a));}catch(e){return [];}}
+const VSET=Object.assign({name:"",rate:0.98},store.get("voiceSet")||{});
+function pickVoice(){const vs=goodVoices();VOICE=(VSET.name&&vs.find(v=>v.name===VSET.name))||vs[0]||null;try{renderVoices();}catch(e){}}
 try{speechSynthesis.onvoiceschanged=pickVoice;}catch(e){}
-function say(t,urgent){if(NAV.muted)return;try{if(urgent)speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);if(VOICE)u.voice=VOICE;u.lang="en-GB";u.rate=1.03;speechSynthesis.speak(u);}catch(e){}}
+// tidy the text so it reads naturally: "No." -> "number", no symbols read out
+const speakable=t=>String(t).replace(/\bNo\.\s*/g,"number ").replace(/·/g,",").replace(/&/g," and ").replace(/\s+,/g,",").replace(/\s{2,}/g," ");
+function say(t,urgent){if(NAV.muted)return;try{if(urgent)speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(speakable(t));if(VOICE){u.voice=VOICE;u.lang=VOICE.lang;}else u.lang="en-GB";u.rate=VSET.rate;u.pitch=1;speechSynthesis.speak(u);}catch(e){}}
+function renderVoices(){const sel=document.getElementById("vcSel");if(!sel)return;const vs=goodVoices();sel.innerHTML="";
+  if(!vs.length){const o=document.createElement("option");o.textContent="Phone's default voice";sel.appendChild(o);}
+  vs.slice(0,12).forEach(v=>{const o=document.createElement("option");o.value=v.name;o.textContent=v.name.replace(/\s*\(.*?\)\s*/g," ").trim()+(/en[-_]GB/i.test(v.lang)?"":" ("+v.lang+")");if(VOICE&&v.name===VOICE.name)o.selected=true;sel.appendChild(o);});
+  document.getElementById("vcRate").value=VSET.rate;}
 function speechBusy(){if(NAV.muted)return false;try{return speechSynthesis.speaking||speechSynthesis.pending;}catch(e){return false;}}
 function sayDist(m){const yd=m*1.0936;if(yd<350)return Math.max(10,Math.round(yd/10)*10)+" yards";const mi=m/1609.34;if(mi<0.4)return "a quarter of a mile";if(mi<0.65)return "half a mile";return mi.toFixed(1)+" miles";}
 const lc=t=>t.charAt(0).toLowerCase()+t.slice(1),uc=t=>t.charAt(0).toUpperCase()+t.slice(1),spk=n=>n.replace(/\s*\(([^)]*)\)/," $1");
@@ -1265,6 +1283,10 @@ $("fixIOgo").onclick=()=>{try{const raw=$("fixText").value.trim().replace(/^ASHU
     store.set("ash_walkLabels",Object.assign(store.get("ash_walkLabels")||{},f.names||{}));store.set("ash_walkPos",Object.assign(store.get("ash_walkPos")||{},f.pos||{}));store.set(NOTEK,Object.assign(store.get(NOTEK)||{},f.notes||{}));
     $("fixIOhint").textContent="Loaded. Reloading…";setTimeout(()=>location.reload(),500);}catch(e){$("fixIOhint").textContent="That code isn't complete. Copy the whole thing, starting with ASHURST-FIXES.";}};
 updFixCount();
+$("vcSel").onchange=e=>{VSET.name=e.target.value;store.set("voiceSet",VSET);pickVoice();const m=NAV.muted;NAV.muted=false;say("Next, number 12, Charlton Street, on your left, in 50 yards.",true);NAV.muted=m;};
+$("vcRate").oninput=e=>{VSET.rate=+e.target.value;store.set("voiceSet",VSET);};
+$("vcTry").onclick=()=>{const m=NAV.muted;NAV.muted=false;say("Next parcel, Weppons Cottage, on your right, in a quarter of a mile. Then Fairs Field, No. 1, 4 and 12.",true);NAV.muted=m;};
+pickVoice();
 // boot
 resize();render_ui();focusLeg(true);
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>draw());
