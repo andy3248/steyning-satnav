@@ -1,0 +1,22 @@
+{
+  "api": "https://api.os.uk/downloads/v1/products/OpenUPRN/downloads",
+  "download": {
+    "md5": "1d5c21d8166d6efd74850ec6f1ae77ab",
+    "size": 619271161,
+    "format": "CSV",
+    "area": "GB",
+    "fileName": "osopenuprn_202609_csv.zip"
+  },
+  "bbox": [
+    50.86,
+    -0.4,
+    50.955,
+    -0.29
+  ],
+  "national_rows_scanned": 41676575,
+  "filtered_rows": 8287,
+  "licence": "Open Government Licence v3.0",
+  "attribution": "Contains OS data \u00a9 Crown copyright and database right 2026",
+  "csv_sha256": "7015a570a8a27c239fba3be433fb17171dcb1ba4f6148fccf052e3fd6d521d25",
+  "retrieved_utc": "2026-10-18T10:24:43.735396+00:00"
+}

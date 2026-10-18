@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Build both round pages from src/.
+"""Build all three round pages from src/.
 
   python3 build.py
 
 Writes index.html (Annington round), ashurst/index.html (Ashurst) and wiston/index.html (Wiston).
-Edit the app in src/template.html; round data lives in src/annington and src/ashurst.
+Edit the app in src/template.html; round data lives in src/annington, src/ashurst and src/wiston.
 """
 import json,re,os
 ROOT=os.path.dirname(os.path.abspath(__file__));S=os.path.join(ROOT,'src')+'/'
@@ -47,7 +47,7 @@ def build_frame(cfg):
         h=h.replace('STEYNING-FIXES',cfg['fixtag']+'-FIXES').replace('Steyning sat nav fixes',cfg['name']+' fixes')
     rep('Map of the Annington round','Map of the '+cfg['name'])
     rep('Addresses without a mapped position come from the GOV.UK energy certificate register, which only lists homes that have had an EPC.',
-        'Delivery order is the sorting frame, '+cfg['shelves']+'. Pins marked “best guess” were placed on the nearest likely building, so check them and use Fix this house.')
+        'Delivery order is the sorting frame, '+cfg['shelves']+'. Pins marked “best guess” have an unconfirmed address match. A real address point does not confirm the house name or number; check it and use Fix this house.')
     rep('const roadNorm=s=>',
      '// keep only the biggest connected road network, so pins never snap to a cut-off track\n'
      'const MAINE=(()=>{const comp=new Int32Array(NODES.length).fill(-1);let best=-1,bestN=0;for(let s=0;s<NODES.length;s++){if(comp[s]>=0||!ADJ[s].length)continue;const st=[s];comp[s]=s;let n=0;while(st.length){const u=st.pop();n++;for(const [v] of ADJ[u])if(comp[v]<0){comp[v]=s;st.push(v);}}if(n>bestN){bestN=n;best=s;}}return EDGES.map(e=>comp[e.u]===best);})();\n'
@@ -62,11 +62,11 @@ def build_frame(cfg):
 
 # Annington keeps the original page's id and storage keys, so the round, mode and parcels settings carry over.
 # Item ids are "f0".. (not "a0"..) so fixes saved against the old house list don't land on the wrong houses.
-ANN=dict(dir='annington',id='steyning',name='Annington Round',keyprefix='',idp='f',fixtag='STEYNING',os=False,
+ANN=dict(dir='annington',id='steyning',name='Annington Round',keyprefix='',idp='f',fixtag='STEYNING',os=True,
          shelves='shelves 1 to 20, in the order you walk the frame')
 ASH=dict(dir='ashurst',id='ashurst',name='Ashurst Round',keyprefix='ash_',idp='a',fixtag='ASHURST',os=True,
          shelves='shelves 1 to 14, left to right')
-WIS=dict(dir='wiston',id='wiston',name='Wiston Round',keyprefix='wis_',idp='w',fixtag='WISTON',os=False,
+WIS=dict(dir='wiston',id='wiston',name='Wiston Round',keyprefix='wis_',idp='w',fixtag='WISTON',os=True,
          shelves='column by column, top shelf to bottom, left to right (shelves 1 to 24)')
 open(os.path.join(ROOT,'index.html'),'w').write(HEAD+build_frame(ANN)+'\n</body></html>')
 os.makedirs(os.path.join(ROOT,'ashurst'),exist_ok=True)

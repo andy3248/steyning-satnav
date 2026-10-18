@@ -1,0 +1,80 @@
+{
+  "annington_learn": {
+    "houses": 297,
+    "visited_stops": 151,
+    "ticks": 908,
+    "finished": true,
+    "last_frame_index": 296,
+    "numbered_road_runs": 7,
+    "speech_utterances": 368,
+    "direction_utterances": 161,
+    "completion_speech": "That was the last house. The round is complete.",
+    "speech_language": "en-GB",
+    "built_sha256": "7f54d5b36566a6910cd741a5a57da42f4d57841e57a47640ad917a47e653a620"
+  },
+  "annington_parcels": {
+    "houses": 43,
+    "visited_stops": 27,
+    "ticks": 376,
+    "finished": true,
+    "last_frame_index": 42,
+    "numbered_road_runs": 4,
+    "speech_utterances": 107,
+    "direction_utterances": 57,
+    "completion_speech": "That was the last parcel. All done.",
+    "speech_language": "en-GB",
+    "built_sha256": "7f54d5b36566a6910cd741a5a57da42f4d57841e57a47640ad917a47e653a620"
+  },
+  "ashurst_learn": {
+    "houses": 216,
+    "visited_stops": 194,
+    "ticks": 2486,
+    "finished": true,
+    "last_frame_index": 215,
+    "numbered_road_runs": 2,
+    "speech_utterances": 682,
+    "direction_utterances": 323,
+    "completion_speech": "That was the last house. The round is complete.",
+    "speech_language": "en-GB",
+    "built_sha256": "2b5c93568c5af755cc09fe6b760afe712ad837a5c9b604734e519fa762a7b9a3"
+  },
+  "ashurst_parcels": {
+    "houses": 31,
+    "visited_stops": 29,
+    "ticks": 1161,
+    "finished": true,
+    "last_frame_index": 30,
+    "numbered_road_runs": 1,
+    "speech_utterances": 200,
+    "direction_utterances": 118,
+    "completion_speech": "That was the last parcel. All done.",
+    "speech_language": "en-GB",
+    "built_sha256": "2b5c93568c5af755cc09fe6b760afe712ad837a5c9b604734e519fa762a7b9a3"
+  },
+  "wiston_learn": {
+    "houses": 437,
+    "visited_stops": 204,
+    "ticks": 1795,
+    "finished": true,
+    "last_frame_index": 436,
+    "numbered_road_runs": 19,
+    "speech_utterances": 538,
+    "direction_utterances": 229,
+    "completion_speech": "That was the last house. The round is complete.",
+    "speech_language": "en-GB",
+    "built_sha256": "f17efa49e83573030f3ad055ed61d5263415279a3901af7c604c008fd94778b3"
+  },
+  "wiston_parcels": {
+    "houses": 63,
+    "visited_stops": 42,
+    "ticks": 806,
+    "finished": true,
+    "last_frame_index": 62,
+    "numbered_road_runs": 8,
+    "speech_utterances": 179,
+    "direction_utterances": 101,
+    "completion_speech": "That was the last parcel. All done.",
+    "speech_language": "en-GB",
+    "built_sha256": "f17efa49e83573030f3ad055ed61d5263415279a3901af7c604c008fd94778b3"
+  }
+}

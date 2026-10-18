@@ -1,0 +1,11 @@
+{
+  "annington:Botolphs Road": {
+    "osm_names": ["Annington Road"],
+    "reason": "The frame uses Botolphs Road for the Botolphs section of the continuous OSM road named Annington Road. This is a road geometry alias, not proof of any house identity."
+  },
+  "annington:Mount Park": {
+    "osm_ways": [711023738, 711023739, 711023740, 870623363, 1506898125],
+    "unverified_road_name": true,
+    "reason": "OSM has no named Mount Park highway. These unnamed service roads are in the frame's existing Mount Park cluster. All inferred placements on this model remain guess until numbered address anchors are supplied."
+  }
+}
