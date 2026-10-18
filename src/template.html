@@ -226,6 +226,12 @@ ol{list-style:none;margin:0;padding:0}
 #fixbox{position:absolute;left:12px;right:12px;bottom:28px;margin:0 auto;max-width:520px;background:var(--bg);border-radius:14px;box-shadow:var(--shadow);padding:14px 16px;display:grid;gap:6px;border-top:5px solid #f9ab00;z-index:3}
 #survey{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));margin:0 auto;max-width:520px;background:var(--bg);border-radius:14px;box-shadow:var(--shadow);padding:14px 16px;display:grid;gap:8px;border-top:5px solid #188038;z-index:4}
 #survey[hidden]{display:none}
+#ready .ov-body ol{margin:0;padding:0;list-style:none}
+#ready .ov-body li{display:grid;grid-template-columns:40px minmax(0,1fr);gap:10px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
+#ready .ov-body li b{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;font-size:15px}
+#ready .ov-body li small{display:block;color:var(--muted);font-size:13px}
+#ready .ov-foot{display:grid;gap:10px}
+#rdGo{min-height:64px;font-size:19px}
 #survey .sv-k{font-size:13px;color:var(--muted)}#survey .sv-t{font-size:24px;font-weight:600;line-height:1.15}
 #survey .sv-g{font-size:14px;color:var(--muted)}#survey .sv-g.bad{color:#d93025;font-weight:600}#survey .sv-g.ok{color:#188038;font-weight:600}
 #svPin{min-height:64px;font-size:19px;background:#188038;border-color:#188038;color:#fff}
@@ -389,6 +395,11 @@ button.chip{padding:10px 14px;font-size:14px}
   <div id="pkNote" hidden></div>
   <div class="ov-body"><div id="pkList"></div></div>
   <div class="ov-foot"><span id="pkCount"></span><button class="btn" id="pkClear">Clear</button><button class="btn primary big" id="pkGo">Plan route</button></div>
+</div>
+<div class="overlay" id="ready" hidden role="dialog" aria-modal="true" aria-labelledby="rdTitle">
+  <div class="ov-head"><h2 id="rdTitle">Today's parcels</h2><button class="ov-x" id="rdEdit">Edit</button><p id="rdSub"></p></div>
+  <div class="ov-body"><ol id="rdList"></ol></div>
+  <div class="ov-foot"><button class="btn primary big" id="rdGo">Start · take me to parcel 1</button><button class="btn" id="rdSim">Practice drive first</button></div>
 </div>
 <div class="overlay" id="scan" hidden role="dialog" aria-modal="true" aria-labelledby="scTitle">
   <div class="ov-head"><h2 id="scTitle">Scan parcel labels</h2><button class="ov-x" id="scClose">Done</button><p>Fill the box with the address on the label, hold still and tap Read label. Labels are read on this phone and nothing is saved except the house it matches.</p></div>
@@ -606,7 +617,7 @@ for(let k=RUNS.length-1;k>=0;k--)if(RUNS[k].last===RUNS[k].first)RUNS.splice(k,1
 const runAt=i=>RUNS.find(r=>i>=r.first&&i<=r.last)||null;
 const numOf=q=>(labels[q.id]||q.it.num||"").trim();
 const runNums=r=>[numOf(SEQ[r.first]),numOf(SEQ[r.last])];
-const runSub=r=>{const [a,b]=runNums(r);return `Start at No. ${a} · finish at No. ${b} · ${r.last-r.first+1} ${PARCELS?"parcels":"houses"}`;};
+const runSub=r=>{const [a,b]=runNums(r);const n=r.last-r.first+1;if(PARCELS&&n<=8){const L=[];for(let i=r.first;i<=r.last;i++)L.push(numOf(SEQ[i]));return `No. ${L.join(", ")} · ${n} parcels`;}return `Start at No. ${a} · finish at No. ${b} · ${n} ${PARCELS?"parcels":"houses"}`;};
 const runSay=r=>{const [a,b]=runNums(r);return `${spk(r.road)}. Start at number ${a}, finish at number ${b}`;};
 const stopLabel=i=>{const r=runAt(i);return r?r.road:seqLabel(SEQ[i]);};
 const stopSay=i=>{const r=runAt(i);return r?runSay(r):houseSay(SEQ[i]);};
@@ -942,7 +953,15 @@ async function scRead(){if(SC.busy||!SC.worker)return;const c=scGrab();if(!c){sc
   catch(e){scMsg("Something went wrong reading that label. Try again.");}
   SC.busy=false;gid("scanShot").disabled=false;}
 gid("pkScan").onclick=openScan;gid("scClose").onclick=closeScan;gid("scanShot").onclick=scRead;
-gid("pkGo").onclick=()=>{PARSET.clear();PK.forEach(k=>PARSET.add(k));saveParcels();store.set(ROUND.id+'_pIdx',0);setMode("parcels");};
+function showReady(){const ol=gid("rdList");ol.innerHTML="";let n=0;
+  for(let i=0;i<SEQ.length;i=nextStop(i)){n++;const r=runAt(i);const li=document.createElement("li");li.innerHTML="<b></b><div><span></span><small></small></div>";
+    li.querySelector("b").textContent=n;li.querySelector("span").textContent=r?r.road:fullLabel(SEQ[i]);li.querySelector("small").textContent=r?runSub(r):seqRoad(SEQ[i]);ol.appendChild(li);}
+  gid("rdSub").textContent=`${ROUND.name} · ${SEQ.length} ${SEQ.length===1?"parcel":"parcels"} in ${n} ${n===1?"stop":"stops"}, in frame order. The sat nav takes you to each one in turn and tells you the next.`;
+  gid("ready").hidden=false;}
+gid("rdGo").onclick=()=>{gid("ready").hidden=true;go(0);startNav("gps");};
+gid("rdSim").onclick=()=>{gid("ready").hidden=true;go(0);startNav("sim");};
+gid("rdEdit").onclick=()=>{gid("ready").hidden=true;openPicker();};
+gid("pkGo").onclick=()=>{store.set(ROUND.id+"_ready",1);PARSET.clear();PK.forEach(k=>PARSET.add(k));saveParcels();store.set(ROUND.id+'_pIdx',0);setMode("parcels");};
 // rounds (all pages live on the same site, so progress can be read across)
 const ROUNDS=[{id:"steyning",name:"Annington Round",kind:"van",url:"/steyning-satnav/",key:'hIdx',n:297,houses:"Laines Rd, Bostal Rd, Maudlin, Annington Rd"},
   {id:"ashurst",name:"Ashurst Round",kind:"van",url:"/steyning-satnav/ashurst/",key:'ashurst_hIdx',n:216,houses:"frame shelves 1–14"},
@@ -1255,5 +1274,6 @@ setTimeout(buildMore,30);
 updMode();
 {let fq=null;try{fq=new URLSearchParams(location.search).get("find");}catch(e){}
  if(START){try{history.replaceState(null,"",location.pathname);}catch(e){}}
- if(fq)setTimeout(()=>openFind(fq),60);else if(START==="parcels")openPicker();else if(START==="learn"){}else if(!MODE)showStart();else if(MODE==="parcels"&&!PARSET.size)openPicker();}
+ if(fq)setTimeout(()=>openFind(fq),60);else if(START==="parcels")openPicker();else if(START==="learn"){}else if(!MODE)showStart();else if(MODE==="parcels"&&!PARSET.size)openPicker();
+ else if(PARCELS&&store.get(ROUND.id+"_ready")){store.set(ROUND.id+"_ready",0);showReady();}}
 </script>
