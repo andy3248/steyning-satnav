@@ -68,7 +68,7 @@ ASH=dict(dir='ashurst',id='ashurst',name='Ashurst Round',keyprefix='ash_',idp='a
          shelves='shelves 1 to 14, left to right')
 WIS=dict(dir='wiston',id='wiston',name='Wiston Round',keyprefix='wis_',idp='w',fixtag='WISTON',os=False,
          shelves='column by column, top shelf to bottom, left to right (shelves 1 to 24)')
-open(os.path.join(ROOT,'index.html'),'w').write(HEAD+build_frame(ANN)+'\n</body></html>')
+open(os.path.join(ROOT,'index.html'),'w').write(HEAD+build_frame(ANN)+'\n'+SW+'\n</body></html>')
 os.makedirs(os.path.join(ROOT,'ashurst'),exist_ok=True)
 open(os.path.join(ROOT,'ashurst','index.html'),'w').write(HEAD+build_frame(ASH)+'\n'+SW+'\n</body></html>')
 os.makedirs(os.path.join(ROOT,'wiston'),exist_ok=True)

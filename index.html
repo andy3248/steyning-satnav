@@ -1276,4 +1276,5 @@ updMode();
  else if(PARCELS&&store.get(ROUND.id+"_ready")){store.set(ROUND.id+"_ready",0);showReady();}}
 </script>
 
+<script>if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
 </body></html>
