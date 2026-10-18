@@ -15,6 +15,7 @@ Live pages: `/steyning-satnav/` (Annington Round), `/steyning-satnav/ashurst/` (
 - **Sat nav:** GPS follow, voice directions (`speechSynthesis`, en-GB), next-house pings, auto-advance when the driver parks then pulls away (`onParked`, `autoNext`, `AUTO` settings), Practice drive simulation.
 - **Numbered roads:** a run of numbered houses on one road is a single stop (start and finish number, Finished road button, no auto-advance inside it). See `RUNS`/`runAt`.
 - **Scan labels** in the Parcels picker: camera + on-phone text reading, matched to houses with `scMatch`. Never store label text.
+- **Survey mode** (“Pin houses as I walk the round”): GPS pin per house via `setPos`, saved as the driver's fixes. Numbered houses without a confirmed spot are spaced between confirmed ones of the same parity (`applyInterp`). There is no free data that ties house numbers to positions here, so don't guess-assign numbers to OS UPRN points.
 - **Find a house** search bar, **Fix this house** tool, Rounds list.
 - **Per-round storage keys** in `localStorage` (both rounds share one origin). Don't rename existing keys or people lose their progress and fixes.
 - Phone-first: test at 375x812. Big touch targets (44px+), readable at a glance in a van, light and dark themes via the CSS variables in `:root`.

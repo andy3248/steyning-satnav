@@ -224,6 +224,14 @@ ol{list-style:none;margin:0;padding:0}
 #rounds .rnote{padding:14px 16px;font-size:12.5px;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){#ping{transition:none}}
 #fixbox{position:absolute;left:12px;right:12px;bottom:28px;margin:0 auto;max-width:520px;background:var(--bg);border-radius:14px;box-shadow:var(--shadow);padding:14px 16px;display:grid;gap:6px;border-top:5px solid #f9ab00;z-index:3}
+#survey{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));margin:0 auto;max-width:520px;background:var(--bg);border-radius:14px;box-shadow:var(--shadow);padding:14px 16px;display:grid;gap:8px;border-top:5px solid #188038;z-index:4}
+#survey[hidden]{display:none}
+#survey .sv-k{font-size:13px;color:var(--muted)}#survey .sv-t{font-size:24px;font-weight:600;line-height:1.15}
+#survey .sv-g{font-size:14px;color:var(--muted)}#survey .sv-g.bad{color:#d93025;font-weight:600}#survey .sv-g.ok{color:#188038;font-weight:600}
+#svPin{min-height:64px;font-size:19px;background:#188038;border-color:#188038;color:#fff}
+#svPin:disabled{opacity:.45}
+#app.surveying #card,#app.surveying .tabs{opacity:.35;pointer-events:none}
+#app.surveying #map{z-index:2}
 #app.nav #fixbox{bottom:auto;top:calc(130px + env(safe-area-inset-top,0px))}
 .fx-k{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .fx-t{font-size:20px;font-weight:500}
@@ -310,6 +318,14 @@ button.chip{padding:10px 14px;font-size:14px}
       <div class="fx-t" id="fxName"></div>
       <div class="fx-s" id="fxHint">Tap the map where this house's front door is. Drag the map to move around.</div>
       <div class="row"><button class="btn" id="fxRename">Rename</button><button class="btn" id="fxNote">Add note</button><button class="btn" id="fxReset">Undo my fix</button><span style="flex:1"></span><button class="btn primary" id="fxDone">Done</button></div>
+    </div>
+    <div id="survey" hidden role="region" aria-label="Pin houses as you go">
+      <div class="sv-k" id="svK"></div>
+      <div class="sv-t" id="svT"></div>
+      <div class="sv-g" id="svG" aria-live="polite">Finding your GPS…</div>
+      <button class="btn primary big" id="svPin" disabled>I'm at the door · pin it</button>
+      <div class="row"><button class="btn" id="svBack">‹ Back</button><button class="btn grow" id="svSkip">Skip ›</button><button class="btn" id="svStop">Stop</button></div>
+      <div class="sv-g" id="svN"></div>
     </div>
     <div id="approach" hidden role="alert"><div class="ak">Coming up on your <b id="apSide"></b></div><div class="at" id="apName"></div><div class="ad" id="apDist"></div><div class="an" id="apNote" hidden></div></div>
     <div id="ping" class="hide" role="status" aria-live="assertive"><span class="pi"></span><div><div class="pk"></div><div class="pt"></div><div class="ps"></div></div></div>
@@ -448,6 +464,7 @@ const roadPaths={};ROADS.forEach(r=>{const c=RCLS[r.cls]?r.cls:"service";addTo(r
 const items=[];
 A.forEach((r,i)=>items.push({id:"a"+i,lat:r[0],lon:r[1],num:r[2],name:r[3],road:r[4],pc:r[5],known:true,shelf:r[6],approx:r[7]!=="map"}));
 B.forEach((r,i)=>items.push({id:"b"+i,lat:r[0],lon:r[1],num:"",name:"",road:r[2],pc:"",known:false}));
+items.forEach(it=>{it.bLat=it.lat;it.bLon=it.lon;});
 items.forEach(it=>{const f=POS[it.id];if(f){it.lat=f.lat;it.lon=f.lon;it.moved=1;it.approx=false;}it.off=it.road==="Newham Lane"&&it.lat>50.8856;it.x=PX(it.lon);it.y=PY(it.lat);});
 const label=it=>labels[it.id]||(it.num?it.num+" "+it.road:it.name);
 function nrm(s){return String(s||"").toLowerCase().replace(/\(.*?\)/g,"").replace(/[^a-z0-9]/g,"");}
@@ -569,6 +586,16 @@ function buildMore(){const t0=performance.now();while(builtUpTo<SEQ.length&&perf
   routePath=null;draw();if(builtUpTo<SEQ.length)setTimeout(buildMore,0);}
 let routePath=null;
 function fullRoutePath(){if(routePath)return routePath;const p=new Path2D();for(let i=0;i<builtUpTo;i++){const L=LEGS.get(i);if(L&&L.pts.length>1)addTo(p,L.pts);}routePath=p;return p;}
+// numbered houses with no confirmed spot are spaced out between confirmed ones (same road, same side: odd or even)
+function applyInterp(){const by={};
+  items.forEach(it=>{if(!it.num||it.name||labels[it.id])return;const n=parseInt(it.num,10);if(!(n>0))return;const k=it.road+"|"+(n%2);(by[k]=by[k]||[]).push({it,n});});
+  for(const k in by){const L=by[k].sort((a,b)=>a.n-b.n);const sure=L.filter(o=>o.it.moved||o.it.approx===false);
+    L.forEach(o=>{const it=o.it;if(it.moved||it.approx===false)return;let lo=null,hi=null;sure.forEach(a=>{if(a.n<o.n&&(!lo||a.n>lo.n))lo=a;if(a.n>o.n&&(!hi||a.n<hi.n))hi=a;});
+      let lat=it.bLat,lon=it.bLon;it.interp=false;
+      if(lo&&hi&&ME([lo.it.lat,lo.it.lon],[hi.it.lat,hi.it.lon])<500){const t=(o.n-lo.n)/(hi.n-lo.n);lat=lo.it.lat+(hi.it.lat-lo.it.lat)*t;lon=lo.it.lon+(hi.it.lon-lo.it.lon)*t;it.interp=true;}
+      it.lat=lat;it.lon=lon;it.x=PX(lon);it.y=PY(lat);});}
+  SEQ.forEach(q=>{if(q.it){q.x=q.it.x;q.y=q.it.y;q.lat=q.it.lat;q.lon=q.it.lon;}});}
+applyInterp();
 // ---------------- state ----------------
 // numbered roads: a run of numbered houses on one road is one stop (drive to the road, deliver on foot, tap Finished road)
 const isNumQ=q=>!!(q&&q.it&&(labels[q.id]?/^\d+[a-z]?$/i.test(labels[q.id].trim()):(q.it.num&&!q.it.name)));
@@ -763,6 +790,7 @@ function render_ui(){
     <div class="chips">${side?`<span class="chip side">On your ${side}</span>`:""}${q.x==null?'<span class="chip warn">Spot not mapped</span>':""}${q.it&&q.it.approx?'<span class="chip warn">Pin is a best guess</span>':""}${q.it&&!q.it.known&&!labels[q.id]?'<button class="chip warn" id="nameBtn">No name in the data · Name it</button>':""}${q.it&&!q.it.known&&labels[q.id]?'<button class="chip" id="nameBtn">Named by you · Edit</button>':""}<button class="chip" id="fixBtn">${q.x==null?"Place on map":"Fix this house"}</button></div>
     <button class="btn primary big" id="navGo">${svgI("depart","currentColor").replace('<svg','<svg width="22" height="22"')} Start sat nav</button>
     <div class="row"><button class="btn grow" id="navSim">Practice drive</button><a class="btn grow" target="_blank" rel="noopener" href="${navLink(q)}">Google Maps</a></div>
+    <button class="btn" id="svGo" style="width:100%">📍 Pin houses as I walk the round</button>
     <div class="row"><button class="btn" id="prev" ${hIdx?"":"disabled"}>‹ Back</button><button class="btn grow" id="next">${hIdx<SEQ.length-1?(PARCELS?"Next parcel ›":"Next house ›"):"Finish"}</button></div>`;
   card.querySelector(".t").textContent=seqLabel(q);card.querySelector(".s").textContent=seqRoad(q)+(q.pc?" · "+q.pc:"");
   const RUN=runAt(hIdx);
@@ -775,7 +803,7 @@ function render_ui(){
    t.after(box);}
   card.querySelector("#prev").onclick=()=>go(prevStop(hIdx));
   card.querySelector("#next").onclick=()=>go(Math.min(SEQ.length-1,nextStop(hIdx)));
-  card.querySelector("#navGo").onclick=()=>startNav("gps");card.querySelector("#navSim").onclick=()=>startNav("sim");
+  card.querySelector("#navGo").onclick=()=>startNav("gps");card.querySelector("#svGo").onclick=startSurvey;card.querySelector("#navSim").onclick=()=>startNav("sim");
   const nb=card.querySelector("#nameBtn");if(nb)nb.onclick=()=>nameIt(hIdx);
   const fb=card.querySelector("#fixBtn");if(fb)fb.onclick=()=>startFix(hIdx);
   // steps
@@ -1109,7 +1137,9 @@ function navBanner(){const q=SEQ[hIdx];let html;
   if(html!==lastBan){$("banner").innerHTML=html;lastBan=html;}}
 // ---- car
 function fixMarker(){if(!FIX.on)return;const q=SEQ[FIX.i];if(q.x==null)return;const [x,y]=toS(q.x,q.y);ctx.save();ctx.beginPath();ctx.arc(x,y,16,0,7);ctx.lineWidth=3;ctx.strokeStyle="#f9ab00";ctx.setLineDash([5,4]);ctx.stroke();ctx.restore();}
-function car(){fixMarker();foundMarker();if(!NAV.on||!NAV.dpos)return;const [x,y]=toS(NAV.dpos.x,NAV.dpos.y);ctx.save();ctx.translate(x,y);
+function car(){fixMarker();foundMarker();
+  if(SV.on&&SV.pos){const [x,y]=toS(SV.pos.x,SV.pos.y);ctx.save();ctx.beginPath();ctx.arc(x,y,Math.max(10,(SV.acc||10)*view.s),0,7);ctx.fillStyle="rgba(26,115,232,.15)";ctx.fill();ctx.beginPath();ctx.arc(x,y,8,0,7);ctx.fillStyle="#1a73e8";ctx.fill();ctx.lineWidth=3;ctx.strokeStyle="#fff";ctx.stroke();ctx.restore();}
+  if(!NAV.on||!NAV.dpos)return;const [x,y]=toS(NAV.dpos.x,NAV.dpos.y);ctx.save();ctx.translate(x,y);
   ctx.beginPath();ctx.arc(0,0,24,0,7);ctx.fillStyle="rgba(26,115,232,.16)";ctx.fill();ctx.rotate(NAV.head-view.rot);
   ctx.beginPath();ctx.moveTo(0,-16);ctx.lineTo(12,13);ctx.lineTo(0,7);ctx.lineTo(-12,13);ctx.closePath();ctx.lineJoin="round";ctx.lineWidth=4;ctx.strokeStyle="#ffffff";ctx.stroke();ctx.fillStyle=C["m-route"];ctx.fill();ctx.restore();}
 // ---- loop
@@ -1165,7 +1195,7 @@ function fixTap(sx,sy){const [x,y]=toW(sx,sy);setPos(FIX.i,x,y);}
 function setPos(i,x,y){const q=SEQ[i];const lat=LAT0-y/MPD,lon=LON0+x/(K*MPD);const key=q.it?q.it.id:regKey(q);
   const mine=store.get("ash_walkPos")||{};mine[key]={lat:+lat.toFixed(6),lon:+lon.toFixed(6)};store.set("ash_walkPos",mine);POS[key]=mine[key];
   if(q.it){q.it.lat=lat;q.it.lon=lon;q.it.x=x;q.it.y=y;q.it.moved=1;q.x=x;q.y=y;q.lat=lat;q.lon=lon;}else placeReg(q,lat,lon);
-  invalidateRoutes(i);updFix();updFixCount();if(navigator.vibrate)try{navigator.vibrate(40)}catch(e){}draw();}
+  applyInterp();invalidateRoutes(i);if(FIX.on)updFix();updFixCount();if(navigator.vibrate)try{navigator.vibrate(40)}catch(e){}draw();}
 function invalidateRoutes(i){LEGS.clear();SNAPS.clear();routePath=null;builtUpTo=0;setTimeout(buildMore,30);if(NAV.on&&i===hIdx){buildLeg(true);}}
 function endFix(){FIX.on=false;$("fixbox").hidden=true;mapEl.classList.remove("fixing");if(NAV.on){NAV.paused=FIX.wasPaused;NAV.free=false;updateNavBar();}else{render_ui();}draw();}
 $("fxDone").onclick=endFix;
@@ -1183,6 +1213,26 @@ $("fxReset").onclick=()=>{const q=SEQ[FIX.i];const key=q.it?q.it.id:regKey(q);co
   showToast("Undone. Reloading the map…");setTimeout(()=>location.reload(),600);};
 $("nbFix").onclick=()=>startFix(hIdx);
 function showToast(t){const el=$("ping");el.classList.remove("street");el.querySelector(".pi").innerHTML=svgI("arrive");el.querySelector(".pk").textContent="Saved";el.querySelector(".pt").textContent=t;el.querySelector(".ps").textContent="";el.classList.remove("hide");clearTimeout(pingT);pingT=setTimeout(()=>el.classList.add("hide"),2500);}
+// ---- survey: walk the round and pin each house where you stand
+const SV={on:false,watch:null,fixes:[],pos:null,acc:null,n:0};
+function svBest(){const now=performance.now();const r=SV.fixes.filter(f=>now-f.t<8000);if(!r.length)return null;
+  const good=r.filter(f=>f.acc<=Math.max(12,Math.min(...r.map(g=>g.acc))*1.5));let x=0,y=0;good.forEach(f=>{x+=f.x;y+=f.y;});return {x:x/good.length,y:y/good.length,acc:Math.min(...good.map(f=>f.acc))};}
+function svUpd(){const q=SEQ[hIdx];$("svK").textContent=`${UNIT} ${hIdx+1} of ${SEQ.length} · ${seqRoad(q)}${q.shelf?" · shelf "+q.shelf:""}`;$("svT").textContent=fullLabel(q);
+  const b=svBest();const g=$("svG");
+  if(!b){g.className="sv-g";g.textContent=SV.err||"Finding your GPS…";$("svPin").disabled=true;}
+  else{const ok=b.acc<=25;g.className="sv-g "+(ok?"ok":"bad");g.textContent=ok?`GPS good (±${Math.round(b.acc)} m). Stand at the door or letterbox, then pin it.`:`GPS weak (±${Math.round(b.acc)} m). Wait a moment or step out from under trees.`;$("svPin").disabled=!ok;}
+  $("svN").textContent=SV.n?`${SV.n} pinned this walk. Send them from “Your fixes” when you're done.`:(isNumQ(q)?"Numbered road: pin every 4th or 5th house on each side and the rest space themselves out.":"");}
+function svFocus(){const q=SEQ[hIdx];const p=SV.pos;if(q.x!=null&&p)fitPts([{x:q.x,y:q.y},p],70);else if(p){view.cx=p.x;view.cy=p.y;}else if(q.x!=null){view.cx=q.x;view.cy=q.y;}draw();}
+function startSurvey(){if(NAV.on)exitNav(true);SV.on=true;SV.n=0;SV.err="";SV.fixes=[];$("survey").hidden=false;gid("app").classList.add("surveying");pop.hidden=true;
+  if(!navigator.geolocation){SV.err="This phone's browser can't share its location.";svUpd();return;}
+  SV.watch=navigator.geolocation.watchPosition(p=>{const x=PX(p.coords.longitude),y=PY(p.coords.latitude);SV.fixes.push({x,y,acc:p.coords.accuracy||99,t:performance.now()});if(SV.fixes.length>12)SV.fixes.shift();SV.pos={x,y};SV.acc=p.coords.accuracy;svUpd();draw();},
+    e=>{SV.err=e&&e.code===1?"Location is blocked. Allow location for this page in your browser settings.":"Can't get a GPS fix yet. Go outside for a clearer signal.";svUpd();},{enableHighAccuracy:true,maximumAge:0,timeout:20000});
+  svUpd();svFocus();}
+function stopSurvey(){SV.on=false;if(SV.watch!=null)navigator.geolocation.clearWatch(SV.watch);SV.watch=null;$("survey").hidden=true;gid("app").classList.remove("surveying");store.set(IDXK,hIdx);render_ui();focusLeg(true);}
+function svMove(i){if(i<0||i>=SEQ.length)return;hIdx=i;store.set(IDXK,hIdx);svUpd();svFocus();}
+$("svPin").onclick=()=>{const b=svBest();if(!b||b.acc>25)return;setPos(hIdx,b.x,b.y);SV.n++;try{navigator.vibrate&&navigator.vibrate([60,40,60]);}catch(e){}chime(false);
+  if(hIdx<SEQ.length-1)svMove(hIdx+1);else{svUpd();showToast("Last house pinned");}};
+$("svSkip").onclick=()=>svMove(hIdx+1);$("svBack").onclick=()=>svMove(hIdx-1);$("svStop").onclick=stopSurvey;
 // share / load
 function myFixes(){return {v:2,names:store.get("ash_walkLabels")||{},pos:store.get("ash_walkPos")||{},notes:store.get(NOTEK)||{}};}
 function updFixCount(){const f=myFixes();const n=Object.keys(f.names).length,m=Object.keys(f.pos).length,o=Object.keys(f.notes).length;$("fixCount").textContent=n+m+o?`${m} position${m===1?"":"s"} moved, ${n} name${n===1?"":"s"} and ${o} note${o===1?"":"s"} added on this phone. Send them to Claude to build them into the map for everyone.`:"Nothing fixed on this phone yet. Use “Fix this house” when a pin is in the wrong place or a house has no name.";$("shareFix").disabled=!(n+m+o);}
