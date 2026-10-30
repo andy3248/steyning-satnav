@@ -404,7 +404,7 @@ button.chip{padding:10px 14px;font-size:14px}
 <div class="overlay" id="ready" hidden role="dialog" aria-modal="true" aria-labelledby="rdTitle">
   <div class="ov-head"><h2 id="rdTitle">Today's parcels</h2><button class="ov-x" id="rdEdit">Edit</button><p id="rdSub"></p></div>
   <div class="ov-body"><ol id="rdList"></ol></div>
-  <div class="ov-foot"><button class="btn primary big" id="rdGo">Start · take me to parcel 1</button><button class="btn" id="rdSim">Practice drive first</button></div>
+  <div class="ov-foot"><button class="btn primary big" id="rdGo">Start · take me to parcel 1</button><button class="btn" id="rdSim">Practice drive first</button><a class="btn" id="rdBack" href="/steyning-satnav/parcels/" hidden>‹ Back to my parcel list</a></div>
 </div>
 <div class="overlay" id="scan" hidden role="dialog" aria-modal="true" aria-labelledby="scTitle">
   <div class="ov-head"><h2 id="scTitle">Scan parcel labels</h2><button class="ov-x" id="scClose">Done</button><p>Fill the box with the address on the label, hold still and tap Read label. Labels are read on this phone and nothing is saved except the house it matches.</p></div>
@@ -962,7 +962,7 @@ function showReady(){const ol=gid("rdList");ol.innerHTML="";let n=0;
   for(let i=0;i<SEQ.length;i=nextStop(i)){n++;const r=runAt(i);const li=document.createElement("li");li.innerHTML="<b></b><div><span></span><small></small></div>";
     li.querySelector("b").textContent=n;li.querySelector("span").textContent=r?r.road:fullLabel(SEQ[i]);li.querySelector("small").textContent=r?runSub(r):seqRoad(SEQ[i]);ol.appendChild(li);}
   gid("rdSub").textContent=`${ROUND.name} · ${SEQ.length} ${SEQ.length===1?"parcel":"parcels"} in ${n} ${n===1?"stop":"stops"}, in frame order. The sat nav takes you to each one in turn and tells you the next.`;
-  gid("ready").hidden=false;}
+  gid("rdBack").hidden=!store.get(ROUND.id+"_fromHelper");gid("ready").hidden=false;}
 gid("rdGo").onclick=()=>{gid("ready").hidden=true;go(0);startNav("gps");};
 gid("rdSim").onclick=()=>{gid("ready").hidden=true;go(0);startNav("sim");};
 gid("rdEdit").onclick=()=>{gid("ready").hidden=true;openPicker();};
@@ -1087,7 +1087,7 @@ function arrive(){hideApproach();if(NAV.arrived)return;NAV.arrived=true;NAV.arrS
     NAV.waitUntil=performance.now()+(NAV.mode==="sim"?1500:0);updateNavBar();return;}
   if(NAV.leg&&NAV.leg.len>=25)say(`You have arrived. ${uc(houseSay(q))}${side?` is on your ${side}`:""}.`);
   NAV.waitUntil=performance.now()+(NAV.mode==="sim"?900:0);updateNavBar();}
-function advance(){{const r=runAt(hIdx);if(r)hIdx=r.last;}if(hIdx>=SEQ.length-1){if(!NAV.finished){NAV.finished=true;say(PARCELS?"That was the last parcel. All done.":"That was the last house. The round is complete.");updateNavBar();}return;}
+function advance(){{const r=runAt(hIdx);if(r)hIdx=r.last;}if(hIdx>=SEQ.length-1){if(!NAV.finished){NAV.finished=true;if(PARCELS)store.set(ROUND.id+"_pDone",1);say(PARCELS?"That was the last parcel. All done.":"That was the last house. The round is complete.");updateNavBar();}return;}
   hIdx++;store.set(IDXK,hIdx);buildLeg();}
 function back(){if(hIdx<=0)return;hIdx=prevStop(hIdx);store.set(IDXK,hIdx);NAV.finished=false;try{speechSynthesis.cancel();}catch(e){}buildLeg();}
 function announce(L){const s=nextStep(L);const dist=s.at-NAV.prog;const k=L.steps.indexOf(s);

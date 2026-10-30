@@ -145,9 +145,21 @@ function renderDel(speak){const L=ordered();const cur=current();const G=groups(L
   if(!up.children.length)up.innerHTML='<li><span>Nothing after this road.</span></li>';
   const dl=$("doneList");dl.innerHTML="";const D=L.filter(i=>i.st!=="todo");$("doneSum").textContent=`Done (${D.length})`;
   D.forEach(i=>{const li=document.createElement("li");li.innerHTML="<b></b><span></span>";li.querySelector("b").textContent=label(BYKEY.get(i.key));li.querySelector("span").textContent=i.st==="fail"?"Not delivered · tap to put back":"Delivered · tap to put back";li.onclick=()=>{i.st="todo";save();renderDel(false);};dl.appendChild(li);});
+  updNavBtn();
   if(speak)say(speechForNext(null));}
 function finish(st){const cur=current();if(!cur)return;const h=BYKEY.get(cur.key);cur.st=st;cur.at=Date.now();save();beep(st==="done");renderDel(false);
   const nx=current();say(nx?speechForNext(h.road):`That's everything. ${ordered().filter(i=>i.st==="fail").length?"Some parcels weren't delivered; they're listed on the screen.":"Every parcel delivered. Well done."}`);ALERTED.clear();}
+// ---------- hand the list to the full sat nav (map, turn-by-turn voice, follows your GPS) ----------
+const NAVPAGE={annington:{id:"steyning",url:"../",pre:"f"},wiston:{id:"wiston",url:"../wiston/",pre:"w"},ashurst:{id:"ashurst",url:"../ashurst/",pre:"a"}};
+const localDay=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");};
+function navRound(){const cur=current();return cur?BYKEY.get(cur.key).round:null;}
+function updNavBtn(){const r=navRound();const b=$("navBtn");if(!r){b.hidden=true;$("navHint").textContent="";return;}b.hidden=false;
+  const n=ordered().filter(i=>i.st==="todo"&&BYKEY.get(i.key).round===r).length;const others=[...new Set(ordered().filter(i=>i.st==="todo").map(i=>BYKEY.get(i.key).round))].filter(x=>x!==r);
+  b.textContent=`🧭 Start sat nav · ${ROUNDNAME[r]} (${n} ${n===1?"stop":"stops"})`;
+  $("navHint").textContent=`Opens the map and talks you to each parcel in order, turn by turn.${others.length?` When ${ROUNDNAME[r]} is done, come back here for ${others.map(x=>ROUNDNAME[x]).join(" and ")}.`:""}`;}
+$("navBtn").onclick=()=>{const r=navRound();if(!r)return;const P=NAVPAGE[r];const ids=ordered().filter(i=>i.st==="todo"&&BYKEY.get(i.key).round===r).map(i=>P.pre+BYKEY.get(i.key).k);
+  try{localStorage.setItem(P.id+"_parcels",JSON.stringify({ids,day:localDay()}));localStorage.setItem(P.id+"_mode",JSON.stringify("parcels"));localStorage.setItem(P.id+"_pIdx","0");localStorage.setItem(P.id+"_ready","1");localStorage.setItem(P.id+"_fromHelper","1");localStorage.removeItem(P.id+"_pDone");}catch(e){}
+  location.href=P.url;};
 $("doneBtn").onclick=()=>finish("done");$("failBtn").onclick=()=>finish("fail");
 $("backBtn").onclick=()=>{const L=ordered();const last=L.filter(i=>i.st!=="todo").sort((a,b)=>(b.at||0)-(a.at||0))[0];if(!last)return;last.st="todo";save();renderDel(false);say(speechForNext(null));};
 
@@ -185,8 +197,14 @@ $("gpsBtn").onclick=gpsOn;
 let WL=null;async function wake(on){try{if(on&&"wakeLock" in navigator&&!WL){WL=await navigator.wakeLock.request("screen");WL.addEventListener("release",()=>{WL=null;});}else if(!on&&WL){await WL.release();WL=null;}}catch(e){}}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&!$("vDel").hidden)wake(true);});
 
+// bring back progress from the sat nav: parcels before the one it's on now count as delivered
+function syncFromNav(){let changed=false;for(const r in NAVPAGE){const P=NAVPAGE[r];try{if(!localStorage.getItem(P.id+"_fromHelper"))continue;const par=JSON.parse(localStorage.getItem(P.id+"_parcels")||"null");const idx=+JSON.parse(localStorage.getItem(P.id+"_pIdx")||"0");
+    if(!par||!Array.isArray(par.ids))continue;const done=localStorage.getItem(P.id+"_pDone")==="1";par.ids.slice(0,done?par.ids.length:idx).forEach(id=>{const k=+id.slice(1);const it=S.items.find(i=>i.key===r+":"+k);if(it&&it.st==="todo"){it.st="done";it.at=Date.now();changed=true;}});}catch(e){}}
+  if(changed){save();renderList();if(!$("vDel").hidden)renderDel(false);}}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")syncFromNav();});
+window.addEventListener("pageshow",syncFromNav);
 // ---------- start ----------
-pickVoice();renderList();
+pickVoice();syncFromNav();renderList();
 if(store.get("tab")==="del"&&S.items.length)tab("del");
 
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
