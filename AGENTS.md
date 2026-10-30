@@ -3,6 +3,9 @@
 A phone-first training sat nav for postal delivery rounds, hosted on GitHub Pages.
 Live pages: `/steyning-satnav/` (Annington Round), `/steyning-satnav/ashurst/` (Ashurst Round) and `/steyning-satnav/wiston/` (Wiston Round).
 
+## Parcel helper (separate page)
+`/steyning-satnav/parcels/` is a simple parcel tool for drivers: scan or type each parcel, it orders them by frame order across all rounds, speaks the next one, and warns by GPS when you drive onto or leave a road with parcels still to deliver. Source: `src/parcels/app.html` + `app.js` + `sw.js`; build with `python3 tools/build_parcels.py` (bakes in every round's placed.json and named road shapes). Bump `parcels/sw.js` CACHE when it changes.
+
 ## How it is built
 - **Edit `src/template.html`.** It is the whole app: HTML, CSS and JS in one file.
 - **Run `python3 build.py`** to regenerate `index.html`, `ashurst/index.html` and `wiston/index.html`. Never hand-edit those two files; they are build output with the round data baked in.

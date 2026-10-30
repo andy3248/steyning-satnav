@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1a73e8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Parcels">
+<title>Parcel helper</title>
+<style>
+:root{--bg:#fff;--fg:#1f1f1f;--muted:#5f6368;--line:#e3e3e3;--chip:#f1f3f4;--accent:#1a73e8;--good:#188038;--bad:#c5221f;--warn:#f9ab00;--card:#fff;--shadow:0 2px 10px rgba(0,0,0,.12);--font:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+@media (prefers-color-scheme:dark){:root{--bg:#121212;--fg:#ececec;--muted:#a8acb1;--line:#2c2c2c;--chip:#232425;--accent:#8ab4f8;--good:#57bb6c;--bad:#f28b82;--card:#1c1c1e;--shadow:0 2px 10px rgba(0,0,0,.6)}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.4 var(--font);-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit}
+.wrap{max-width:560px;margin:0 auto;padding:calc(10px + env(safe-area-inset-top,0px)) 16px calc(24px + env(safe-area-inset-bottom,0px))}
+header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+header h1{font-size:20px;font-weight:600;margin:0;flex:1}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--chip);border-radius:24px;padding:4px;margin-bottom:14px}
+.seg button{border:0;background:none;border-radius:20px;min-height:46px;font-weight:600;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--card);color:var(--accent);box-shadow:var(--shadow)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--card);border-radius:24px;min-height:48px;padding:0 18px;font-weight:600;color:var(--accent);cursor:pointer;text-decoration:none}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.btn.primary{color:#0b1f3a}}
+.btn.good{background:var(--good);border-color:var(--good);color:#fff}
+.btn.big{min-height:64px;font-size:20px;width:100%;border-radius:18px}
+.btn:disabled{opacity:.45}
+.row{display:flex;gap:10px;margin-top:10px}.row>.btn{flex:1;padding:0 10px;white-space:nowrap}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+.k{font-size:13px;color:var(--muted);font-weight:600;letter-spacing:.02em}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+input[type=search],input[type=text]{width:100%;font:17px var(--font);padding:13px 16px;border-radius:24px;border:1px solid var(--line);background:var(--chip);color:var(--fg)}
+/* load */
+#cam{position:relative;border-radius:18px;overflow:hidden;background:#111;aspect-ratio:4/3;margin-bottom:10px}
+#cam video{width:100%;height:100%;object-fit:cover;display:block}
+#cam .guide{position:absolute;inset:14% 7%;border:3px solid rgba(255,255,255,.85);border-radius:14px;box-shadow:0 0 0 999px rgba(0,0,0,.3)}
+#cam .guide span{position:absolute;left:0;right:0;top:-28px;text-align:center;color:#fff;font-size:14px}
+#flash{border-radius:16px;padding:14px 16px;margin-bottom:10px;font-size:18px;font-weight:600;background:var(--chip)}
+#flash.ok{background:color-mix(in srgb,var(--good) 18%,var(--card));}
+#flash.ask{background:color-mix(in srgb,var(--warn) 22%,var(--card));}
+#flash small{display:block;font-size:14px;font-weight:400;color:var(--muted)}
+#flash .opts{display:grid;gap:8px;margin-top:10px}
+.sug{list-style:none;margin:8px 0 0;padding:0}
+.sug li{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid var(--line)}
+.sug li div{flex:1;min-width:0}.sug li b{display:block;font-weight:600}.sug li small{color:var(--muted)}
+.sug .btn{min-height:44px}
+h2{font-size:15px;margin:18px 0 6px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.road{margin:10px 0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.road .rh{display:flex;justify-content:space-between;gap:8px;padding:10px 14px;background:var(--chip);font-weight:600}
+.road .rh span{color:var(--muted);font-weight:500;font-size:14px}
+.it{display:flex;align-items:center;gap:8px;padding:8px 10px 8px 14px;border-top:1px solid var(--line)}
+.it .nm{flex:1;min-width:0}
+.it .cnt{display:flex;align-items:center;gap:4px}
+.it .cnt button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card);font-size:20px;cursor:pointer}
+.it .cnt b{min-width:22px;text-align:center}
+.it.done .nm{text-decoration:line-through;color:var(--muted)}
+.it.fail .nm{color:var(--bad)}
+/* deliver */
+#dRoad{font-size:30px;font-weight:700;line-height:1.1;margin:4px 0 8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 12px}
+.chip{border-radius:16px;padding:6px 12px;background:var(--chip);font-weight:600;font-size:16px}
+.chip.cur{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){.chip.cur{color:#0b1f3a}}
+.chip.done{text-decoration:line-through;color:var(--muted)}
+#dNext{font-size:26px;font-weight:700;line-height:1.15}
+#dCount{font-size:17px;color:var(--muted);margin:2px 0 14px}
+#gps{display:flex;align-items:center;gap:10px;margin-top:12px;padding:12px 14px;border-radius:14px;background:var(--chip);font-size:15px}
+#gps b{flex:1}
+#alert{position:fixed;left:12px;right:12px;top:calc(12px + env(safe-area-inset-top,0px));max-width:540px;margin:0 auto;z-index:20;border-radius:16px;padding:16px;background:#e37400;color:#fff;font-size:20px;font-weight:700;box-shadow:var(--shadow)}
+#alert small{display:block;font-size:15px;font-weight:500;opacity:.95}
+#alert.info{background:var(--accent)}
+@media (prefers-color-scheme:dark){#alert.info{color:#0b1f3a}}
+.up{list-style:none;margin:0;padding:0}
+.up li{padding:10px 2px;border-bottom:1px solid var(--line)}
+.up li b{display:block}
+.up li span{color:var(--muted);font-size:15px}
+details{margin-top:18px}summary{cursor:pointer;font-weight:600;color:var(--muted);padding:8px 0}
+select{font:16px var(--font);padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--chip);color:var(--fg);flex:1;min-width:0}
+.foot{margin-top:26px;font-size:12.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><h1>Parcel helper</h1><button class="btn" id="hearBtn" aria-label="Say it again">🔊 Repeat</button></header>
+<div class="seg" role="tablist"><button id="tLoad" aria-pressed="true">1 · Load parcels</button><button id="tDel" aria-pressed="false">2 · Deliver</button></div>
+
+<section id="vLoad">
+  <div id="cam" hidden><video id="vid" playsinline muted autoplay></video><div class="guide"><span>Address label in the box</span></div></div>
+  <div id="flash">Scan each parcel's address label. It works out the house, puts it in delivery order and tells you what it found.</div>
+  <button class="btn primary big" id="scanBtn">📷 Start scanning</button>
+  <div style="margin-top:12px"><input id="q" type="search" placeholder="Or type it: “12 charlton” or “weppons”" autocomplete="off" aria-label="Type a house to add"></div>
+  <ul class="sug" id="sug"></ul>
+  <h2 id="listH">Today's parcels</h2>
+  <div id="list"></div>
+  <button class="btn big good" id="goDel" style="margin-top:14px">Done loading · start delivering</button>
+  <div class="row"><button class="btn" id="clearBtn">Clear the list</button></div>
+</section>
+
+<section id="vDel" hidden>
+  <div class="card" id="dCard">
+    <div class="k" id="dK"></div>
+    <div id="dRoad"></div>
+    <div class="chips" id="dChips"></div>
+    <div id="dNext"></div>
+    <div id="dCount"></div>
+    <button class="btn big good" id="doneBtn">✓ Delivered</button>
+    <div class="row"><button class="btn" id="backBtn">‹ Back</button><button class="btn" id="failBtn">Not delivered</button><a class="btn" id="mapBtn" target="_blank" rel="noopener">Map</a></div>
+  </div>
+  <div id="gps"><b id="gpsT">Road alerts are off</b><button class="btn" id="gpsBtn">Turn on</button></div>
+  <h2>Coming up</h2>
+  <ul class="up" id="upList"></ul>
+  <details><summary id="doneSum">Done</summary><ul class="up" id="doneList"></ul></details>
+</section>
+
+<details id="voiceBox"><summary>Voice</summary>
+  <div class="row"><select id="vcSel" aria-label="Voice"></select><button class="btn" id="vcTry">Try it</button></div>
+  <div class="row" style="align-items:center"><span class="muted small">Slower</span><input id="vcRate" type="range" min="0.8" max="1.2" step="0.05" style="flex:1" aria-label="Speaking speed"><span class="muted small">Faster</span></div>
+  <p class="muted small">For a more natural voice, download a UK voice marked Enhanced or Premium on your phone (iPhone: Settings → Accessibility → Spoken Content → Voices → English. Android: Settings → Text-to-speech → Speech Services by Google → English (UK)), then choose it here.</p>
+</details>
+<div class="foot">Addresses are read on this phone; only the matched house is kept, and today's list is cleared each morning. Road shapes © OpenStreetMap contributors (ODbL). Contains OS data © Crown copyright and database right 2026.</div>
+</div>
+<div id="alert" hidden role="alert"></div>
+
+<script>
+/*DATA*/
+/*APP*/
+</script>
+</body>
+</html>
