@@ -6,12 +6,16 @@
 Writes index.html (Annington round), ashurst/index.html (Ashurst) and wiston/index.html (Wiston).
 Edit the app in src/template.html; round data lives in src/annington and src/ashurst.
 """
-import json,re,os
+import json,re,os,sys
+sys.path.insert(0,os.path.join(os.path.dirname(os.path.abspath(__file__)),'tools'))
+from opposite import opposites
 ROOT=os.path.dirname(os.path.abspath(__file__));S=os.path.join(ROOT,'src')+'/'
 TEMPLATE=open(S+'template.html').read()
 HEAD=open(S+'head.html').read()
 SW='<script>if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>'
 
+# frame road name -> road name on the map
+MAPROAD={"Sir Georges Place":"Sir George's Place","Stocks Hill":"Spithandle Lane","Maudlyn Park Way":"Maudlyn Parkway","Penlands Close":"Penland's Close","Botolphs Road":"Annington Road","Mount Park":"Bostal Road"}
 # ---------- a round in sorting-frame order ----------
 # cfg: dir (src/<dir>), id, name, title, keyprefix (localStorage prefix, '' for the original page),
 #      idp (item id prefix), fixtag, os (show OS attribution), shelves (text for the footer)
@@ -19,9 +23,10 @@ def build_frame(cfg):
     h=TEMPLATE
     P=json.load(open(S+cfg['dir']+'/placed.json'))
     A=[]
-    for sh,road,lab,lat,lon,q in P:
+    OPP=opposites([(p[1],p[2],p[3],p[4],p[5]=='map') for p in P],open(S+cfg['dir']+'/basemap.txt').read(),MAPROAD)
+    for (sh,road,lab,lat,lon,q),opp in zip(P,OPP):
         num,name=(lab,"") if re.fullmatch(r'\d+[A-Za-z]?',lab) else ("",lab)
-        A.append([lat,lon,num,name,road,"",sh,q])
+        A.append([lat,lon,num,name,road,"",sh,q,opp])
     data='const ROUND_CFG='+json.dumps({'id':cfg['id'],'name':cfg['name'],'kind':'van'})+';\nconst A='+json.dumps(A,separators=(',',':'))+';\nconst B=[],R=[],W=[];\nconst BASEMAP='+json.dumps(open(S+cfg['dir']+'/basemap.txt').read())+';'
     def rep(old,new,count=1):
         nonlocal h
@@ -30,7 +35,7 @@ def build_frame(cfg):
     rep('/*DATA*/',data)
     # items: carry shelf + accuracy
     rep('A.forEach((r,i)=>items.push({id:"a"+i,lat:r[0],lon:r[1],num:r[2],name:r[3],road:r[4],pc:r[5],known:!!(r[2]||r[3])}));',
-        'A.forEach((r,i)=>items.push({id:"%s"+i,lat:r[0],lon:r[1],num:r[2],name:r[3],road:r[4],pc:r[5],known:true,shelf:r[6],approx:r[7]!=="map"}));'%cfg['idp'])
+        'A.forEach((r,i)=>items.push({id:"%s"+i,lat:r[0],lon:r[1],num:r[2],name:r[3],road:r[4],pc:r[5],known:true,shelf:r[6],approx:r[7]!=="map",opp:r[8]||""}));'%cfg['idp'])
     rep('if(f){it.lat=f.lat;it.lon=f.lon;it.moved=1;}','if(f){it.lat=f.lat;it.lon=f.lon;it.moved=1;it.approx=false;}')
     # sequence = frame order
     s=h.index('SEG.forEach(([title,f,start,mode,groad,rroad])=>{'); e=h.index('}\nconst seqLabel')
@@ -68,9 +73,13 @@ ASH=dict(dir='ashurst',id='ashurst',name='Ashurst Round',keyprefix='ash_',idp='a
          shelves='shelves 1 to 14, left to right')
 WIS=dict(dir='wiston',id='wiston',name='Wiston Round',keyprefix='wis_',idp='w',fixtag='WISTON',os=False,
          shelves='column by column, top shelf to bottom, left to right (shelves 1 to 24)')
+PEN=dict(dir='penlands',id='penlands',name='Penlands Round',keyprefix='pen_',idp='p',fixtag='PENLANDS',os=False,
+         shelves='column by column, top shelf to bottom, starting at 60 Penlands Vale')
 open(os.path.join(ROOT,'index.html'),'w').write(HEAD+build_frame(ANN)+'\n'+SW+'\n</body></html>')
 os.makedirs(os.path.join(ROOT,'ashurst'),exist_ok=True)
 open(os.path.join(ROOT,'ashurst','index.html'),'w').write(HEAD+build_frame(ASH)+'\n'+SW+'\n</body></html>')
 os.makedirs(os.path.join(ROOT,'wiston'),exist_ok=True)
 open(os.path.join(ROOT,'wiston','index.html'),'w').write(HEAD+build_frame(WIS)+'\n'+SW+'\n</body></html>')
-print('built index.html, ashurst/index.html and wiston/index.html')
+os.makedirs(os.path.join(ROOT,'penlands'),exist_ok=True)
+open(os.path.join(ROOT,'penlands','index.html'),'w').write(HEAD+build_frame(PEN)+'\n'+SW+'\n</body></html>')
+print('built index.html, ashurst/, wiston/ and penlands/')

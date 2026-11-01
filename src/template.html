@@ -810,7 +810,7 @@ function render_ui(){
     <div class="row"><button class="btn grow" id="navSim">Practice drive</button><a class="btn grow" target="_blank" rel="noopener" href="${navLink(q)}">Google Maps</a></div>
     <button class="btn" id="svGo" style="width:100%">📍 Pin houses as I walk the round</button>
     <div class="row"><button class="btn" id="prev" ${hIdx?"":"disabled"}>‹ Back</button><button class="btn grow" id="next">${hIdx<SEQ.length-1?(PARCELS?"Next parcel ›":"Next house ›"):"Finish"}</button></div>`;
-  card.querySelector(".t").textContent=seqLabel(q);card.querySelector(".s").textContent=seqRoad(q)+(q.pc?" · "+q.pc:"");
+  card.querySelector(".t").textContent=seqLabel(q);card.querySelector(".s").textContent=seqRoad(q)+(q.pc?" · "+q.pc:"")+(oppOf(q)?" · opposite No. "+oppOf(q):"");
   const RUN=runAt(hIdx);
   if(RUN){card.querySelector(".k b").textContent=`${PARCELS?"Parcels":"Houses"} ${RUN.first+1}–${RUN.last+1} of ${SEQ.length}`;card.querySelector(".t").textContent=RUN.road;card.querySelector(".s").textContent=runSub(RUN);
     const chips=card.querySelector(".chips");chips.innerHTML='<span class="chip side">Numbered road · deliver on foot</span>';
@@ -970,7 +970,8 @@ gid("pkGo").onclick=()=>{store.set(ROUND.id+"_ready",1);PARSET.clear();PK.forEac
 // rounds (all pages live on the same site, so progress can be read across)
 const ROUNDS=[{id:"steyning",name:"Annington Round",kind:"van",url:"/steyning-satnav/",key:'hIdx',n:297,houses:"Laines Rd, Bostal Rd, Maudlin, Annington Rd"},
   {id:"ashurst",name:"Ashurst Round",kind:"van",url:"/steyning-satnav/ashurst/",key:'ashurst_hIdx',n:216,houses:"frame shelves 1–14"},
-  {id:"wiston",name:"Wiston Round",kind:"van",url:"/steyning-satnav/wiston/",key:'wiston_hIdx',n:437,houses:"Wiston, Mill Rd, Charlton St, Newham Ln"}];
+  {id:"wiston",name:"Wiston Round",kind:"van",url:"/steyning-satnav/wiston/",key:'wiston_hIdx',n:437,houses:"Wiston, Mill Rd, Charlton St, Newham Ln"},
+  {id:"penlands",name:"Penlands Round",kind:"van",url:"/steyning-satnav/penlands/",key:'penlands_hIdx',n:427,houses:"Penlands Vale, Portway, Coombe Rd, Hills Rd"}];
 const RICON={walk:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 5.5a2 2 0 100-4 2 2 0 000 4zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3A7.3 7.3 0 0019 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6a2 2 0 00-1.7-1c-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7"/></svg>',
   van:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 8h-3V4H3a2 2 0 00-2 2v11h2a3 3 0 006 0h6a3 3 0 006 0h2v-5l-3-4zM6 18.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm13.5-9 2 2.5H17V9.5h2.5zM18 18.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/></svg>'};
 function renderRounds(){const ol=document.getElementById("rounds");if(ol.hidden)return;ol.innerHTML="";
@@ -1037,6 +1038,8 @@ function renderVoices(){const sel=document.getElementById("vcSel");if(!sel)retur
 function speechBusy(){if(NAV.muted)return false;try{return speechSynthesis.speaking||speechSynthesis.pending;}catch(e){return false;}}
 function sayDist(m){const yd=m*1.0936;if(yd<350)return Math.max(10,Math.round(yd/10)*10)+" yards";const mi=m/1609.34;if(mi<0.4)return "a quarter of a mile";if(mi<0.65)return "half a mile";return mi.toFixed(1)+" miles";}
 const lc=t=>t.charAt(0).toLowerCase()+t.slice(1),uc=t=>t.charAt(0).toUpperCase()+t.slice(1),spk=n=>n.replace(/\s*\(([^)]*)\)/," $1");
+const oppOf=q=>q&&q.it&&q.it.opp?q.it.opp:"";
+const oppSay=q=>{const o=oppOf(q);return o?`, opposite ${o.split(" or ").map(x=>/^\d/.test(x)?"number "+x:x).join(" or ")}`:"";};
 function houseSay(q){const lab=seqLabel(q);if(/no name in the data/.test(lab))return "an unnamed house";const m=lab.match(/^(\d+)([a-z]?)\b\s*(.*)$/i);if(m)return "number "+m[1]+(m[2]?" "+m[2].toUpperCase():"")+(m[3]?", "+m[3]:"");return lab;}
 // ---- pings (alert card + chime + buzz)
 let AC=null,pingT=0,lastPing=null;
@@ -1070,7 +1073,7 @@ function buildLeg(reroute){
         `${prev?`That's ${spk(prev.name)} finished. `:""}Next street, ${spk(st.name)}. ${n} ${n>1?"stops":"stop"}. First, ${houseSay(q)}${side?`, on your ${side}`:""}${distTxt?", "+distTxt:""}.`);}
     else if(runAt(hIdx)){const r=runAt(hIdx);ping("street",r.road,`${runSub(r)}${L>=25?" · "+fmtDist(L):""}`,`Next, ${runSay(r)}${distTxt?", "+distTxt:""}.`);}
     else{const left=st?st.last-hIdx:0;ping("house",seqLabel(q),[side?`On your ${side}`:"",distTxt?distTxt.replace(/yards/,"yd"):"",left?`${left} more on ${st.name}`:`last on ${st?st.name:"this street"}`].filter(Boolean).join(" · "),
-        `Next, ${houseSay(q)}${side?`, on your ${side}`:""}${distTxt?", "+distTxt:""}.`);}}
+        `Next, ${houseSay(q)}${side?`, on your ${side}`:""}${oppSay(q)}${distTxt?", "+distTxt:""}.`);}}
   updateNavBar();
 }
 // named houses only: the ones without a house number to look for
@@ -1085,7 +1088,7 @@ function arrive(){hideApproach();if(NAV.arrived)return;NAV.arrived=true;NAV.arrS
   const RUN=runAt(hIdx);
   if(RUN){const [a,b]=runNums(RUN);say(`You've arrived at ${spk(RUN.road)}. Start at number ${a}, finish at number ${b}. Tap finished road when you're done.`);
     NAV.waitUntil=performance.now()+(NAV.mode==="sim"?1500:0);updateNavBar();return;}
-  if(NAV.leg&&NAV.leg.len>=25)say(`You have arrived. ${uc(houseSay(q))}${side?` is on your ${side}`:""}.`);
+  if(NAV.leg&&NAV.leg.len>=25)say(`You have arrived. ${uc(houseSay(q))}${side?` is on your ${side}`:""}${oppSay(q)}.`);
   NAV.waitUntil=performance.now()+(NAV.mode==="sim"?900:0);updateNavBar();}
 function advance(){{const r=runAt(hIdx);if(r)hIdx=r.last;}if(hIdx>=SEQ.length-1){if(!NAV.finished){NAV.finished=true;if(PARCELS)store.set(ROUND.id+"_pDone",1);say(PARCELS?"That was the last parcel. All done.":"That was the last house. The round is complete.");updateNavBar();}return;}
   hIdx++;store.set(IDXK,hIdx);buildLeg();}
@@ -1154,7 +1157,7 @@ function hideMsg(key){if(!key||NAV.msgKey===key){$("navmsg").hidden=true;NAV.msg
 function updateNavBar(){const q=SEQ[hIdx];if(!q)return;const side=legSide();
   const RUN=runAt(hIdx);
   $("nk").textContent=`${RUN?`${UNIT}s ${RUN.first+1}–${RUN.last+1}`:UNIT+" "+(hIdx+1)} of ${SEQ.length}${q.shelf?" · Shelf "+q.shelf:""} · ${q.seg}`;$("nt").textContent=stopLabel(hIdx);
-  $("ns").textContent=[side?`On your ${side}`:(q.x==null?"Not on the map":""),seqRoad(q),q.pc].filter(Boolean).join(" · ")+(noteOf(q)?"  ·  📝 "+noteOf(q):"");
+  $("ns").textContent=[side?`On your ${side}`:(q.x==null?"Not on the map":""),seqRoad(q),q.pc,oppOf(q)?"opposite "+oppOf(q):""].filter(Boolean).join(" · ")+(noteOf(q)?"  ·  📝 "+noteOf(q):"");
   if(RUN)$("ns").textContent=runSub(RUN)+(NAV.arrived?" · tap Finished road when done":"");
   const ni=nextStop(hIdx);const n=SEQ[ni];const st=streetOf(hIdx);const ns=STREETS[STREETS.indexOf(st)+1];const left=st?Math.max(0,st.last-ni+1):0;
   $("nn").textContent=NAV.finished?(PARCELS?"All parcels delivered":"Round complete"):!n?(PARCELS?"Last parcel":"Last house of the round"):left?`Then: ${stopLabel(ni)} · ${left} more on ${st.name}${ns?`, then ${ns.name}`:""}`:`Then: ${stopLabel(ni)}${ns?" · "+ns.name:""}`;

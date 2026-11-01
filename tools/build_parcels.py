@@ -4,7 +4,9 @@
 Bakes in every address from all three rounds (frame order) and the named road shapes,
 so the page works with no signal.  Run from the repo root:  python3 tools/build_parcels.py
 """
-import json, os, re
+import json, os, re, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from opposite import opposites
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 S = os.path.join(ROOT, 'src') + '/'
 AL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'
@@ -50,18 +52,19 @@ def simplify(pts, tol=4.0):
             keep[bi] = True; st += [(a, bi), (bi, b)]
     return [p for p, k2 in zip(pts, keep) if k2]
 
-ROUNDS = [('annington', 'Annington'), ('wiston', 'Wiston'), ('ashurst', 'Ashurst')]
-TOWN = {'annington': 'Steyning', 'wiston': 'Steyning', 'ashurst': 'Ashurst'}
+ROUNDS = [('annington', 'Annington'), ('wiston', 'Wiston'), ('ashurst', 'Ashurst'), ('penlands', 'Penlands')]
+TOWN = {'annington': 'Steyning', 'wiston': 'Steyning', 'ashurst': 'Ashurst', 'penlands': 'Steyning'}
 # frame road name -> road name on the map (for "you're on this road" alerts)
 MAPROAD = {"Sir Georges Place": "Sir George's Place", "Stocks Hill": "Spithandle Lane", "Maudlyn Park Way": "Maudlyn Parkway",
            "Penlands Close": "Penland's Close", "Botolphs Road": "Annington Road", "Mount Park": "Bostal Road"}
 houses, roads = [], {}
 for rid, rname in ROUNDS:
     P = json.load(open(S + rid + '/placed.json'))
+    OPP = opposites([(p[1], p[2], p[3], p[4], p[5] == 'map') for p in P], open(S + rid + '/basemap.txt').read(), MAPROAD)
     for k, (sh, road, lab, lat, lon, q) in enumerate(P):
         num = lab if re.fullmatch(r'\d+[A-Za-z]?', lab) else ''
         houses.append({'r': rid, 'k': k, 's': str(sh), 'road': road, 'mr': MAPROAD.get(road, road), 'num': num,
-                       'name': '' if num else lab, 'lat': lat, 'lon': lon, 'q': q, 'town': TOWN[rid]})
+                       'name': '' if num else lab, 'lat': lat, 'lon': lon, 'q': q, 'town': TOWN[rid], 'opp': OPP[k]})
     for line in open(S + rid + '/basemap.txt'):
         p = line.rstrip('\n').split('|')
         if p[0] != 'R' or len(p) < 4 or not p[2]: continue
@@ -75,7 +78,7 @@ for n in roads:
         if key in seen or (pts[-1], pts[0], len(pts)) in seen: continue
         seen.add(key); keep.append(pts)
     roads[n] = keep
-H = [[h['r'], h['k'], h['s'], h['road'], h['num'], h['name'], h['lat'], h['lon'], 1 if h['q'] == 'map' else 0] for h in houses]
+H = [[h['r'], h['k'], h['s'], h['road'], h['num'], h['name'], h['lat'], h['lon'], 1 if h['q'] == 'map' else 0, h['opp']] for h in houses]
 R = [[n, pcs] for n, pcs in sorted(roads.items())]
 data = ('const HOUSES=' + json.dumps(H, separators=(',', ':')) + ';\nconst ROADGEO=' + json.dumps(R, separators=(',', ':')) +
         ';\nconst MAPROAD=' + json.dumps(MAPROAD) + ';')

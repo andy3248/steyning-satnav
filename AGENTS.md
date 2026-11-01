@@ -1,7 +1,7 @@
 # Delivery round sat nav: notes for coding agents
 
 A phone-first training sat nav for postal delivery rounds, hosted on GitHub Pages.
-Live pages: `/steyning-satnav/` (Annington Round), `/steyning-satnav/ashurst/` (Ashurst Round) and `/steyning-satnav/wiston/` (Wiston Round).
+Live pages: `/steyning-satnav/` (Annington Round), `/steyning-satnav/ashurst/` (Ashurst), `/steyning-satnav/wiston/` (Wiston), `/steyning-satnav/penlands/` (Penlands, frame rotated so the walk starts at 60 Penlands Vale) and `/steyning-satnav/parcels/` (Parcel helper).
 
 ## Parcel helper (separate page)
 `/steyning-satnav/parcels/` is a simple parcel tool for drivers: scan or type each parcel, it orders them by frame order across all rounds, speaks the next one, and warns by GPS when you drive onto or leave a road with parcels still to deliver. Source: `src/parcels/app.html` + `app.js` + `sw.js`; build with `python3 tools/build_parcels.py` (bakes in every round's placed.json and named road shapes). Bump `parcels/sw.js` CACHE when it changes.
@@ -18,6 +18,7 @@ Live pages: `/steyning-satnav/` (Annington Round), `/steyning-satnav/ashurst/` (
 - **Sat nav:** GPS follow, voice directions (`speechSynthesis`, en-GB), next-house pings, auto-advance when the driver parks then pulls away (`onParked`, `autoNext`, `AUTO` settings), Practice drive simulation.
 - **Numbered roads:** a run of numbered houses on one road is a single stop (start and finish number, Finished road button, no auto-advance inside it). See `RUNS`/`runAt`.
 - **Scan labels** in the Parcels picker: camera + on-phone text reading, matched to houses with `scMatch`. Never store label text.
+- **Opposite houses:** `tools/opposite.py` works out which house is across the road from real address positions (pairs must agree both ways; same-parity pairs dropped on odd/even roads). Spoken as "opposite number 11"; drivers can correct it in the Parcel helper.
 - **Survey mode** (“Pin houses as I walk the round”): GPS pin per house via `setPos`, saved as the driver's fixes. Numbered houses without a confirmed spot are spaced between confirmed ones of the same parity (`applyInterp`). There is no free data that ties house numbers to positions here, so don't guess-assign numbers to OS UPRN points.
 - **Find a house** search bar, **Fix this house** tool, Rounds list.
 - **Per-round storage keys** in `localStorage` (both rounds share one origin). Don't rename existing keys or people lose their progress and fixes.
