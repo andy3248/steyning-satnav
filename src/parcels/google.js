@@ -10,8 +10,9 @@ function loadGoogle(){if(!GM.key)return Promise.reject(new Error("nokey"));if(GM
     s.onerror=()=>{GM.ready=null;bad(new Error("load"));};document.head.appendChild(s);});
   return GM.ready;}
 // where to aim for each house: Google's spot if we have one for today, else the app's own pin
-function spot(it){const h=BYKEY.get(it.key);return it.g?{lat:it.g.lat,lng:it.g.lng}:{lat:h.lat,lng:h.lon};}
-async function geocodeToday(){const gc=new google.maps.Geocoder();const L=ordered().filter(i=>i.st==="todo"&&!i.g);
+// priority: the driver's own fixed pin > Google's exact match > the app's own pin
+function spot(it){const h=BYKEY.get(it.key);const f=PINFIX[it.key];if(f)return {lat:f.lat,lng:f.lng};return it.g?{lat:it.g.lat,lng:it.g.lng}:{lat:h.lat,lng:h.lon};}
+async function geocodeToday(){const gc=new google.maps.Geocoder();const L=ordered().filter(i=>i.st==="todo"&&!i.g&&!PINFIX[i.key]);
   for(const it of L){const h=BYKEY.get(it.key);const q=`${h.num?h.num+" "+h.road:h.name+", "+h.road}, ${TOWNOF(h.round)}, West Sussex, UK`;
     try{const r=await gc.geocode({address:q,componentRestrictions:{country:"GB"}});const best=(r.results||[])[0];
       if(best){const lt=best.geometry.location_type;const exact=lt==="ROOFTOP"||lt==="RANGE_INTERPOLATED";const ll=best.geometry.location;
@@ -24,7 +25,7 @@ async function geocodeToday(){const gc=new google.maps.Geocoder();const L=ordere
     save();drawPins();await new Promise(r=>setTimeout(r,120));}}
 function drawPins(){if(!GM.map)return;const L=ordered();const cur=current();const live=new Set();
   L.forEach((it,i)=>{if(it.st!=="todo")return;live.add(it.key);let m=GM.pins.get(it.key);const p=spot(it);const isCur=it===cur;
-    const icon={path:google.maps.SymbolPath.CIRCLE,scale:isCur?16:12,fillColor:isCur?"#1a73e8":(it.g&&it.g.src==="google"?"#188038":"#9aa0a6"),fillOpacity:1,strokeColor:"#fff",strokeWeight:2};
+    const icon={path:google.maps.SymbolPath.CIRCLE,scale:isCur?16:12,fillColor:isCur?"#1a73e8":(PINFIX[it.key]?"#e37400":(it.g&&it.g.src==="google"?"#188038":"#9aa0a6")),fillOpacity:1,strokeColor:"#fff",strokeWeight:2};
     const label={text:String(i+1),color:"#fff",fontSize:isCur?"15px":"12px",fontWeight:"700"};
     if(!m){m=new google.maps.Marker({map:GM.map,position:p,icon,label,title:label.text});m.addListener("click",()=>{const h=BYKEY.get(it.key);showAlert(label.text+". "+label2(h),cntTxt(it)+(it.g&&it.g.src!=="google"?" · app's own pin":""),true);});GM.pins.set(it.key,m);}
     else{m.setPosition(p);m.setIcon(icon);m.setLabel(label);m.setZIndex(isCur?999:1);}});

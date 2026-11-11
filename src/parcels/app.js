@@ -9,6 +9,8 @@ const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 const H=HOUSES.map(r=>({round:r[0],k:r[1],shelf:r[2],road:r[3],num:r[4],name:r[5],lat:r[6],lon:r[7],sure:!!r[8],opp0:r[9]||"",key:r[0]+":"+r[1]}));
 // what is across the road (worked out from the map; the driver can correct it)
 const OPPFIX=store.get("opp")||{};
+// pins the driver has fixed by standing at the door (kept on this phone, every day)
+const PINFIX=store.get("pins")||{};
 const oppOf=h=>(h.key in OPPFIX?OPPFIX[h.key]:h.opp0)||"";
 const oppSay=h=>{const o=oppOf(h);return o?`, opposite ${o.split(" or ").map(x=>/^\d/.test(x)?"number "+x:x).join(" or ")}`:"";};
 const BYKEY=new Map(H.map(h=>[h.key,h]));
@@ -179,6 +181,22 @@ $("navBtn").onclick=()=>{const r=navRound();if(!r)return;const P=NAVPAGE[r];cons
   try{localStorage.setItem(P.id+"_parcels",JSON.stringify({ids,day:localDay()}));localStorage.setItem(P.id+"_mode",JSON.stringify("parcels"));localStorage.setItem(P.id+"_pIdx","0");localStorage.setItem(P.id+"_ready","1");localStorage.setItem(P.id+"_fromHelper","1");localStorage.removeItem(P.id+"_pDone");}catch(e){}
   location.href=P.url;};
 $("doneBtn").onclick=()=>finish("done");
+// training: every house on one road
+(function(){const rs=[...new Set(H.map(h=>h.round))];const R=$("trRound"),D=$("trRoad");
+  rs.forEach(r=>{const o=document.createElement("option");o.value=r;o.textContent=ROUNDNAME[r];R.appendChild(o);});
+  const fill=()=>{D.innerHTML="";const seen=[];H.filter(h=>h.round===R.value).forEach(h=>{if(!seen.includes(h.road))seen.push(h.road);});seen.forEach(n=>{const o=document.createElement("option");o.value=n;o.textContent=n;D.appendChild(o);});};
+  R.onchange=fill;fill();
+  $("trAdd").onclick=()=>{const L=H.filter(h=>h.round===R.value&&h.road===D.value);const was=KIND;KIND="parcel";L.forEach(h=>{if(!itemOf(h.key))addHouse(h,"train");});KIND=was;
+    flash(`Added ${L.length} houses on ${D.value}`,"In frame order. Tap Done loading to start.","ok");beep(true);};})();
+// fix a pin: stand at the door and tap
+$("pinBtn").onclick=()=>{const cur=current();if(!cur)return;const h=BYKEY.get(cur.key);
+  if(!navigator.geolocation){showAlert("No GPS on this phone","",false);return;}
+  $("pinBtn").textContent="Getting your position…";
+  navigator.geolocation.getCurrentPosition(p=>{const acc=p.coords.accuracy||99;$("pinBtn").textContent="📍 I'm at this house: fix its pin";
+    if(acc>25){showAlert("GPS isn't accurate enough yet",`±${Math.round(acc)} m. Wait a few seconds out in the open and try again.`,false);return;}
+    PINFIX[cur.key]={lat:+p.coords.latitude.toFixed(6),lng:+p.coords.longitude.toFixed(6)};store.set("pins",PINFIX);
+    beep(true);showAlert(`Pin fixed: ${label(h)}`,"Saved on this phone. It'll be right every time from now on.",true);try{drawPins();}catch(e){}},
+   ()=>{$("pinBtn").textContent="📍 I'm at this house: fix its pin";showAlert("Couldn't get your position","Allow location for this page.",false);},{enableHighAccuracy:true,maximumAge:0,timeout:20000});};
 // correct what's opposite (saved on this phone)
 $("dOpp").onclick=()=>{const k=$("dOpp").dataset.key;if(!k)return;const h=BYKEY.get(k);const v=window.prompt(`What's across the road from ${label(h)}? (a number or a house name; leave empty if nothing)`,oppOf(h));if(v===null)return;OPPFIX[k]=v.trim();store.set("opp",OPPFIX);renderDel(false);};$("failBtn").onclick=()=>finish("fail");
 $("backBtn").onclick=()=>{const L=ordered();const last=L.filter(i=>i.st!=="todo").sort((a,b)=>(b.at||0)-(a.at||0))[0];if(!last)return;last.st="todo";save();renderDel(false);say(speechForNext(null));};

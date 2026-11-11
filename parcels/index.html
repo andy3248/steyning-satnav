@@ -100,6 +100,11 @@ select{font:16px var(--font);padding:10px;border-radius:10px;border:1px solid va
   <button class="btn primary big" id="scanBtn">📷 Start scanning parcels</button>
   <div style="margin-top:12px"><input id="q" type="search" placeholder="Or type it: “12 charlton” or “weppons”" autocomplete="off" aria-label="Type a house to add"></div>
   <ul class="sug" id="sug"></ul>
+  <details id="trainBox" style="margin-top:12px"><summary>🎓 Training: load a whole road</summary>
+    <p class="small muted">Adds every house on a road, in frame order, so a new driver can follow it with the map, voice and Street View.</p>
+    <div class="row"><select id="trRound" aria-label="Round"></select><select id="trRoad" aria-label="Road"></select></div>
+    <div class="row"><button class="btn primary" id="trAdd">Add every house on this road</button></div>
+  </details>
   <h2 id="listH">Today's parcels</h2>
   <div id="list"></div>
   <button class="btn big good" id="goDel" style="margin-top:14px">Done loading · start delivering</button>
@@ -122,6 +127,7 @@ select{font:16px var(--font);padding:10px;border-radius:10px;border:1px solid va
     <button class="btn big good" id="doneBtn">✓ Delivered</button>
     <div class="row"><button class="btn" id="backBtn">‹ Back</button><button class="btn" id="failBtn">Not delivered</button><a class="btn" id="mapBtn" target="_blank" rel="noopener">Map</a></div>
     <button class="btn" id="svBtn" style="width:100%;margin-top:10px">👁 Street View of the house</button>
+    <button class="btn" id="pinBtn" style="width:100%;margin-top:10px">📍 I'm at this house: fix its pin</button>
   </div>
   <div id="gps"><b id="gpsT">Road alerts are off</b><button class="btn" id="gpsBtn">Turn on</button></div>
   <h2>Coming up</h2>
@@ -167,6 +173,8 @@ const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 const H=HOUSES.map(r=>({round:r[0],k:r[1],shelf:r[2],road:r[3],num:r[4],name:r[5],lat:r[6],lon:r[7],sure:!!r[8],opp0:r[9]||"",key:r[0]+":"+r[1]}));
 // what is across the road (worked out from the map; the driver can correct it)
 const OPPFIX=store.get("opp")||{};
+// pins the driver has fixed by standing at the door (kept on this phone, every day)
+const PINFIX=store.get("pins")||{};
 const oppOf=h=>(h.key in OPPFIX?OPPFIX[h.key]:h.opp0)||"";
 const oppSay=h=>{const o=oppOf(h);return o?`, opposite ${o.split(" or ").map(x=>/^\d/.test(x)?"number "+x:x).join(" or ")}`:"";};
 const BYKEY=new Map(H.map(h=>[h.key,h]));
@@ -337,6 +345,22 @@ $("navBtn").onclick=()=>{const r=navRound();if(!r)return;const P=NAVPAGE[r];cons
   try{localStorage.setItem(P.id+"_parcels",JSON.stringify({ids,day:localDay()}));localStorage.setItem(P.id+"_mode",JSON.stringify("parcels"));localStorage.setItem(P.id+"_pIdx","0");localStorage.setItem(P.id+"_ready","1");localStorage.setItem(P.id+"_fromHelper","1");localStorage.removeItem(P.id+"_pDone");}catch(e){}
   location.href=P.url;};
 $("doneBtn").onclick=()=>finish("done");
+// training: every house on one road
+(function(){const rs=[...new Set(H.map(h=>h.round))];const R=$("trRound"),D=$("trRoad");
+  rs.forEach(r=>{const o=document.createElement("option");o.value=r;o.textContent=ROUNDNAME[r];R.appendChild(o);});
+  const fill=()=>{D.innerHTML="";const seen=[];H.filter(h=>h.round===R.value).forEach(h=>{if(!seen.includes(h.road))seen.push(h.road);});seen.forEach(n=>{const o=document.createElement("option");o.value=n;o.textContent=n;D.appendChild(o);});};
+  R.onchange=fill;fill();
+  $("trAdd").onclick=()=>{const L=H.filter(h=>h.round===R.value&&h.road===D.value);const was=KIND;KIND="parcel";L.forEach(h=>{if(!itemOf(h.key))addHouse(h,"train");});KIND=was;
+    flash(`Added ${L.length} houses on ${D.value}`,"In frame order. Tap Done loading to start.","ok");beep(true);};})();
+// fix a pin: stand at the door and tap
+$("pinBtn").onclick=()=>{const cur=current();if(!cur)return;const h=BYKEY.get(cur.key);
+  if(!navigator.geolocation){showAlert("No GPS on this phone","",false);return;}
+  $("pinBtn").textContent="Getting your position…";
+  navigator.geolocation.getCurrentPosition(p=>{const acc=p.coords.accuracy||99;$("pinBtn").textContent="📍 I'm at this house: fix its pin";
+    if(acc>25){showAlert("GPS isn't accurate enough yet",`±${Math.round(acc)} m. Wait a few seconds out in the open and try again.`,false);return;}
+    PINFIX[cur.key]={lat:+p.coords.latitude.toFixed(6),lng:+p.coords.longitude.toFixed(6)};store.set("pins",PINFIX);
+    beep(true);showAlert(`Pin fixed: ${label(h)}`,"Saved on this phone. It'll be right every time from now on.",true);try{drawPins();}catch(e){}},
+   ()=>{$("pinBtn").textContent="📍 I'm at this house: fix its pin";showAlert("Couldn't get your position","Allow location for this page.",false);},{enableHighAccuracy:true,maximumAge:0,timeout:20000});};
 // correct what's opposite (saved on this phone)
 $("dOpp").onclick=()=>{const k=$("dOpp").dataset.key;if(!k)return;const h=BYKEY.get(k);const v=window.prompt(`What's across the road from ${label(h)}? (a number or a house name; leave empty if nothing)`,oppOf(h));if(v===null)return;OPPFIX[k]=v.trim();store.set("opp",OPPFIX);renderDel(false);};$("failBtn").onclick=()=>finish("fail");
 $("backBtn").onclick=()=>{const L=ordered();const last=L.filter(i=>i.st!=="todo").sort((a,b)=>(b.at||0)-(a.at||0))[0];if(!last)return;last.st="todo";save();renderDel(false);say(speechForNext(null));};
@@ -393,8 +417,9 @@ function loadGoogle(){if(!GM.key)return Promise.reject(new Error("nokey"));if(GM
     s.onerror=()=>{GM.ready=null;bad(new Error("load"));};document.head.appendChild(s);});
   return GM.ready;}
 // where to aim for each house: Google's spot if we have one for today, else the app's own pin
-function spot(it){const h=BYKEY.get(it.key);return it.g?{lat:it.g.lat,lng:it.g.lng}:{lat:h.lat,lng:h.lon};}
-async function geocodeToday(){const gc=new google.maps.Geocoder();const L=ordered().filter(i=>i.st==="todo"&&!i.g);
+// priority: the driver's own fixed pin > Google's exact match > the app's own pin
+function spot(it){const h=BYKEY.get(it.key);const f=PINFIX[it.key];if(f)return {lat:f.lat,lng:f.lng};return it.g?{lat:it.g.lat,lng:it.g.lng}:{lat:h.lat,lng:h.lon};}
+async function geocodeToday(){const gc=new google.maps.Geocoder();const L=ordered().filter(i=>i.st==="todo"&&!i.g&&!PINFIX[i.key]);
   for(const it of L){const h=BYKEY.get(it.key);const q=`${h.num?h.num+" "+h.road:h.name+", "+h.road}, ${TOWNOF(h.round)}, West Sussex, UK`;
     try{const r=await gc.geocode({address:q,componentRestrictions:{country:"GB"}});const best=(r.results||[])[0];
       if(best){const lt=best.geometry.location_type;const exact=lt==="ROOFTOP"||lt==="RANGE_INTERPOLATED";const ll=best.geometry.location;
@@ -407,7 +432,7 @@ async function geocodeToday(){const gc=new google.maps.Geocoder();const L=ordere
     save();drawPins();await new Promise(r=>setTimeout(r,120));}}
 function drawPins(){if(!GM.map)return;const L=ordered();const cur=current();const live=new Set();
   L.forEach((it,i)=>{if(it.st!=="todo")return;live.add(it.key);let m=GM.pins.get(it.key);const p=spot(it);const isCur=it===cur;
-    const icon={path:google.maps.SymbolPath.CIRCLE,scale:isCur?16:12,fillColor:isCur?"#1a73e8":(it.g&&it.g.src==="google"?"#188038":"#9aa0a6"),fillOpacity:1,strokeColor:"#fff",strokeWeight:2};
+    const icon={path:google.maps.SymbolPath.CIRCLE,scale:isCur?16:12,fillColor:isCur?"#1a73e8":(PINFIX[it.key]?"#e37400":(it.g&&it.g.src==="google"?"#188038":"#9aa0a6")),fillOpacity:1,strokeColor:"#fff",strokeWeight:2};
     const label={text:String(i+1),color:"#fff",fontSize:isCur?"15px":"12px",fontWeight:"700"};
     if(!m){m=new google.maps.Marker({map:GM.map,position:p,icon,label,title:label.text});m.addListener("click",()=>{const h=BYKEY.get(it.key);showAlert(label.text+". "+label2(h),cntTxt(it)+(it.g&&it.g.src!=="google"?" · app's own pin":""),true);});GM.pins.set(it.key,m);}
     else{m.setPosition(p);m.setIcon(icon);m.setLabel(label);m.setZIndex(isCur?999:1);}});
