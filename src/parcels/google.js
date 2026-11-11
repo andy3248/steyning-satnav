@@ -23,13 +23,23 @@ async function geocodeToday(){const gc=new google.maps.Geocoder();const L=ordere
     catch(e){if(String(e).includes("REQUEST_DENIED")){GM.err="Google refused the address lookup. Switch on the Geocoding API for your key.";gmStatus(GM.err,true);break;}
       it.g={lat:h.lat,lng:h.lon,src:"app"};}
     save();drawPins();await new Promise(r=>setTimeout(r,120));}}
+// show the road you're on (plus the start of the next one); "Whole list" shows everything
+function pinText(h){if(h.num)return h.num;const w=h.name.replace(/^the /i,"").split(/[ ,]+/)[0];return w.length>6?w.slice(0,5)+"…":w;}
 function drawPins(){if(!GM.map)return;const L=ordered();const cur=current();const live=new Set();
-  L.forEach((it,i)=>{if(it.st!=="todo")return;live.add(it.key);let m=GM.pins.get(it.key);const p=spot(it);const isCur=it===cur;
-    const icon={path:google.maps.SymbolPath.CIRCLE,scale:isCur?16:12,fillColor:isCur?"#1a73e8":(PINFIX[it.key]?"#e37400":(it.g&&it.g.src==="google"?"#188038":"#9aa0a6")),fillOpacity:1,strokeColor:"#fff",strokeWeight:2};
-    const label={text:String(i+1),color:"#fff",fontSize:isCur?"15px":"12px",fontWeight:"700"};
-    if(!m){m=new google.maps.Marker({map:GM.map,position:p,icon,label,title:label.text});m.addListener("click",()=>{const h=BYKEY.get(it.key);showAlert(label.text+". "+label2(h),cntTxt(it)+(it.g&&it.g.src!=="google"?" · app's own pin":""),true);});GM.pins.set(it.key,m);}
-    else{m.setPosition(p);m.setIcon(icon);m.setLabel(label);m.setZIndex(isCur?999:1);}});
-  for(const [k,m] of GM.pins)if(!live.has(k)){m.setMap(null);GM.pins.delete(k);}}
+  const curH=cur&&BYKEY.get(cur.key);const G2=groups(L.filter(i=>i.st==="todo"));const gi=cur?G2.findIndex(g=>g.items.includes(cur)):-1;
+  const shown=new Set();if(GM.showAll)L.forEach(i=>i.st==="todo"&&shown.add(i.key));else if(gi>=0){G2[gi].items.forEach(i=>shown.add(i.key));if(G2[gi+1])G2[gi+1].items.slice(0,3).forEach(i=>shown.add(i.key));}
+  L.forEach(it=>{if(it.st!=="todo"||!shown.has(it.key))return;live.add(it.key);let m=GM.pins.get(it.key);const p=spot(it);const isCur=it===cur;const h=BYKEY.get(it.key);
+    const onRoad=curH&&h.road===curH.road;const col=isCur?"#1a73e8":(PINFIX[it.key]?"#e37400":(it.g&&it.g.src==="google"?"#188038":"#80868b"));
+    const txt=pinText(h);const wide=txt.length>3;
+    const icon={path:wide?"M -22,-11 L 22,-11 Q 26,-11 26,-7 L 26,7 Q 26,11 22,11 L -22,11 Q -26,11 -26,7 L -26,-7 Q -26,-11 -22,-11 Z":google.maps.SymbolPath.CIRCLE,
+      scale:wide?(isCur?1.15:0.95):(isCur?17:13),fillColor:col,fillOpacity:onRoad?1:0.55,strokeColor:"#fff",strokeWeight:2,labelOrigin:new google.maps.Point(0,0)};
+    const lab={text:txt,color:"#fff",fontSize:isCur?"15px":(wide?"11px":"13px"),fontWeight:"700"};
+    if(!m){m=new google.maps.Marker({map:GM.map,position:p,icon,label:lab,title:label(h),zIndex:isCur?999:(onRoad?10:1)});
+      m.addListener("click",()=>{const it2=ordered().find(x=>x.key===it.key);showAlert(label(h),(it2?cntTxt(it2):"")+(PINFIX[it.key]?" · your pin":it.g&&it.g.src==="google"?" · Google's position":" · best guess: fix it when you're there"),true);});GM.pins.set(it.key,m);}
+    else{m.setPosition(p);m.setIcon(icon);m.setLabel(lab);m.setZIndex(isCur?999:(onRoad?10:1));}});
+  for(const [k,m] of GM.pins)if(!live.has(k)){m.setMap(null);GM.pins.delete(k);}
+  // new road: zoom to it
+  if(curH&&GM.zoomRoad!==curH.road&&!GM.showAll){GM.zoomRoad=curH.road;const b=new google.maps.LatLngBounds();G2[gi].items.forEach(i=>b.extend(spot(i)));if(GM.lastLL&&GM.follow)b.extend(GM.lastLL);GM.map.fitBounds(b,50);if(GM.map.getZoom&&GM.map.getZoom()>18)GM.map.setZoom(18);}}
 const label2=h=>label(h);
 function fitAll(){if(!GM.map)return;const b=new google.maps.LatLngBounds();let n=0;ordered().forEach(it=>{if(it.st==="todo"){b.extend(spot(it));n++;}});if(GM.lastLL){b.extend(GM.lastLL);n++;}if(n)GM.map.fitBounds(b,40);}
 async function initGoogleMap(){if(!GM.key){$("gmBox").hidden=true;$("gmHint").hidden=false;return;}$("gmHint").hidden=true;
@@ -37,7 +47,7 @@ async function initGoogleMap(){if(!GM.key){$("gmBox").hidden=true;$("gmHint").hi
   if(GM.err)return;$("gmBox").hidden=false;
   if(!GM.map){GM.map=new google.maps.Map($("gmap"),{center:{lat:50.886,lng:-0.33},zoom:15,disableDefaultUI:true,zoomControl:true,gestureHandling:"greedy",clickableIcons:false});
     GM.map.addListener("dragstart",()=>{GM.follow=false;$("gmCentre").hidden=false;});}
-  drawPins();fitAll();geocodeToday().then(()=>{drawPins();updRoute(true);});}
+  GM.zoomRoad="";drawPins();geocodeToday().then(()=>{drawPins();updRoute(true);});}
 // you-are-here, follow, and the route to the next house
 function gmFix(lat,lng,acc){GM.lastLL={lat,lng};if(!GM.map)return;const p=GM.lastLL;
   if(!GM.me){GM.me=new google.maps.Marker({map:GM.map,position:p,zIndex:1000,icon:{path:google.maps.SymbolPath.CIRCLE,scale:9,fillColor:"#4285f4",fillOpacity:1,strokeColor:"#fff",strokeWeight:3}});
@@ -75,7 +85,7 @@ async function openStreet(){const cur=current();if(!cur||!GM.map)return;const to
 $("svClose").onclick=()=>{$("svBox").hidden=true;$("svPano").innerHTML="";};
 $("svBtn").onclick=openStreet;
 $("gmCentre").onclick=()=>{GM.follow=true;$("gmCentre").hidden=true;if(GM.lastLL)GM.map.panTo(GM.lastLL);};
-$("gmFit").onclick=()=>{GM.follow=false;$("gmCentre").hidden=false;fitAll();};
+$("gmFit").onclick=()=>{GM.showAll=!GM.showAll;$("gmFit").textContent=GM.showAll?"This road":"Whole list";GM.follow=false;$("gmCentre").hidden=false;drawPins();if(GM.showAll)fitAll();else{GM.zoomRoad="";drawPins();}};
 // settings: the driver's own key
 $("gmKey").value=GM.key;
 $("gmSave").onclick=()=>{const k=$("gmKey").value.trim();GM.key=k;store.set("gkey",k);GM.err="";
