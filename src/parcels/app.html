@@ -78,6 +78,13 @@ h2{font-size:15px;margin:18px 0 6px;color:var(--muted);text-transform:uppercase;
 .up li span{color:var(--muted);font-size:15px}
 details{margin-top:18px}summary{cursor:pointer;font-weight:600;color:var(--muted);padding:8px 0}
 select{font:16px var(--font);padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--chip);color:var(--fg);flex:1;min-width:0}
+#gmBox{margin:0 0 12px;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:var(--chip)}
+#gmap{height:42vh;min-height:240px}
+.gmbar{display:flex;align-items:center;gap:8px;padding:8px}.gmbar span{flex:1;font-weight:600;padding-left:6px}.gmbar .btn{min-height:40px;padding:0 12px}
+#svBox{position:fixed;inset:0;z-index:30;background:#000;display:flex;flex-direction:column}
+#svBox .svtop{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 12px 10px;color:#fff}#svBox .svtop b{flex:1}
+#svPano{flex:1}
+#gmSet ol{padding-left:20px}#gmSet li{margin:6px 0}
 .foot{margin-top:26px;font-size:12.5px;color:var(--muted)}
 </style>
 </head>
@@ -102,15 +109,19 @@ select{font:16px var(--font);padding:10px;border-radius:10px;border:1px solid va
 <section id="vDel" hidden>
   <button class="btn primary big" id="navBtn" style="margin-bottom:12px">🧭 Start sat nav</button>
   <p class="muted small" id="navHint" style="margin:-4px 0 12px"></p>
+  <div id="gmBox" hidden><div id="gmap"></div><div class="gmbar"><span id="gmInfo"></span><button class="btn" id="gmFit">Whole list</button><button class="btn" id="gmCentre" hidden>Follow me</button></div></div>
+  <p class="muted small" id="gmHint" hidden>Want a Google map with Google's house positions, Street View and driving route? Add your Google Maps key under <b>Google Maps</b> at the bottom of this page.</p>
   <div class="card" id="dCard">
     <div class="k" id="dK"></div>
     <div id="dRoad"></div>
     <div class="chips" id="dChips"></div>
     <div id="dNext"></div>
     <div id="dCount"></div>
+    <div class="chip" id="dSide" hidden style="display:inline-block;margin:-6px 8px 14px 0;background:var(--accent);color:#fff"></div>
     <button class="chip" id="dOpp" style="border:0;margin:-6px 0 14px;cursor:pointer">Opposite</button>
     <button class="btn big good" id="doneBtn">✓ Delivered</button>
     <div class="row"><button class="btn" id="backBtn">‹ Back</button><button class="btn" id="failBtn">Not delivered</button><a class="btn" id="mapBtn" target="_blank" rel="noopener">Map</a></div>
+    <button class="btn" id="svBtn" style="width:100%;margin-top:10px">👁 Street View of the house</button>
   </div>
   <div id="gps"><b id="gpsT">Road alerts are off</b><button class="btn" id="gpsBtn">Turn on</button></div>
   <h2>Coming up</h2>
@@ -118,6 +129,19 @@ select{font:16px var(--font);padding:10px;border-radius:10px;border:1px solid va
   <details><summary id="doneSum">Done</summary><ul class="up" id="doneList"></ul></details>
 </section>
 
+<details id="gmSet"><summary>Google Maps</summary>
+  <p class="small">Uses your own free Google Maps key to show a Google map with Google's house positions, the driving route to the next house, which side it's on, and Street View. Needs signal; everything else works without it.</p>
+  <div class="row"><input id="gmKey" type="text" placeholder="Paste your Google Maps API key" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Google Maps API key"><button class="btn primary" id="gmSave">Save</button></div>
+  <p class="small" id="gmStatus" aria-live="polite"></p>
+  <details class="small"><summary>How to get a key (10 minutes, once)</summary><ol>
+    <li>On a computer, go to <b>console.cloud.google.com</b> and sign in with your Google account. Make a project (call it Postie). Google asks for a billing account: Maps needs one, but the free monthly allowance covers one postman easily.</li>
+    <li>Search for and <b>Enable</b> these three: <b>Maps JavaScript API</b>, <b>Geocoding API</b>, <b>Routes API</b>.</li>
+    <li>Go to <b>APIs &amp; Services → Credentials → Create credentials → API key</b>.</li>
+    <li>Click the key to restrict it: under <b>Website restrictions</b> add <code>https://andy3248.github.io/*</code>, and under <b>API restrictions</b> tick just those three APIs. Save.</li>
+    <li>In <b>Billing → Budgets &amp; alerts</b>, set a budget of £5 so you get an email if it ever costs anything.</li>
+    <li>Copy the key, paste it in the box above on your phone and tap Save.</li></ol>
+    <p>The key stays on your phone only. Google house positions are looked up for today's houses only and cleared with the day's list.</p></details>
+</details>
 <details id="voiceBox"><summary>Voice</summary>
   <div class="row"><select id="vcSel" aria-label="Voice"></select><button class="btn" id="vcTry">Try it</button></div>
   <div class="row" style="align-items:center"><span class="muted small">Slower</span><input id="vcRate" type="range" min="0.8" max="1.2" step="0.05" style="flex:1" aria-label="Speaking speed"><span class="muted small">Faster</span></div>
@@ -126,6 +150,7 @@ select{font:16px var(--font);padding:10px;border-radius:10px;border:1px solid va
 <div class="foot">Addresses are read on this phone; only the matched house is kept, and today's list is cleared each morning. Road shapes © OpenStreetMap contributors (ODbL). Contains OS data © Crown copyright and database right 2026.</div>
 </div>
 <div id="alert" hidden role="alert"></div>
+<div id="svBox" hidden><div class="svtop"><b id="svMsg"></b><button class="btn" id="svClose">Close</button></div><div id="svPano"></div></div>
 
 <script>
 /*DATA*/

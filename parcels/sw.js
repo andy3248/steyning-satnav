@@ -1,6 +1,6 @@
 // Keeps a copy of the parcel helper on the phone so it opens with no signal.
 // Online: fetch fresh and update the copy. Offline: use the saved copy.
-const CACHE = "parcels-v3";
+const CACHE = "parcels-v4";
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(["./", "./index.html"])).then(() => self.skipWaiting()));
 });
@@ -10,6 +10,8 @@ self.addEventListener("activate", e => {
 self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET") return;
+  // Google Maps must not be saved on the phone (their terms); let those go straight to the network
+  if (/googleapis\.com|gstatic\.com|google\.com/.test(new URL(req.url).hostname)) return;
   e.respondWith(
     fetch(req).then(res => {
       if (res && (res.ok || res.type === "opaque")) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); }

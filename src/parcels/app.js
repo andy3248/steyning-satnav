@@ -72,7 +72,7 @@ $("hearBtn").onclick=()=>{if(lastSaid)say(lastSaid,true);};
 
 // ---------- tabs ----------
 function tab(t){$("vLoad").hidden=t!=="load";$("vDel").hidden=t!=="del";$("tLoad").setAttribute("aria-pressed",String(t==="load"));$("tDel").setAttribute("aria-pressed",String(t==="del"));
-  store.set("tab",t);if(t==="del"){stopScan();renderDel(true);wake(true);if(G.watch==null&&store.get("gps")!==0)gpsOn();}else{wake(false);}}
+  store.set("tab",t);if(t==="del"){stopScan();renderDel(true);wake(true);initGoogleMap();if(G.watch==null&&store.get("gps")!==0)gpsOn();}else{wake(false);}}
 $("tLoad").onclick=()=>tab("load");$("tDel").onclick=()=>tab("del");
 $("goDel").onclick=()=>{if(!ordered().length){flash("Add some parcels first.","");return;}tab("del");};
 
@@ -163,6 +163,7 @@ function renderDel(speak){const L=ordered();const cur=current();const G=groups(L
   const dl=$("doneList");dl.innerHTML="";const D=L.filter(i=>i.st!=="todo");$("doneSum").textContent=`Done (${D.length})`;
   D.forEach(i=>{const li=document.createElement("li");li.innerHTML="<b></b><span></span>";li.querySelector("b").textContent=label(BYKEY.get(i.key));li.querySelector("span").textContent=i.st==="fail"?"Not delivered · tap to put back":"Delivered · tap to put back";li.onclick=()=>{i.st="todo";save();renderDel(false);};dl.appendChild(li);});
   updNavBtn();
+  if(typeof GM!=="undefined"&&GM.map){$("dSide").hidden=!(cur&&GM.side[cur.key]);if(cur&&GM.side[cur.key])$("dSide").textContent="On your "+GM.side[cur.key];drawPins();updRoute(false);}
   if(speak)say(speechForNext(null));}
 function finish(st){const cur=current();if(!cur)return;const h=BYKEY.get(cur.key);cur.st=st;cur.at=Date.now();save();beep(st==="done");renderDel(false);
   const nx=current();say(nx?speechForNext(h.road):`That's everything. ${ordered().filter(i=>i.st==="fail").length?"Some parcels weren't delivered; they're listed on the screen.":"Every parcel delivered. Well done."}`);ALERTED.clear();}
@@ -202,7 +203,7 @@ function onRoadChange(newRoad,oldRoad,p){
   const cur=current();const curH=cur&&BYKEY.get(cur.key);const isCurrent=curH&&mapRoad(curH)===newRoad;const names=here.map(i=>sayHouse(BYKEY.get(i.key))).join(", ");
   showAlert(`${isCurrent?"":"Don't miss: "}${here.length} parcel${here.length>1?"s":""} on ${newRoad}`,here.map(i=>label(BYKEY.get(i.key))).join(" · "),isCurrent);
   if(!isCurrent)beep(false);say(`${isCurrent?"You're on":"Heads up, you're on"} ${newRoad}. Parcel${here.length>1?"s":""} here: ${names}.`);}
-function onFix(pos){const p=xy(pos.coords.latitude,pos.coords.longitude);G.pos=p;const acc=pos.coords.accuracy||99;if(acc>40){$("gpsT").textContent=`Road alerts on · weak GPS (±${Math.round(acc)} m)`;return;}
+function onFix(pos){const p=xy(pos.coords.latitude,pos.coords.longitude);G.pos=p;const acc=pos.coords.accuracy||99;try{gmFix(pos.coords.latitude,pos.coords.longitude,acc);}catch(e){}if(acc>40){$("gpsT").textContent=`Road alerts on · weak GPS (±${Math.round(acc)} m)`;return;}
   const r=roadAt(p);if(r===G.cand)G.candN++;else{G.cand=r;G.candN=1;}
   if(G.candN>=2&&r!==G.road){const old=G.road;G.road=r;onRoadChange(r,old,p);}
   $("gpsT").textContent=G.road?`Road alerts on · you're on ${G.road}`:"Road alerts on · not on a road with parcels";}

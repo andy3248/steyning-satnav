@@ -84,7 +84,10 @@ data = ('const HOUSES=' + json.dumps(H, separators=(',', ':')) + ';\nconst ROADG
         ';\nconst MAPROAD=' + json.dumps(MAPROAD) + ';')
 app = open(S + 'parcels/app.html').read()
 assert '/*DATA*/' in app
-app = app.replace('/*DATA*/', data).replace('/*APP*/', open(S + 'parcels/app.js').read())
+js = open(S + 'parcels/app.js').read()
+assert '// ---------- start ----------' in js
+js = js.replace('// ---------- start ----------', open(S + 'parcels/google.js').read() + '\n// ---------- start ----------')
+app = app.replace('/*DATA*/', data).replace('/*APP*/', js)
 os.makedirs(os.path.join(ROOT, 'parcels'), exist_ok=True)
 open(os.path.join(ROOT, 'parcels', 'index.html'), 'w').write(app)
 open(os.path.join(ROOT, 'parcels', 'sw.js'), 'w').write(open(S + 'parcels/sw.js').read())

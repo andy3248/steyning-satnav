@@ -4,7 +4,7 @@ A phone-first training sat nav for postal delivery rounds, hosted on GitHub Page
 Live pages: `/steyning-satnav/` (Annington Round), `/steyning-satnav/ashurst/` (Ashurst), `/steyning-satnav/wiston/` (Wiston), `/steyning-satnav/penlands/` (Penlands, frame rotated so the walk starts at 60 Penlands Vale) and `/steyning-satnav/parcels/` (Parcel helper).
 
 ## Parcel helper (separate page)
-`/steyning-satnav/parcels/` is a simple parcel tool for drivers: scan or type each parcel, it orders them by frame order across all rounds, speaks the next one, and warns by GPS when you drive onto or leave a road with parcels still to deliver. Source: `src/parcels/app.html` + `app.js` + `sw.js`; build with `python3 tools/build_parcels.py` (bakes in every round's placed.json and named road shapes). Bump `parcels/sw.js` CACHE when it changes.
+`/steyning-satnav/parcels/` is a simple parcel tool for drivers: scan or type each parcel, it orders them by frame order across all rounds, speaks the next one, and warns by GPS when you drive onto or leave a road with parcels still to deliver. Source: `src/parcels/app.html` + `app.js` + `sw.js`; build with `python3 tools/build_parcels.py` (bakes in every round's placed.json and named road shapes). Bump `parcels/sw.js` CACHE when it changes. Optional Google Maps layer (`src/parcels/google.js`): only with the driver's own API key typed in on the phone (Maps JS, Geocoding for today's houses only, Routes API, Street View). Never bake Google positions into the repo, and the service worker must not cache Google requests.
 
 ## How it is built
 - **Edit `src/template.html`.** It is the whole app: HTML, CSS and JS in one file.
