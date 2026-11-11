@@ -85,6 +85,13 @@ select{font:16px var(--font);padding:10px;border-radius:10px;border:1px solid va
 #svBox .svtop{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 12px 10px;color:#fff}#svBox .svtop b{flex:1}
 #svPano{flex:1}
 #gmSet ol{padding-left:20px}#gmSet li{margin:6px 0}
+.hchips{display:flex;flex-wrap:wrap;gap:8px;padding:12px 12px 14px}
+.hc{border:1px solid var(--line);background:var(--card);border-radius:12px;min-height:44px;min-width:52px;padding:6px 12px;font-size:17px;font-weight:600;cursor:pointer}
+.hc small{font-size:13px;color:var(--muted);font-weight:600}
+.hc.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.hc.done{text-decoration:line-through;color:var(--muted)}.hc.fail{color:var(--bad)}
+.ied{border-top:1px solid var(--line);padding:12px 14px}.ied>b{display:block;font-size:17px;margin-bottom:4px}
+.ied .row{align-items:center}.ied .row{gap:6px}.ied .row .btn{flex:none;min-width:44px;padding:0 12px}.ied .row b{min-width:26px;text-align:center;font-size:18px}
 .foot{margin-top:26px;font-size:12.5px;color:var(--muted)}
 </style>
 </head>

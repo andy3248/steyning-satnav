@@ -85,6 +85,13 @@ select{font:16px var(--font);padding:10px;border-radius:10px;border:1px solid va
 #svBox .svtop{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 12px 10px;color:#fff}#svBox .svtop b{flex:1}
 #svPano{flex:1}
 #gmSet ol{padding-left:20px}#gmSet li{margin:6px 0}
+.hchips{display:flex;flex-wrap:wrap;gap:8px;padding:12px 12px 14px}
+.hc{border:1px solid var(--line);background:var(--card);border-radius:12px;min-height:44px;min-width:52px;padding:6px 12px;font-size:17px;font-weight:600;cursor:pointer}
+.hc small{font-size:13px;color:var(--muted);font-weight:600}
+.hc.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.hc.done{text-decoration:line-through;color:var(--muted)}.hc.fail{color:var(--bad)}
+.ied{border-top:1px solid var(--line);padding:12px 14px}.ied>b{display:block;font-size:17px;margin-bottom:4px}
+.ied .row{align-items:center}.ied .row{gap:6px}.ied .row .btn{flex:none;min-width:44px;padding:0 12px}.ied .row b{min-width:26px;text-align:center;font-size:18px}
 .foot{margin-top:26px;font-size:12.5px;color:var(--muted)}
 </style>
 </head>
@@ -246,14 +253,21 @@ $("goDel").onclick=()=>{if(!ordered().length){flash("Add some parcels first.",""
 function renderList(){const box=$("list");box.innerHTML="";const L=ordered();const n=L.reduce((s,i)=>s+(i.n||0),0),nl=L.reduce((s,i)=>s+(i.l||0),0);
   $("listH").textContent=L.length?`Today · ${[n?n+" parcel"+(n>1?"s":""):"",nl?nl+" letter"+(nl>1?"s":""):""].filter(Boolean).join(", ")} for ${L.length} ${L.length===1?"house":"houses"}`:"Today's parcels and letters";
   if(!L.length){box.innerHTML='<p class="muted">Nothing yet. Scan or type the first parcel.</p>';return;}
+  // compact: one block per road, a chip per house; tap a chip to change its count
   groups(L).forEach(g=>{const d=document.createElement("div");d.className="road";const c=g.items.reduce((s,i)=>s+tot(i),0);
-    d.innerHTML=`<div class="rh"><div></div><span></span></div>`;d.querySelector(".rh div").textContent=g.road;d.querySelector(".rh span").textContent=`${ROUNDNAME[g.round]} · ${c} item${c>1?"s":""}`;
-    g.items.forEach(it=>{const h=BYKEY.get(it.key);const r=document.createElement("div");r.className="it"+(it.st!=="todo"?" "+it.st:"");
-      r.innerHTML=`<div class="nm"></div><div class="cnt"><button aria-label="One fewer">−</button><b></b><button aria-label="One more">+</button></div>`;
-      const L1=KIND==="letter";r.querySelector(".nm").textContent=label(h)+(L1?(it.n?`  · 📦 ${it.n}`:""):(it.l?`  · ✉ ${it.l}`:""));r.querySelector("b").textContent=(L1?"✉":"📦")+(L1?(it.l||0):(it.n||0));
-      r.querySelector(".cnt").title=KIND==="letter"?"Letters":"Parcels";
-      const [minus,plus]=r.querySelectorAll("button");const f=KIND==="letter"?"l":"n";minus.onclick=()=>{it[f]=Math.max(0,(it[f]||0)-1);if(!tot(it))S.items=S.items.filter(x=>x!==it);save();renderList();};plus.onclick=()=>{it[f]=(it[f]||0)+1;save();renderList();};
-      d.appendChild(r);});box.appendChild(d);});}
+    d.innerHTML=`<div class="rh"><div></div><span></span></div><div class="hchips"></div><div class="ied" hidden></div>`;d.querySelector(".rh div").textContent=g.road;
+    d.querySelector(".rh span").textContent=`${ROUNDNAME[g.round]} · ${g.items.length} ${g.items.length>1?"houses":"house"}${c>g.items.length?" · "+c+" items":""}`;
+    const box2=d.querySelector(".hchips"),ed=d.querySelector(".ied");
+    g.items.forEach(it=>{const h=BYKEY.get(it.key);const b=document.createElement("button");b.className="hc"+(it.st!=="todo"?" "+it.st:"")+(OPENED===it.key?" on":"");
+      b.textContent=shortLab(h);if(tot(it)>1||it.l){const x=document.createElement("small");x.textContent=" "+cntShort(it);b.appendChild(x);}
+      b.onclick=()=>{OPENED=OPENED===it.key?null:it.key;renderList();};box2.appendChild(b);
+      if(OPENED===it.key){ed.hidden=false;ed.innerHTML=`<b></b><div class="row"><span>📦</span><button class="btn">−</button><b class="n"></b><button class="btn">+</button><span style="margin-left:10px">✉</span><button class="btn">−</button><b class="l"></b><button class="btn">+</button></div><div class="row"><button class="btn rm">Remove</button><button class="btn dn">Done</button></div>`;
+        ed.querySelector("b").textContent=label(h);ed.querySelector(".n").textContent=it.n||0;ed.querySelector(".l").textContent=it.l||0;
+        const bs=ed.querySelectorAll(".row:first-of-type .btn");const chg=(f,dv)=>{it[f]=Math.max(0,(it[f]||0)+dv);if(!tot(it)){S.items=S.items.filter(x=>x!==it);OPENED=null;}save();renderList();};
+        bs[0].onclick=()=>chg("n",-1);bs[1].onclick=()=>chg("n",1);bs[2].onclick=()=>chg("l",-1);bs[3].onclick=()=>chg("l",1);
+        ed.querySelector(".rm").onclick=()=>{S.items=S.items.filter(x=>x!==it);OPENED=null;save();renderList();};ed.querySelector(".dn").onclick=()=>{OPENED=null;renderList();};}});
+    box.appendChild(d);});}
+let OPENED=null;
 $("clearBtn").onclick=()=>{if(S.items.length)confirmClear();};
 let clearArm=0;function confirmClear(){if(Date.now()-clearArm<4000){S={day:today(),items:[],rounds:[],pos:0};save();renderList();flash("List cleared.","");$("clearBtn").textContent="Clear the list";return true;}
   clearArm=Date.now();$("clearBtn").textContent="Tap again to clear";setTimeout(()=>{$("clearBtn").textContent="Clear the list";},4000);return false;}
