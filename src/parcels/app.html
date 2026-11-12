@@ -104,7 +104,9 @@ select{font:16px var(--font);padding:10px;border-radius:10px;border:1px solid va
   <div id="cam" hidden><video id="vid" playsinline muted autoplay></video><div class="guide"><span>Address label in the box</span></div></div>
   <div id="flash">Scan each parcel's address label. It works out the house, puts it in delivery order and tells you what it found.</div>
   <div class="seg" style="margin-bottom:10px"><button id="kParcel" aria-pressed="true">📦 Parcels</button><button id="kLetter" aria-pressed="false">✉ 1st class letters</button></div>
-  <button class="btn primary big" id="scanBtn">📷 Start scanning parcels</button>
+  <button class="btn primary big" id="photoBtn">📸 Photo of label</button>
+  <input type="file" id="photoIn" accept="image/*" capture="environment" hidden>
+  <button class="btn" id="scanBtn" style="width:100%;margin-top:10px">📷 Live scanning (hands-free)</button>
   <div style="margin-top:12px"><input id="q" type="search" placeholder="Or type it: “12 charlton” or “weppons”" autocomplete="off" aria-label="Type a house to add"></div>
   <ul class="sug" id="sug"></ul>
   <details id="trainBox" style="margin-top:12px"><summary>🎓 Training: load a whole road</summary>

@@ -108,7 +108,7 @@ function added(h,how){const it=addHouse(h,how);const pos=ordered().indexOf(it)+1
   say(`${h.num?h.num+" "+h.road:h.name+", "+h.road}${tot(it)>1?". "+cntTxt(it):""}.`);}
 // parcels or first class letters: what the next scan counts as
 function setKind(k){KIND=k;store.set("kind",k);$("kParcel").setAttribute("aria-pressed",String(k==="parcel"));$("kLetter").setAttribute("aria-pressed",String(k==="letter"));
-  $("scanBtn").textContent=SC.on?"Stop scanning":(k==="letter"?"📷 Start scanning letters":"📷 Start scanning parcels");renderList();}
+  $("scanBtn").textContent=SC.on?"Stop scanning":(k==="letter"?"📷 Live scanning (hands-free)":"📷 Live scanning (hands-free)");renderList();}
 $("kParcel").onclick=()=>setKind("parcel");$("kLetter").onclick=()=>setKind("letter");
 
 // ---------- load: typing ----------
@@ -118,8 +118,14 @@ $("q").addEventListener("input",()=>{const t=$("q").value.trim();const ul=$("sug
     li.querySelector("button").onclick=()=>{added(h,"typed");$("q").value="";ul.innerHTML="";};ul.appendChild(li);});
   if(!res.length){ul.innerHTML='<li><div class="muted">No house on your rounds matches that yet. Try the house number and the first word of the road, like “12 charlton”.</div></li>';}});
 
+// ---------- OCR clean-up: snap misread words to words that exist on our rounds ----------
+const DICT=new Set();H.forEach(h=>norm(h.road+" "+h.name).trim().split(" ").forEach(w=>{if(w.length>=4&&!/^\d/.test(w))DICT.add(w);}));
+["steyning","ashurst","wiston","sussex","west"].forEach(w=>DICT.add(w));const DICTL=[...DICT];
+function ed(a,b,max){if(Math.abs(a.length-b.length)>max)return 9;let p=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){const c=[i];let lo=i;for(let j=1;j<=b.length;j++){c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));lo=Math.min(lo,c[j]);}if(lo>max)return 9;p=c;}return p[b.length];}
+function fixOCR(t){return norm(t.replace(/[|]/g,"1").replace(/(\d)[oO]/g,"$10").replace(/[oO](\d)/g,"0$1")).trim().split(" ").map(w=>{
+    if(/^[0-9]+[a-z]?$/.test(w)||w.length<4||DICT.has(w))return w;const max=w.length>=8?2:1;let best=w,bd=max+1;for(const d of DICTL){const e=ed(w,d,max);if(e<bd){bd=e;best=d;if(e===0)break;}}return best;}).join(" ");}
 // ---------- load: camera scanning (reads the label on the phone) ----------
-const SC={stream:null,worker:null,loading:null,on:false,busy:false,lastKey:"",lastSeen:0,ask:null};
+const SC={stream:null,worker:null,loading:null,on:false,busy:false,lastKey:"",lastSeen:0,ask:null,lastFlash:0};
 function loadReader(){if(SC.loading)return SC.loading;
   SC.loading=new Promise((ok,bad)=>{if(window.Tesseract)return ok();const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";s.onload=ok;s.onerror=()=>bad(new Error("load"));document.head.appendChild(s);})
     .then(()=>Tesseract.createWorker("eng")).then(w=>{SC.worker=w;return w;}).catch(e=>{SC.loading=null;throw e;});return SC.loading;}
@@ -130,20 +136,34 @@ async function startScan(){if(SC.on){stopScan();return;}$("cam").hidden=false;$(
   if(!SC.worker){flash("Getting the label reader ready…","The first time needs signal and takes about half a minute. After that it works offline.");
     try{await loadReader();}catch(e){flash("Couldn't load the label reader","It needs signal the first time. You can type the houses in instead.","ask");stopScan(true);return;}}
   if(SC.on){flash("Point at an address label","Hold it in the box. It reads it by itself, no need to tap.");scanLoop();}}
-function stopScan(keepMsg){SC.on=false;$("scanBtn").textContent=KIND==="letter"?"📷 Start scanning letters":"📷 Start scanning parcels";$("cam").hidden=true;if(SC.stream){SC.stream.getTracks().forEach(t=>t.stop());SC.stream=null;}}
+function stopScan(keepMsg){SC.on=false;$("scanBtn").textContent=KIND==="letter"?"📷 Live scanning (hands-free)":"📷 Live scanning (hands-free)";$("cam").hidden=true;if(SC.stream){SC.stream.getTracks().forEach(t=>t.stop());SC.stream=null;}}
 function grab(){const v=$("vid");const vw=v.videoWidth,vh=v.videoHeight;if(!vw)return null;const box=$("cam").getBoundingClientRect();const sc=Math.max(box.width/vw,box.height/vh);const ox=(vw*sc-box.width)/2,oy=(vh*sc-box.height)/2;
   const gx=(box.width*.07+ox)/sc,gy=(box.height*.14+oy)/sc,gw=box.width*.86/sc,gh=box.height*.72/sc;const k=Math.min(1,1600/gw);const c=document.createElement("canvas");c.width=Math.round(gw*k);c.height=Math.round(gh*k);
   const x=c.getContext("2d");x.filter="grayscale(1) contrast(1.4)";x.drawImage(v,gx,gy,gw,gh,0,0,c.width,c.height);return c;}
 async function scanLoop(){while(SC.on){if(SC.ask){await new Promise(r=>setTimeout(r,400));continue;}const c=grab();if(!c){await new Promise(r=>setTimeout(r,300));continue;}
   let text="";try{text=(await SC.worker.recognize(c)).data.text||"";}catch(e){await new Promise(r=>setTimeout(r,500));continue;}
-  if(!SC.on)break;const res=match(text,false);const now=Date.now();
-  if(!res.length){if(now-SC.lastSeen>4000)SC.lastKey="";continue;}
+  if(!SC.on)break;const clean=fixOCR(text);const res=match(clean,false);const now=Date.now();
+  if(!res.length){if(now-SC.lastSeen>4000)SC.lastKey="";const seen=text.replace(/\s+/g," ").trim().slice(0,60);
+    if(!SC.ask&&now-SC.lastFlash>1500){SC.lastFlash=now;flash("Looking for an address…",seen.length>6?`Reading: “${seen}”. Get closer and hold still, or tap 📸 Photo instead.`:"Fill the box with the address, hold still. Or tap 📸 Photo of label.");}continue;}
   const top=res[0],second=res[1];const sure=top.sc>=45&&(!second||top.sc-second.sc>=8);
   if(top.h.key===SC.lastKey){SC.lastSeen=now;continue;}// same label still in view
   if(sure){SC.lastKey=top.h.key;SC.lastSeen=now;added(top.h,"scan");}
   else if(top.sc>=30){SC.ask=1;beep(false);say("Which house is it?");
     flash("Which house is it?","Tap the right one.","ask",res.slice(0,3).map(r=>[label(r.h)+" · "+r.h.road,()=>{SC.ask=null;SC.lastKey=r.h.key;SC.lastSeen=Date.now();added(r.h,"pick");}]).concat([["None of these",()=>{SC.ask=null;flash("Point at an address label","");}]]));}}}
 $("scanBtn").onclick=()=>startScan();
+$("photoBtn").onclick=()=>{$("photoIn").value="";$("photoIn").click();};
+$("photoIn").onchange=async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;if(SC.on)stopScan();
+  flash("Reading the label…",SC.worker?"":"Getting the label reader ready first (needs signal the first time).");
+  try{await loadReader();}catch(err){flash("Couldn't load the label reader","It needs signal the first time. Type the house in instead.","ask");return;}
+  let bmp;try{bmp=await createImageBitmap(f);}catch(err){const im=new Image();im.src=URL.createObjectURL(f);await im.decode();bmp=im;}
+  const W=bmp.width,Hh=bmp.height,k=Math.min(1,2200/Math.max(W,Hh));const c=document.createElement("canvas");c.width=Math.round(W*k);c.height=Math.round(Hh*k);
+  const x=c.getContext("2d");x.filter="grayscale(1) contrast(1.5)";x.drawImage(bmp,0,0,c.width,c.height);
+  let text="";try{text=(await SC.worker.recognize(c)).data.text||"";}catch(err){}
+  const res=match(fixOCR(text),false);const seen=text.replace(/\s+/g," ").trim().slice(0,80);
+  if(!res.length){beep(false);flash("Couldn't find a house on your rounds in that",seen?`Read: “${seen}”. Try closer, flatter and in good light, or type it in.`:"Couldn't read any text. Try closer, flatter and in good light.","ask");return;}
+  const top=res[0],second=res[1];
+  if(top.sc>=45&&(!second||top.sc-second.sc>=8)){added(top.h,"photo");return;}
+  beep(false);say("Which house is it?");flash("Which house is it?","Tap the right one.","ask",res.slice(0,4).map(r=>[label(r.h)+" · "+r.h.road,()=>added(r.h,"pick")]).concat([["None of these",()=>flash("Type it in the box below instead.","")]]));};
 
 // ---------- deliver ----------
 function current(){return ordered().find(i=>i.st==="todo")||null;}
