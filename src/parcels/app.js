@@ -79,7 +79,7 @@ $("tLoad").onclick=()=>tab("load");$("tDel").onclick=()=>tab("del");
 $("goDel").onclick=()=>{if(!ordered().length){flash("Add some parcels first.","");return;}tab("del");};
 
 // ---------- load: list ----------
-function renderList(){const box=$("list");box.innerHTML="";const L=ordered();const n=L.reduce((s,i)=>s+(i.n||0),0),nl=L.reduce((s,i)=>s+(i.l||0),0);
+function renderList(){try{const n=ordered().length;$("goDel").textContent=n?`Start delivering · ${n} ${n>1?"houses":"house"} ›`:"Start delivering ›";}catch(e){}const box=$("list");box.innerHTML="";const L=ordered();const n=L.reduce((s,i)=>s+(i.n||0),0),nl=L.reduce((s,i)=>s+(i.l||0),0);
   $("listH").textContent=L.length?`Today · ${[n?n+" parcel"+(n>1?"s":""):"",nl?nl+" letter"+(nl>1?"s":""):""].filter(Boolean).join(", ")} for ${L.length} ${L.length===1?"house":"houses"}`:"Today's parcels and letters";
   if(!L.length){box.innerHTML='<p class="muted">Nothing yet. Scan or type the first parcel.</p>';return;}
   // compact: one block per road, a chip per house; tap a chip to change its count
@@ -100,7 +100,7 @@ let OPENED=null;
 $("clearBtn").onclick=()=>{if(S.items.length)confirmClear();};
 let clearArm=0;function confirmClear(){if(Date.now()-clearArm<4000){S={day:today(),items:[],rounds:[],pos:0};save();renderList();flash("List cleared.","");$("clearBtn").textContent="Clear the list";return true;}
   clearArm=Date.now();$("clearBtn").textContent="Tap again to clear";setTimeout(()=>{$("clearBtn").textContent="Clear the list";},4000);return false;}
-function flash(main,sub,cls,opts){const f=$("flash");f.className=cls||"";f.innerHTML="";const m=document.createElement("div");m.textContent=main;f.appendChild(m);
+function flash(main,sub,cls,opts){const f=$("flash");f.className=cls||"";f.hidden=false;f.innerHTML="";const m=document.createElement("div");m.textContent=main;f.appendChild(m);
   if(sub){const s=document.createElement("small");s.textContent=sub;f.appendChild(s);}
   if(opts){const o=document.createElement("div");o.className="opts";opts.forEach(([t,fn])=>{const b=document.createElement("button");b.className="btn";b.textContent=t;b.onclick=fn;o.appendChild(b);});f.appendChild(o);}}
 function added(h,how){const it=addHouse(h,how);const pos=ordered().indexOf(it)+1;
@@ -123,7 +123,7 @@ const DICT=new Set();H.forEach(h=>norm(h.road+" "+h.name).trim().split(" ").forE
 ["steyning","ashurst","wiston","sussex","west"].forEach(w=>DICT.add(w));const DICTL=[...DICT];
 function ed(a,b,max){if(Math.abs(a.length-b.length)>max)return 9;let p=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){const c=[i];let lo=i;for(let j=1;j<=b.length;j++){c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));lo=Math.min(lo,c[j]);}if(lo>max)return 9;p=c;}return p[b.length];}
 function fixOCR(t){return norm(t.replace(/[|]/g,"1").replace(/(\d)[oO]/g,"$10").replace(/[oO](\d)/g,"0$1")).trim().split(" ").map(w=>{
-    if(/^[0-9]+[a-z]?$/.test(w)||w.length<4||DICT.has(w))return w;const max=w.length>=8?2:1;let best=w,bd=max+1;for(const d of DICTL){const e=ed(w,d,max);if(e<bd){bd=e;best=d;if(e===0)break;}}return best;}).join(" ");}
+    if(/^[0-9]+[a-z]?$/.test(w)||w.length<4||DICT.has(w)||!/[aeiou]/.test(w)||/(.)\1\1/.test(w))return w;const max=w.length>=9?2:1;let best=w,bd=max+1;for(const d of DICTL){const e=ed(w,d,max);if(e<bd){bd=e;best=d;if(e===0)break;}}return best;}).join(" ");}
 // ---------- load: camera scanning (reads the label on the phone) ----------
 const SC={stream:null,worker:null,loading:null,on:false,busy:false,lastKey:"",lastSeen:0,ask:null,lastFlash:0};
 function loadReader(){if(SC.loading)return SC.loading;
@@ -145,12 +145,12 @@ async function scanLoop(){while(SC.on){if(SC.ask){await new Promise(r=>setTimeou
   if(!SC.on)break;const clean=fixOCR(text);const res=match(clean,false);const now=Date.now();
   if(!res.length){if(now-SC.lastSeen>4000)SC.lastKey="";const seen=text.replace(/\s+/g," ").trim().slice(0,60);
     if(!SC.ask&&now-SC.lastFlash>1500){SC.lastFlash=now;flash("Looking for an address…",seen.length>6?`Reading: “${seen}”. Get closer and hold still, or tap 📸 Photo instead.`:"Fill the box with the address, hold still. Or tap 📸 Photo of label.");}continue;}
-  const top=res[0],second=res[1];const sure=top.sc>=45&&(!second||top.sc-second.sc>=8);
+  const top=res[0],second=res[1];const words=clean.split(" ").filter(w=>w.length>=4&&DICT.has(w)).length;
+  const sure=top.sc>=45&&(!second||top.sc-second.sc>=8)&&words>=2&&/steyning|ashurst|wiston|sussex|bn44|bn5|rh13|rh20/.test(clean+" "+text.toLowerCase());
   if(top.h.key===SC.lastKey){SC.lastSeen=now;continue;}// same label still in view
-  if(sure){SC.lastKey=top.h.key;SC.lastSeen=now;added(top.h,"scan");}
-  else if(top.sc>=30){SC.ask=1;beep(false);say("Which house is it?");
-    flash("Which house is it?","Tap the right one.","ask",res.slice(0,3).map(r=>[label(r.h)+" · "+r.h.road,()=>{SC.ask=null;SC.lastKey=r.h.key;SC.lastSeen=Date.now();added(r.h,"pick");}]).concat([["None of these",()=>{SC.ask=null;flash("Point at an address label","");}]]));}}}
+  if(sure){SC.lastKey=top.h.key;SC.lastSeen=now;added(top.h,"scan");}}}
 $("scanBtn").onclick=()=>startScan();
+$("typeBtn").onclick=()=>{const q=$("q");q.focus();q.scrollIntoView({block:"center",behavior:"smooth"});};
 $("photoBtn").onclick=()=>{$("photoIn").value="";$("photoIn").click();};
 $("photoIn").onchange=async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;if(SC.on)stopScan();
   flash("Reading the label…",SC.worker?"":"Getting the label reader ready first (needs signal the first time).");

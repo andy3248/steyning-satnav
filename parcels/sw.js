@@ -1,6 +1,6 @@
 // Keeps a copy of the parcel helper on the phone so it opens with no signal.
 // Online: fetch fresh and update the copy. Offline: use the saved copy.
-const CACHE = "parcels-v8";
+const CACHE = "parcels-v9";
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(["./", "./index.html"])).then(() => self.skipWaiting()));
 });

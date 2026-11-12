@@ -92,6 +92,17 @@ select{font:16px var(--font);padding:10px;border-radius:10px;border:1px solid va
 .hc.done{text-decoration:line-through;color:var(--muted)}.hc.fail{color:var(--bad)}
 .ied{border-top:1px solid var(--line);padding:12px 14px}.ied>b{display:block;font-size:17px;margin-bottom:4px}
 .ied .row{align-items:center}.ied .row{gap:6px}.ied .row .btn{flex:none;min-width:44px;padding:0 12px}.ied .row b{min-width:26px;text-align:center;font-size:18px}
+.kind{display:flex;align-items:center;gap:10px;margin:2px 0 12px}.kind>span{font-size:14px;color:var(--muted);font-weight:600}
+.seg.sm{flex:1;margin:0;padding:3px}.seg.sm button{min-height:40px;font-size:15px}
+.acts{display:grid;grid-template-columns:1.4fr 1fr;gap:10px;margin-bottom:12px}
+.act{display:flex;flex-direction:column;align-items:flex-start;gap:2px;border:1px solid var(--line);background:var(--card);border-radius:18px;padding:14px 16px;min-height:104px;cursor:pointer;text-align:left;box-shadow:var(--shadow)}
+.act .ic{font-size:28px;line-height:1}.act b{font-size:18px;margin-top:6px}.act small{font-size:13px;color:var(--muted)}
+.act.primary{background:var(--accent);border-color:var(--accent);color:#fff}.act.primary small{color:rgba(255,255,255,.85)}
+@media (prefers-color-scheme:dark){.act.primary{color:#0b1f3a}.act.primary small{color:rgba(11,31,58,.8)}}
+#flash.hint{font-size:15px;font-weight:500;color:var(--muted);padding:10px 14px}
+.qwrap{margin-bottom:4px}
+.more{margin-top:18px;border-top:1px solid var(--line);padding-top:4px}
+.dock{position:sticky;bottom:0;padding:12px 0 calc(8px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,var(--bg) 30%);margin-top:10px}
 .foot{margin-top:26px;font-size:12.5px;color:var(--muted)}
 </style>
 </head>
@@ -101,23 +112,27 @@ select{font:16px var(--font);padding:10px;border-radius:10px;border:1px solid va
 <div class="seg" role="tablist"><button id="tLoad" aria-pressed="true">1 · Load parcels</button><button id="tDel" aria-pressed="false">2 · Deliver</button></div>
 
 <section id="vLoad">
-  <div id="cam" hidden><video id="vid" playsinline muted autoplay></video><div class="guide"><span>Address label in the box</span></div></div>
-  <div id="flash">Scan each parcel's address label. It works out the house, puts it in delivery order and tells you what it found.</div>
-  <div class="seg" style="margin-bottom:10px"><button id="kParcel" aria-pressed="true">📦 Parcels</button><button id="kLetter" aria-pressed="false">✉ 1st class letters</button></div>
-  <button class="btn primary big" id="photoBtn">📸 Photo of label</button>
+  <div class="kind"><span>Adding</span><div class="seg sm"><button id="kParcel" aria-pressed="true">📦 Parcels</button><button id="kLetter" aria-pressed="false">✉ 1st class</button></div></div>
+  <div class="acts">
+    <button class="act primary" id="photoBtn"><span class="ic">📸</span><b>Photo of label</b><small>Snap the address</small></button>
+    <button class="act" id="typeBtn"><span class="ic">⌨️</span><b>Type it</b><small>“12 charlton”</small></button>
+  </div>
   <input type="file" id="photoIn" accept="image/*" capture="environment" hidden>
-  <button class="btn" id="scanBtn" style="width:100%;margin-top:10px">📷 Live scanning (hands-free)</button>
-  <div style="margin-top:12px"><input id="q" type="search" placeholder="Or type it: “12 charlton” or “weppons”" autocomplete="off" aria-label="Type a house to add"></div>
+  <div id="cam" hidden><video id="vid" playsinline muted autoplay></video><div class="guide"><span>Address label in the box</span></div></div>
+  <div id="flash" class="hint">Photograph each label, or type the house. It puts everything in frame order for you.</div>
+  <div class="qwrap"><input id="q" type="search" placeholder="e.g. 12 charlton, or weppons" autocomplete="off" aria-label="Type a house to add"></div>
   <ul class="sug" id="sug"></ul>
-  <details id="trainBox" style="margin-top:12px"><summary>🎓 Training: load a whole road</summary>
-    <p class="small muted">Adds every house on a road, in frame order, so a new driver can follow it with the map, voice and Street View.</p>
-    <div class="row"><select id="trRound" aria-label="Round"></select><select id="trRoad" aria-label="Road"></select></div>
-    <div class="row"><button class="btn primary" id="trAdd">Add every house on this road</button></div>
-  </details>
   <h2 id="listH">Today's parcels</h2>
   <div id="list"></div>
-  <button class="btn big good" id="goDel" style="margin-top:14px">Done loading · start delivering</button>
-  <div class="row"><button class="btn" id="clearBtn">Clear the list</button></div>
+  <details class="more"><summary>More options</summary>
+    <button class="btn" id="scanBtn" style="width:100%;margin:6px 0 12px">📷 Live scanning (hands-free)</button>
+    <div id="trainBox"><b>🎓 Training: load a whole road</b>
+      <p class="small muted">Adds every house on a road, in frame order, for a new driver to follow.</p>
+      <div class="row"><select id="trRound" aria-label="Round"></select><select id="trRoad" aria-label="Road"></select></div>
+      <div class="row"><button class="btn primary" id="trAdd">Add every house on this road</button></div></div>
+    <div class="row" style="margin-top:14px"><button class="btn" id="clearBtn">Clear the list</button></div>
+  </details>
+  <div class="dock"><button class="btn big good" id="goDel">Start delivering ›</button></div>
 </section>
 
 <section id="vDel" hidden>
@@ -252,7 +267,7 @@ $("tLoad").onclick=()=>tab("load");$("tDel").onclick=()=>tab("del");
 $("goDel").onclick=()=>{if(!ordered().length){flash("Add some parcels first.","");return;}tab("del");};
 
 // ---------- load: list ----------
-function renderList(){const box=$("list");box.innerHTML="";const L=ordered();const n=L.reduce((s,i)=>s+(i.n||0),0),nl=L.reduce((s,i)=>s+(i.l||0),0);
+function renderList(){try{const n=ordered().length;$("goDel").textContent=n?`Start delivering · ${n} ${n>1?"houses":"house"} ›`:"Start delivering ›";}catch(e){}const box=$("list");box.innerHTML="";const L=ordered();const n=L.reduce((s,i)=>s+(i.n||0),0),nl=L.reduce((s,i)=>s+(i.l||0),0);
   $("listH").textContent=L.length?`Today · ${[n?n+" parcel"+(n>1?"s":""):"",nl?nl+" letter"+(nl>1?"s":""):""].filter(Boolean).join(", ")} for ${L.length} ${L.length===1?"house":"houses"}`:"Today's parcels and letters";
   if(!L.length){box.innerHTML='<p class="muted">Nothing yet. Scan or type the first parcel.</p>';return;}
   // compact: one block per road, a chip per house; tap a chip to change its count
@@ -273,7 +288,7 @@ let OPENED=null;
 $("clearBtn").onclick=()=>{if(S.items.length)confirmClear();};
 let clearArm=0;function confirmClear(){if(Date.now()-clearArm<4000){S={day:today(),items:[],rounds:[],pos:0};save();renderList();flash("List cleared.","");$("clearBtn").textContent="Clear the list";return true;}
   clearArm=Date.now();$("clearBtn").textContent="Tap again to clear";setTimeout(()=>{$("clearBtn").textContent="Clear the list";},4000);return false;}
-function flash(main,sub,cls,opts){const f=$("flash");f.className=cls||"";f.innerHTML="";const m=document.createElement("div");m.textContent=main;f.appendChild(m);
+function flash(main,sub,cls,opts){const f=$("flash");f.className=cls||"";f.hidden=false;f.innerHTML="";const m=document.createElement("div");m.textContent=main;f.appendChild(m);
   if(sub){const s=document.createElement("small");s.textContent=sub;f.appendChild(s);}
   if(opts){const o=document.createElement("div");o.className="opts";opts.forEach(([t,fn])=>{const b=document.createElement("button");b.className="btn";b.textContent=t;b.onclick=fn;o.appendChild(b);});f.appendChild(o);}}
 function added(h,how){const it=addHouse(h,how);const pos=ordered().indexOf(it)+1;
@@ -296,7 +311,7 @@ const DICT=new Set();H.forEach(h=>norm(h.road+" "+h.name).trim().split(" ").forE
 ["steyning","ashurst","wiston","sussex","west"].forEach(w=>DICT.add(w));const DICTL=[...DICT];
 function ed(a,b,max){if(Math.abs(a.length-b.length)>max)return 9;let p=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){const c=[i];let lo=i;for(let j=1;j<=b.length;j++){c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));lo=Math.min(lo,c[j]);}if(lo>max)return 9;p=c;}return p[b.length];}
 function fixOCR(t){return norm(t.replace(/[|]/g,"1").replace(/(\d)[oO]/g,"$10").replace(/[oO](\d)/g,"0$1")).trim().split(" ").map(w=>{
-    if(/^[0-9]+[a-z]?$/.test(w)||w.length<4||DICT.has(w))return w;const max=w.length>=8?2:1;let best=w,bd=max+1;for(const d of DICTL){const e=ed(w,d,max);if(e<bd){bd=e;best=d;if(e===0)break;}}return best;}).join(" ");}
+    if(/^[0-9]+[a-z]?$/.test(w)||w.length<4||DICT.has(w)||!/[aeiou]/.test(w)||/(.)\1\1/.test(w))return w;const max=w.length>=9?2:1;let best=w,bd=max+1;for(const d of DICTL){const e=ed(w,d,max);if(e<bd){bd=e;best=d;if(e===0)break;}}return best;}).join(" ");}
 // ---------- load: camera scanning (reads the label on the phone) ----------
 const SC={stream:null,worker:null,loading:null,on:false,busy:false,lastKey:"",lastSeen:0,ask:null,lastFlash:0};
 function loadReader(){if(SC.loading)return SC.loading;
@@ -318,12 +333,12 @@ async function scanLoop(){while(SC.on){if(SC.ask){await new Promise(r=>setTimeou
   if(!SC.on)break;const clean=fixOCR(text);const res=match(clean,false);const now=Date.now();
   if(!res.length){if(now-SC.lastSeen>4000)SC.lastKey="";const seen=text.replace(/\s+/g," ").trim().slice(0,60);
     if(!SC.ask&&now-SC.lastFlash>1500){SC.lastFlash=now;flash("Looking for an address…",seen.length>6?`Reading: “${seen}”. Get closer and hold still, or tap 📸 Photo instead.`:"Fill the box with the address, hold still. Or tap 📸 Photo of label.");}continue;}
-  const top=res[0],second=res[1];const sure=top.sc>=45&&(!second||top.sc-second.sc>=8);
+  const top=res[0],second=res[1];const words=clean.split(" ").filter(w=>w.length>=4&&DICT.has(w)).length;
+  const sure=top.sc>=45&&(!second||top.sc-second.sc>=8)&&words>=2&&/steyning|ashurst|wiston|sussex|bn44|bn5|rh13|rh20/.test(clean+" "+text.toLowerCase());
   if(top.h.key===SC.lastKey){SC.lastSeen=now;continue;}// same label still in view
-  if(sure){SC.lastKey=top.h.key;SC.lastSeen=now;added(top.h,"scan");}
-  else if(top.sc>=30){SC.ask=1;beep(false);say("Which house is it?");
-    flash("Which house is it?","Tap the right one.","ask",res.slice(0,3).map(r=>[label(r.h)+" · "+r.h.road,()=>{SC.ask=null;SC.lastKey=r.h.key;SC.lastSeen=Date.now();added(r.h,"pick");}]).concat([["None of these",()=>{SC.ask=null;flash("Point at an address label","");}]]));}}}
+  if(sure){SC.lastKey=top.h.key;SC.lastSeen=now;added(top.h,"scan");}}}
 $("scanBtn").onclick=()=>startScan();
+$("typeBtn").onclick=()=>{const q=$("q");q.focus();q.scrollIntoView({block:"center",behavior:"smooth"});};
 $("photoBtn").onclick=()=>{$("photoIn").value="";$("photoIn").click();};
 $("photoIn").onchange=async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;if(SC.on)stopScan();
   flash("Reading the label…",SC.worker?"":"Getting the label reader ready first (needs signal the first time).");

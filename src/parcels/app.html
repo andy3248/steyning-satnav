@@ -92,6 +92,17 @@ select{font:16px var(--font);padding:10px;border-radius:10px;border:1px solid va
 .hc.done{text-decoration:line-through;color:var(--muted)}.hc.fail{color:var(--bad)}
 .ied{border-top:1px solid var(--line);padding:12px 14px}.ied>b{display:block;font-size:17px;margin-bottom:4px}
 .ied .row{align-items:center}.ied .row{gap:6px}.ied .row .btn{flex:none;min-width:44px;padding:0 12px}.ied .row b{min-width:26px;text-align:center;font-size:18px}
+.kind{display:flex;align-items:center;gap:10px;margin:2px 0 12px}.kind>span{font-size:14px;color:var(--muted);font-weight:600}
+.seg.sm{flex:1;margin:0;padding:3px}.seg.sm button{min-height:40px;font-size:15px}
+.acts{display:grid;grid-template-columns:1.4fr 1fr;gap:10px;margin-bottom:12px}
+.act{display:flex;flex-direction:column;align-items:flex-start;gap:2px;border:1px solid var(--line);background:var(--card);border-radius:18px;padding:14px 16px;min-height:104px;cursor:pointer;text-align:left;box-shadow:var(--shadow)}
+.act .ic{font-size:28px;line-height:1}.act b{font-size:18px;margin-top:6px}.act small{font-size:13px;color:var(--muted)}
+.act.primary{background:var(--accent);border-color:var(--accent);color:#fff}.act.primary small{color:rgba(255,255,255,.85)}
+@media (prefers-color-scheme:dark){.act.primary{color:#0b1f3a}.act.primary small{color:rgba(11,31,58,.8)}}
+#flash.hint{font-size:15px;font-weight:500;color:var(--muted);padding:10px 14px}
+.qwrap{margin-bottom:4px}
+.more{margin-top:18px;border-top:1px solid var(--line);padding-top:4px}
+.dock{position:sticky;bottom:0;padding:12px 0 calc(8px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,var(--bg) 30%);margin-top:10px}
 .foot{margin-top:26px;font-size:12.5px;color:var(--muted)}
 </style>
 </head>
@@ -101,23 +112,27 @@ select{font:16px var(--font);padding:10px;border-radius:10px;border:1px solid va
 <div class="seg" role="tablist"><button id="tLoad" aria-pressed="true">1 · Load parcels</button><button id="tDel" aria-pressed="false">2 · Deliver</button></div>
 
 <section id="vLoad">
-  <div id="cam" hidden><video id="vid" playsinline muted autoplay></video><div class="guide"><span>Address label in the box</span></div></div>
-  <div id="flash">Scan each parcel's address label. It works out the house, puts it in delivery order and tells you what it found.</div>
-  <div class="seg" style="margin-bottom:10px"><button id="kParcel" aria-pressed="true">📦 Parcels</button><button id="kLetter" aria-pressed="false">✉ 1st class letters</button></div>
-  <button class="btn primary big" id="photoBtn">📸 Photo of label</button>
+  <div class="kind"><span>Adding</span><div class="seg sm"><button id="kParcel" aria-pressed="true">📦 Parcels</button><button id="kLetter" aria-pressed="false">✉ 1st class</button></div></div>
+  <div class="acts">
+    <button class="act primary" id="photoBtn"><span class="ic">📸</span><b>Photo of label</b><small>Snap the address</small></button>
+    <button class="act" id="typeBtn"><span class="ic">⌨️</span><b>Type it</b><small>“12 charlton”</small></button>
+  </div>
   <input type="file" id="photoIn" accept="image/*" capture="environment" hidden>
-  <button class="btn" id="scanBtn" style="width:100%;margin-top:10px">📷 Live scanning (hands-free)</button>
-  <div style="margin-top:12px"><input id="q" type="search" placeholder="Or type it: “12 charlton” or “weppons”" autocomplete="off" aria-label="Type a house to add"></div>
+  <div id="cam" hidden><video id="vid" playsinline muted autoplay></video><div class="guide"><span>Address label in the box</span></div></div>
+  <div id="flash" class="hint">Photograph each label, or type the house. It puts everything in frame order for you.</div>
+  <div class="qwrap"><input id="q" type="search" placeholder="e.g. 12 charlton, or weppons" autocomplete="off" aria-label="Type a house to add"></div>
   <ul class="sug" id="sug"></ul>
-  <details id="trainBox" style="margin-top:12px"><summary>🎓 Training: load a whole road</summary>
-    <p class="small muted">Adds every house on a road, in frame order, so a new driver can follow it with the map, voice and Street View.</p>
-    <div class="row"><select id="trRound" aria-label="Round"></select><select id="trRoad" aria-label="Road"></select></div>
-    <div class="row"><button class="btn primary" id="trAdd">Add every house on this road</button></div>
-  </details>
   <h2 id="listH">Today's parcels</h2>
   <div id="list"></div>
-  <button class="btn big good" id="goDel" style="margin-top:14px">Done loading · start delivering</button>
-  <div class="row"><button class="btn" id="clearBtn">Clear the list</button></div>
+  <details class="more"><summary>More options</summary>
+    <button class="btn" id="scanBtn" style="width:100%;margin:6px 0 12px">📷 Live scanning (hands-free)</button>
+    <div id="trainBox"><b>🎓 Training: load a whole road</b>
+      <p class="small muted">Adds every house on a road, in frame order, for a new driver to follow.</p>
+      <div class="row"><select id="trRound" aria-label="Round"></select><select id="trRoad" aria-label="Road"></select></div>
+      <div class="row"><button class="btn primary" id="trAdd">Add every house on this road</button></div></div>
+    <div class="row" style="margin-top:14px"><button class="btn" id="clearBtn">Clear the list</button></div>
+  </details>
+  <div class="dock"><button class="btn big good" id="goDel">Start delivering ›</button></div>
 </section>
 
 <section id="vDel" hidden>
