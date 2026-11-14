@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#1a73e8">
+<meta name="theme-color" content="#b3161c">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Parcels">
 <title>Parcel helper</title>
@@ -104,18 +104,88 @@ select{font:16px var(--font);padding:10px;border-radius:10px;border:1px solid va
 .more{margin-top:18px;border-top:1px solid var(--line);padding-top:4px}
 .dock{position:sticky;bottom:0;padding:12px 0 calc(8px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,var(--bg) 30%);margin-top:10px}
 .foot{margin-top:26px;font-size:12.5px;color:var(--muted)}
+
+/* ===== handheld look: red top bar, grey bands, square black buttons, yellow current item ===== */
+:root{--bg:#e8e9eb;--card:#fff;--fg:#1d1d1f;--muted:#55595e;--line:#cfd1d4;--chip:#f2f3f4;--bar:#b3161c;--band:#4a4d52;--ink:#1d1d1f;--hi:#ffeb1a;--good:#1e7d34;--accent:#1d1d1f;--shadow:0 1px 2px rgba(0,0,0,.18)}
+@media (prefers-color-scheme:dark){:root{--bg:#141516;--card:#1f2022;--fg:#eceded;--muted:#a7abb0;--line:#35373a;--chip:#2a2b2e;--bar:#8f1216;--band:#3a3c40;--ink:#000;--hi:#f2df18;--good:#2f9a48;--accent:#f2df18}}
+.wrap{padding:0 0 calc(24px + env(safe-area-inset-bottom,0px))}
+.wrap>section,.wrap>details,.wrap>.foot{margin-left:12px;margin-right:12px}
+.bar{position:sticky;top:0;z-index:15;display:flex;align-items:center;gap:6px;background:var(--bar);color:#fff;padding:calc(6px + env(safe-area-inset-top,0px)) 6px 6px 14px;margin:0;box-shadow:0 2px 4px rgba(0,0,0,.25)}
+.bar h1{font-size:21px;font-weight:600;margin:0;flex:1;letter-spacing:.01em}
+.ib{border:0;background:none;color:#fff;min-width:48px;min-height:48px;font-size:22px;cursor:pointer;border-radius:4px}
+.ib:active{background:rgba(255,255,255,.15)}
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--band);margin:0 0 12px;border-radius:0;padding:0}
+.tabs button{border:0;background:none;color:#d6d8db;min-height:46px;font-weight:700;font-size:14px;letter-spacing:.06em;text-transform:uppercase;border-bottom:4px solid transparent;border-radius:0;cursor:pointer}
+.tabs button[aria-pressed="true"]{color:#fff;border-bottom-color:var(--hi);background:none;box-shadow:none}
+.menu{position:fixed;top:calc(56px + env(safe-area-inset-top,0px));right:8px;z-index:25;background:var(--card);color:var(--fg);min-width:230px;box-shadow:0 6px 18px rgba(0,0,0,.3);border-radius:2px;padding:6px 0}
+.menu button{display:block;width:100%;text-align:left;border:0;background:none;padding:15px 20px;font-size:17px;cursor:pointer;color:var(--fg)}
+.menu button:active{background:var(--chip)}
+.band{background:var(--band);color:#fff;font-size:13px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:9px 12px;margin:14px 0 0}
+.band+.panel{margin-top:0}
+.panel{background:var(--card);border:1px solid var(--line);border-top:0;padding:12px;margin-bottom:12px}
+.btn{border-radius:3px;font-weight:700;letter-spacing:.03em;color:var(--fg);border-color:var(--line);background:var(--card)}
+.btn.primary,.btn.dark{background:var(--ink);border-color:var(--ink);color:#fff;text-transform:uppercase}
+@media (prefers-color-scheme:dark){.btn.primary{color:#fff}}
+.btn.good{background:var(--good);border-color:var(--good);color:#fff;text-transform:uppercase}
+.btn.big{border-radius:3px;min-height:62px;font-size:19px}
+.seg{border-radius:3px;background:var(--chip);border:1px solid var(--line)}
+.seg button{border-radius:2px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff;box-shadow:none}
+.acts{gap:8px;margin:0}
+.act{border-radius:3px;box-shadow:none;border:0;background:var(--ink);color:#fff;min-height:96px}
+.act small{color:#c9cbce}.act.primary{background:var(--ink);color:#fff}.act.primary small{color:#c9cbce}
+.act.alt{background:var(--card);color:var(--fg);border:1px solid var(--line)}.act.alt small{color:var(--muted)}
+@media (prefers-color-scheme:dark){.act.primary{color:#fff}.act.primary small{color:#c9cbce}}
+.act b{text-transform:uppercase;letter-spacing:.03em;font-size:17px}
+#flash{border-radius:3px;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--band)}
+#flash.ok{background:var(--card);border-left-color:var(--good)}
+#flash.ask{background:var(--card);border-left-color:var(--hi)}
+#flash.hint{margin:12px 0 10px}
+input[type=search],input[type=text]{border-radius:0;border:0;border-bottom:2px solid var(--muted);background:var(--card);padding:14px 12px}
+input[type=search]:focus,input[type=text]:focus{outline:none;border-bottom-color:var(--bar)}
+h2{background:var(--band);color:#fff;font-size:13px;padding:9px 12px;margin:16px 0 0;letter-spacing:.07em}
+.road{border-radius:0;margin:0 0 8px;border:1px solid var(--line);background:var(--card)}
+.road .rh{background:var(--card);border-bottom:1px solid var(--line);font-size:17px}
+.hc{border-radius:3px;background:var(--chip)}
+.hc.on{background:var(--hi);color:#111;border-color:#c9b800;box-shadow:none}.hc.on small{color:#333}
+.chip{border-radius:3px}
+.chip.cur{background:var(--hi);color:#111;position:relative}
+@media (prefers-color-scheme:dark){.chip.cur{color:#111}}
+.dock .btn{text-transform:uppercase}
+/* deliver card */
+#dCard{border-radius:0;padding:0;box-shadow:none;overflow:hidden}
+#dK{background:var(--band);color:#fff;padding:9px 12px;font-size:13px;letter-spacing:.07em;text-transform:uppercase}
+#dRoad{padding:10px 12px 0;font-size:28px}
+#dChips{padding:0 12px}
+.tile{position:relative;margin:0 12px 12px;background:var(--hi);color:#111;padding:14px 16px;border-radius:2px}
+.tile::after{content:"";position:absolute;top:0;right:0;border-style:solid;border-width:0 22px 22px 0;border-color:transparent var(--good) transparent transparent}
+.tile #dNext{font-size:26px}.tile #dCount{color:#333;margin:4px 0 0}
+.tags{padding:0 12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 12px 12px}
+.grid2 .btn{min-height:58px;background:var(--ink);border-color:var(--ink);color:#fff;text-transform:uppercase;font-size:15px;padding:0 8px}
+.grid2 .btn.lite{background:var(--chip);color:var(--fg);border-color:var(--line)}
+#doneBtn{margin:0 12px 6px;width:calc(100% - 24px)}
+#pinBtn{margin:0 12px 12px!important;width:calc(100% - 24px)!important}
+#gps{border-radius:0;background:var(--card);border:1px solid var(--line)}
+.up{background:var(--card);border:1px solid var(--line);border-top:0}.up li{padding:10px 12px}
+#gmBox{border-radius:0}
+details>summary{background:var(--card);border:1px solid var(--line);padding:12px;color:var(--fg)}
+#navBtn{margin-top:0}
 </style>
 </head>
 <body>
 <div class="wrap">
-<header><h1>Parcel helper</h1><button class="btn" id="hearBtn" aria-label="Say it again">🔊 Repeat</button></header>
-<div class="seg" role="tablist"><button id="tLoad" aria-pressed="true">1 · Load parcels</button><button id="tDel" aria-pressed="false">2 · Deliver</button></div>
+<header class="bar"><h1 id="barT">Load parcels</h1><button class="ib" id="hearBtn" aria-label="Say it again">🔊</button><button class="ib" id="menuBtn" aria-label="Menu" aria-expanded="false">⋮</button></header>
+<div class="menu" id="menu" hidden>
+  <button data-m="scan">Live scanning</button><button data-m="train">Training: load a road</button><button data-m="gmSet">Google Maps</button><button data-m="voiceBox">Voice</button><button data-m="clear">Clear today's list</button>
+</div>
+<div class="tabs" role="tablist"><button id="tLoad" aria-pressed="true">Load</button><button id="tDel" aria-pressed="false">Deliver</button></div>
 
 <section id="vLoad">
-  <div class="kind"><span>Adding</span><div class="seg sm"><button id="kParcel" aria-pressed="true">📦 Parcels</button><button id="kLetter" aria-pressed="false">✉ 1st class</button></div></div>
+  <div class="kind"><span>ADDING</span><div class="seg sm"><button id="kParcel" aria-pressed="true">📦 Parcels</button><button id="kLetter" aria-pressed="false">✉ 1st class</button></div></div>
   <div class="acts">
     <button class="act primary" id="photoBtn"><span class="ic">📸</span><b>Photo of label</b><small>Snap the address</small></button>
-    <button class="act" id="typeBtn"><span class="ic">⌨️</span><b>Type it</b><small>“12 charlton”</small></button>
+    <button class="act alt" id="typeBtn"><span class="ic">⌨️</span><b>Type it</b><small>“12 charlton”</small></button>
   </div>
   <input type="file" id="photoIn" accept="image/*" capture="environment" hidden>
   <div id="cam" hidden><video id="vid" playsinline muted autoplay></video><div class="guide"><span>Address label in the box</span></div></div>
@@ -141,17 +211,14 @@ select{font:16px var(--font);padding:10px;border-radius:10px;border:1px solid va
   <div id="gmBox" hidden><div id="gmap"></div><div class="gmbar"><span id="gmInfo"></span><button class="btn" id="gmFit">Whole list</button><button class="btn" id="gmCentre" hidden>Follow me</button></div></div>
   <p class="muted small" id="gmHint" hidden>Want a Google map with Google's house positions, Street View and driving route? Add your Google Maps key under <b>Google Maps</b> at the bottom of this page.</p>
   <div class="card" id="dCard">
-    <div class="k" id="dK"></div>
+    <div id="dK"></div>
     <div id="dRoad"></div>
     <div class="chips" id="dChips"></div>
-    <div id="dNext"></div>
-    <div id="dCount"></div>
-    <div class="chip" id="dSide" hidden style="display:inline-block;margin:-6px 8px 14px 0;background:var(--accent);color:#fff"></div>
-    <button class="chip" id="dOpp" style="border:0;margin:-6px 0 14px;cursor:pointer">Opposite</button>
+    <div class="tile"><div id="dNext"></div><div id="dCount"></div></div>
+    <div class="tags"><div class="chip" id="dSide" hidden style="display:inline-block;margin:0 8px 12px 0;background:var(--band);color:#fff"></div><button class="chip" id="dOpp" style="border:0;margin:0 0 12px;cursor:pointer">Opposite</button></div>
     <button class="btn big good" id="doneBtn">✓ Delivered</button>
-    <div class="row"><button class="btn" id="backBtn">‹ Back</button><button class="btn" id="failBtn">Not delivered</button><a class="btn" id="mapBtn" target="_blank" rel="noopener">Map</a></div>
-    <button class="btn" id="svBtn" style="width:100%;margin-top:10px">👁 Street View of the house</button>
-    <button class="btn" id="pinBtn" style="width:100%;margin-top:10px">📍 I'm at this house: fix its pin</button>
+    <div class="grid2"><button class="btn" id="failBtn">Not delivered</button><a class="btn" id="mapBtn" target="_blank" rel="noopener">Map</a><button class="btn lite" id="backBtn">‹ Back</button><button class="btn lite" id="svBtn">Street View</button></div>
+    <button class="btn" id="pinBtn">📍 I'm at this house: fix its pin</button>
   </div>
   <div id="gps"><b id="gpsT">Road alerts are off</b><button class="btn" id="gpsBtn">Turn on</button></div>
   <h2>Coming up</h2>
@@ -261,8 +328,15 @@ $("vcTry").onclick=()=>say("Charlton Street done. Next road, Mill Road. 2 parcel
 $("hearBtn").onclick=()=>{if(lastSaid)say(lastSaid,true);};
 
 // ---------- tabs ----------
-function tab(t){$("vLoad").hidden=t!=="load";$("vDel").hidden=t!=="del";$("tLoad").setAttribute("aria-pressed",String(t==="load"));$("tDel").setAttribute("aria-pressed",String(t==="del"));
+function tab(t){$("vLoad").hidden=t!=="load";$("vDel").hidden=t!=="del";$("tLoad").setAttribute("aria-pressed",String(t==="load"));$("tDel").setAttribute("aria-pressed",String(t==="del"));$("barT").textContent=t==="del"?"Deliver":"Load parcels";
   store.set("tab",t);if(t==="del"){stopScan();renderDel(true);wake(true);initGoogleMap();if(G.watch==null&&store.get("gps")!==0)gpsOn();}else{wake(false);}}
+{const mb=$("menuBtn"),mn=$("menu");const shut=()=>{mn.hidden=true;mb.setAttribute("aria-expanded","false");};
+mb.onclick=e=>{e.stopPropagation();mn.hidden=!mn.hidden;mb.setAttribute("aria-expanded",String(!mn.hidden));};
+document.addEventListener("click",e=>{if(!mn.hidden&&!mn.contains(e.target))shut();});
+mn.querySelectorAll("button").forEach(b=>b.onclick=()=>{shut();const m=b.dataset.m;
+  if(m==="scan"){tab("load");$("scanBtn").click();return;}
+  if(m==="clear"){tab("load");$("clearBtn").click();return;}
+  const el=m==="train"?(tab("load"),document.querySelector("details.more")):$(m);el.open=true;setTimeout(()=>(m==="train"?$("trainBox"):el).scrollIntoView({behavior:"smooth",block:"start"}),50);});}
 $("tLoad").onclick=()=>tab("load");$("tDel").onclick=()=>tab("del");
 $("goDel").onclick=()=>{if(!ordered().length){flash("Add some parcels first.","");return;}tab("del");};
 

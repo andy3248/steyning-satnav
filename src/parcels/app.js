@@ -73,8 +73,15 @@ $("vcTry").onclick=()=>say("Charlton Street done. Next road, Mill Road. 2 parcel
 $("hearBtn").onclick=()=>{if(lastSaid)say(lastSaid,true);};
 
 // ---------- tabs ----------
-function tab(t){$("vLoad").hidden=t!=="load";$("vDel").hidden=t!=="del";$("tLoad").setAttribute("aria-pressed",String(t==="load"));$("tDel").setAttribute("aria-pressed",String(t==="del"));
+function tab(t){$("vLoad").hidden=t!=="load";$("vDel").hidden=t!=="del";$("tLoad").setAttribute("aria-pressed",String(t==="load"));$("tDel").setAttribute("aria-pressed",String(t==="del"));$("barT").textContent=t==="del"?"Deliver":"Load parcels";
   store.set("tab",t);if(t==="del"){stopScan();renderDel(true);wake(true);initGoogleMap();if(G.watch==null&&store.get("gps")!==0)gpsOn();}else{wake(false);}}
+{const mb=$("menuBtn"),mn=$("menu");const shut=()=>{mn.hidden=true;mb.setAttribute("aria-expanded","false");};
+mb.onclick=e=>{e.stopPropagation();mn.hidden=!mn.hidden;mb.setAttribute("aria-expanded",String(!mn.hidden));};
+document.addEventListener("click",e=>{if(!mn.hidden&&!mn.contains(e.target))shut();});
+mn.querySelectorAll("button").forEach(b=>b.onclick=()=>{shut();const m=b.dataset.m;
+  if(m==="scan"){tab("load");$("scanBtn").click();return;}
+  if(m==="clear"){tab("load");$("clearBtn").click();return;}
+  const el=m==="train"?(tab("load"),document.querySelector("details.more")):$(m);el.open=true;setTimeout(()=>(m==="train"?$("trainBox"):el).scrollIntoView({behavior:"smooth",block:"start"}),50);});}
 $("tLoad").onclick=()=>tab("load");$("tDel").onclick=()=>tab("del");
 $("goDel").onclick=()=>{if(!ordered().length){flash("Add some parcels first.","");return;}tab("del");};
 
